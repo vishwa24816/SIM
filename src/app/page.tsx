@@ -9,6 +9,7 @@ import { useMarketData } from "@/hooks/use-market-data";
 import { usePortfolio } from "@/hooks/use-portfolio";
 import { CryptoCurrency } from "@/lib/types";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
+import { CryptoPositions } from "@/components/dashboard/crypto-positions";
 
 export default function DashboardPage() {
   const { marketData, setSelectedCryptoId, loading } = useMarketData();
@@ -29,6 +30,7 @@ export default function DashboardPage() {
               cryptos={marketData}
               onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)}
             />
+            <CryptoPositions portfolio={portfolio} marketData={marketData} />
             <NewsFeed />
           </div>
         </div>
