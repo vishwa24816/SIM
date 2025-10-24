@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -81,7 +80,7 @@ export default function Web3Page() {
     const watchlistNames = Object.keys(watchlists);
 
     const handleAddWatchlist = () => {
-        const newWatchlistName = `Watchlist ${watchlistNames.length}`;
+        const newWatchlistName = `Watchlist ${watchlistNames.length + 1}`;
         setWatchlists(prev => ({...prev, [newWatchlistName]: []}));
         setActiveWatchlist(newWatchlistName);
     };
@@ -266,5 +265,3 @@ export default function Web3Page() {
     </div>
   );
 }
-
-    

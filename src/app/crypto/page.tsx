@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -119,7 +118,7 @@ export default function CryptoPage() {
     const watchlistNames = Object.keys(watchlists);
     
     const handleAddWatchlist = () => {
-        const newWatchlistName = `Watchlist ${watchlistNames.length}`;
+        const newWatchlistName = `Watchlist ${watchlistNames.length + 1}`;
         setWatchlists(prev => ({...prev, [newWatchlistName]: []}));
         setActiveWatchlist(newWatchlistName);
     };
@@ -225,7 +224,7 @@ export default function CryptoPage() {
                      <div className="p-4">
                         <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> {activeWatchlist}</h2>
                         <div className="divide-y">
-                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
+                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} isTradePage={tradeType === 'Spot'} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
                         </div>
                     </div>
                 ) : (
@@ -233,14 +232,14 @@ export default function CryptoPage() {
                         <div className="p-4">
                             <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending {tradeType}</h2>
                             <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} />}
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} isTradePage={tradeType === 'Spot'} />}
                             </div>
                         </div>
 
                         <div className="p-4">
                             <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
                             <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} />}
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} isTradePage={tradeType === 'Spot'} />}
                             </div>
                         </div>
                     </>
@@ -261,7 +260,7 @@ export default function CryptoPage() {
                         </Button>
                     </div>
                     <div className="divide-y">
-                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} />}
+                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} isTradePage={tradeType === 'Spot'} />}
                     </div>
                 </div>
 
@@ -305,5 +304,3 @@ export default function CryptoPage() {
     </div>
   );
 }
-
-    

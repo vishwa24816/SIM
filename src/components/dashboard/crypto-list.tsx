@@ -4,8 +4,9 @@
 import * as React from 'react';
 import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
-const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
+const CryptoListItem = ({ crypto, isTradePage }: { crypto: CryptoCurrency, isTradePage?: boolean }) => {
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
@@ -15,8 +16,8 @@ const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
         maximumFractionDigits: crypto.price < 1 ? 6 : 2,
     }).format(crypto.price);
 
-    return (
-        <div className="flex items-center justify-between py-3">
+    const content = (
+        <div className="flex items-center justify-between py-3 cursor-pointer">
             <div className="flex items-center gap-3">
                 <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
                     <Icon className="w-6 h-6" />
@@ -32,16 +33,27 @@ const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
             </div>
         </div>
     );
+    
+    if (isTradePage) {
+        return (
+            <Link href={`/trade/${crypto.id}`} legacyBehavior>
+                <a>{content}</a>
+            </Link>
+        )
+    }
+
+    return content;
 };
 
 interface CryptoListProps {
     cryptos: CryptoCurrency[];
+    isTradePage?: boolean;
 }
 
-export function CryptoList({ cryptos }: CryptoListProps) {
+export function CryptoList({ cryptos, isTradePage }: CryptoListProps) {
     return (
         <>
-            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
+            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} isTradePage={isTradePage} />)}
         </>
     );
 }
