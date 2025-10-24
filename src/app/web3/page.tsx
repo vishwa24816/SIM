@@ -39,27 +39,18 @@ const CryptoListSkeleton = () => (
 export default function Web3Page() {
     const { marketData, loading } = useMarketData();
     const [listType, setListType] = React.useState('Gainers');
-    const [viewType, setViewType] = React.useState('Trending');
-    
-    const trendingData = React.useMemo(() => [...marketData].sort((a,b) => b.volume24h - a.volume24h), [marketData]);
+    const [viewType, setViewType] = React.useState('AI');
     
     const aiData = React.useMemo(() => marketData.filter(c => ['singularitynet'].includes(c.id)), [marketData]);
 
-    const memesData = React.useMemo(() => marketData.filter(c => ['dogecoin', 'shiba-inu', 'pepe', 'dogwifhat', 'floki'].includes(c.id)), [marketData]);
-
     const nftData = React.useMemo(() => marketData.filter(c => ['apecoin', 'the-sandbox', 'decentraland'].includes(c.id)), [marketData]);
-    
-    const ecosystemData = React.useMemo(() => marketData.filter(c => ['ethereum', 'binancecoin', 'cardano', 'tron', 'solana'].includes(c.id)), [marketData]);
     
     const dexData = React.useMemo(() => marketData.filter(c => ['uniswap', 'pancakeswap-token'].includes(c.id)), [marketData]);
     
 
     const viewMap: {[key: string]: CryptoCurrency[]} = {
-        'Trending': trendingData,
         'AI': aiData,
-        'Memes': memesData,
         'NFT': nftData,
-        'Ecosystem': ecosystemData,
         'DEX': dexData,
     }
 
@@ -83,7 +74,7 @@ export default function Web3Page() {
 
     const activeList = listMap[listType as keyof typeof listMap];
 
-    const navItems = ['Trending', 'AI', 'Memes', 'NFT', 'Ecosystem', 'DEX'];
+    const navItems = ['AI', 'NFT', 'DEX'];
 
 
     return (
