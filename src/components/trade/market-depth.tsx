@@ -60,7 +60,8 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
         <div className="p-6 pt-0">
             <div className="grid grid-cols-2 gap-4 text-center text-sm">
                 <div>
-                    <h4 className="font-semibold mb-2">Buy Orders <span className="text-muted-foreground font-normal">Total: {totalBuy}</span></h4>
+                    <h4 className="font-semibold mb-1">Buy Orders</h4>
+                    <p className="text-xs text-muted-foreground mb-2">Total: {totalBuy}</p>
                     <div className="space-y-1">
                         {buyOrders.map((order, i) => (
                              <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
@@ -71,7 +72,8 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
                     </div>
                 </div>
                  <div>
-                    <h4 className="font-semibold mb-2">Sell Orders <span className="text-muted-foreground font-normal">Total: {totalSell}</span></h4>
+                    <h4 className="font-semibold mb-1">Sell Orders</h4>
+                    <p className="text-xs text-muted-foreground mb-2">Total: {totalSell}</p>
                     <div className="space-y-1">
                         {sellOrders.map((order, i) => (
                              <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
@@ -90,3 +92,4 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
     </div>
   );
 }
+
