@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/dashboard/header';
 import { Home, ListOrdered, Bitcoin, Globe, Search, BarChart2 } from 'lucide-react';
+import Link from 'next/link';
 
 const orders = [
   {
@@ -111,14 +112,18 @@ export default function OrdersPage() {
       </main>
       <footer className="sticky bottom-0 z-50 mt-auto bg-card/90 backdrop-blur-sm border-t">
         <nav className="flex justify-around items-center h-16 px-4">
-          <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
-            <Home className="h-6 w-6" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-auto items-center text-primary">
-            <ListOrdered className="h-6 w-6" />
-            <span className="text-xs">Orders</span>
-          </Button>
+          <Link href="/" legacyBehavior passHref>
+            <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
+              <Home className="h-6 w-6" />
+              <span className="text-xs">Home</span>
+            </Button>
+          </Link>
+          <Link href="/orders" legacyBehavior passHref>
+            <Button variant="ghost" className="flex flex-col h-auto items-center text-primary">
+              <ListOrdered className="h-6 w-6" />
+              <span className="text-xs">Orders</span>
+            </Button>
+          </Link>
           <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
             <Bitcoin className="h-6 w-6" />
             <span className="text-xs">Crypto</span>

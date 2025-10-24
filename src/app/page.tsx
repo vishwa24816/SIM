@@ -10,6 +10,7 @@ import { usePortfolio } from "@/hooks/use-portfolio";
 import { CryptoCurrency } from "@/lib/types";
 import { Home, ListOrdered, ScreenShare, Bitcoin, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { marketData, setSelectedCryptoId, loading } = useMarketData();
@@ -36,14 +37,18 @@ export default function DashboardPage() {
       </main>
       <footer className="sticky bottom-0 z-50 mt-auto bg-card/90 backdrop-blur-sm border-t">
         <nav className="flex justify-around items-center h-16 px-4">
-          <Button variant="ghost" className="flex flex-col h-auto items-center text-primary">
-            <Home className="h-6 w-6" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
-            <ListOrdered className="h-6 w-6" />
-            <span className="text-xs">Orders</span>
-          </Button>
+          <Link href="/" legacyBehavior passHref>
+            <Button variant="ghost" className="flex flex-col h-auto items-center text-primary">
+              <Home className="h-6 w-6" />
+              <span className="text-xs">Home</span>
+            </Button>
+          </Link>
+          <Link href="/orders" legacyBehavior passHref>
+            <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
+              <ListOrdered className="h-6 w-6" />
+              <span className="text-xs">Orders</span>
+            </Button>
+          </Link>
           <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
             <Bitcoin className="h-6 w-6" />
             <span className="text-xs">Crypto</span>
@@ -51,10 +56,6 @@ export default function DashboardPage() {
           <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
             <Globe className="h-6 w-6" />
             <span className="text-xs">Web3</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
-            <ScreenShare className="h-6 w-6" />
-            <span className="text-xs">Screener</span>
           </Button>
         </nav>
       </footer>
