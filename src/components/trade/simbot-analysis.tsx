@@ -13,7 +13,7 @@ interface SimbotAnalysisProps {
 }
 export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div>
         <div className="flex flex-col space-y-1.5 p-6">
             <div className="flex items-center gap-2">
                 <Bot className="h-5 w-5" />

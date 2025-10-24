@@ -32,13 +32,13 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType }: 
   const marginRequired = React.useMemo(() => {
     const qty = parseFloat(quantity);
     const prc = parseFloat(price) || (orderType === 'market' ? crypto.price : 0);
-    if (!qty || !prc) return 0;
+    if (!qty || !prc || investmentType === 'sp') return 0;
     return qty * prc;
-  }, [quantity, price, orderType, crypto.price]);
+  }, [quantity, price, orderType, crypto.price, investmentType]);
 
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div>
         <div className="pt-6 p-6">
             <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-4">
                 <div className="flex items-center space-x-2">

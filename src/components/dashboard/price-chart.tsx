@@ -40,7 +40,7 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
   const isUp = crypto.price >= lastPrice;
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div>
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex justify-between items-start">
             <div>
