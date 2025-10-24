@@ -40,7 +40,7 @@ export function PriceChart({ crypto }: PriceChartProps) {
         <div className="flex justify-between items-start">
             <div>
                 <CardTitle>{crypto.name} Price</CardTitle>
-                <CardDescription>Last 30 days price movement</CardDescription>
+                <CardDescription>Simulated data, not from a live feed.</CardDescription>
             </div>
             <div className="text-right">
                 <div className="flex items-center justify-end gap-1">
