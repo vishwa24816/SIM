@@ -19,28 +19,28 @@ export async function GET() {
 
     const coingeckoData: any[] = await response.json();
 
-    const updatedData = INITIAL_CRYPTO_DATA.map(crypto => {
-      const liveData = coingeckoData.find(d => d.id === crypto.id);
+    const updatedData = INITIAL_CRYPTO_DATA.map(initialCrypto => {
+      const liveData = coingeckoData.find(d => d.id === initialCrypto.id);
       
       if (liveData) {
-        const newPrice = liveData.current_price ?? crypto.price;
+        const newPrice = liveData.current_price ?? initialCrypto.price;
         
         // Keep some history, but the latest point is from the API
         const newHistory = [
-            ...crypto.priceHistory.slice(1),
+            ...initialCrypto.priceHistory.slice(1),
             { time: new Date().toISOString().split('T')[0], value: newPrice },
         ];
 
         return {
-          ...crypto, // Keep original data like icon
+          ...initialCrypto, // Start with initial data (name, symbol, icon)
           price: newPrice,
-          change24h: liveData.price_change_percentage_24h ?? crypto.change24h,
-          volume24h: liveData.total_volume ?? crypto.volume24h,
+          change24h: liveData.price_change_percentage_24h ?? initialCrypto.change24h,
+          volume24h: liveData.total_volume ?? initialCrypto.volume24h,
           priceHistory: newHistory,
         };
       }
       // Return the initial data for the crypto if no live data is found
-      return crypto;
+      return initialCrypto;
     });
 
     return NextResponse.json(updatedData);
