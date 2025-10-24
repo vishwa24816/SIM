@@ -1,10 +1,11 @@
+
 "use client";
 
 import * as React from 'react';
-import { Menu, Search, User, Home, Info, BarChart2, Cpu, History, Rocket, FileText, LifeBuoy, X } from "lucide-react";
+import { Menu, Search, User, Home, Info, BarChart2, Cpu, History, Rocket, FileText, LifeBuoy, X, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
 
@@ -22,14 +23,14 @@ export function Header() {
                             <span className="sr-only">Open menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-72 bg-card p-0">
+                    <SheetContent side="left" className="w-72 bg-card p-0 flex flex-col">
                         <SheetHeader className="p-4 border-b">
                             <div className="flex items-center gap-3">
                                 <Logo className="h-8 w-8 text-primary" />
                                 <h2 className="text-xl font-bold">SIM</h2>
                             </div>
                         </SheetHeader>
-                        <div className="p-4">
+                        <div className="p-4 flex-1 overflow-y-auto">
                             <nav className="flex flex-col gap-2">
                                 <Button variant="ghost" className="justify-start gap-3"><Home /> Home</Button>
                                 <Button variant="ghost" className="justify-start gap-3"><Info /> About</Button>
@@ -43,6 +44,17 @@ export function Header() {
                                 <Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button>
                             </nav>
                         </div>
+                        <SheetFooter className="p-4 border-t mt-auto">
+                           <div className="flex items-center justify-between w-full">
+                                <Button variant="ghost" className="justify-start gap-3">
+                                    <LogOut /> Log Out
+                                </Button>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="ghost" size="icon"><Sun className="h-5 w-5" /></Button>
+                                    <Button variant="ghost" size="icon"><Moon className="h-5 w-5" /></Button>
+                                </div>
+                           </div>
+                        </SheetFooter>
                     </SheetContent>
                 </Sheet>
                 <div className="flex-grow">
