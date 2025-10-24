@@ -29,7 +29,7 @@ export default function DashboardPage() {
                 onValueChange={setSelectedCryptoId}
               />
             </div>
-            <PriceChart crypto={selectedCrypto} />
+            <PriceChart crypto={selectedCrypto} loading={loading} />
             <MarketTable cryptos={marketData} onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)} />
           </div>
           <div className="flex flex-col gap-6">
