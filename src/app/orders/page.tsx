@@ -85,8 +85,6 @@ export default function OrdersPage() {
           <div className="px-4 overflow-x-auto">
             <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
               <Button variant="ghost" className="text-primary px-3">Limit</Button>
-              <Button variant="ghost" className="px-3">GTT</Button>
-              <Button variant="ghost" className="px-3">Bids</Button>
               <Button variant="ghost" className="px-3">HODL</Button>
               <Button variant="ghost" className="px-3">Baskets</Button>
               <Button variant="ghost" className="px-3">SIPs</Button>
