@@ -69,13 +69,13 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
       </CardContent>
       <CardFooter className="flex items-center justify-center gap-2">
           <Button variant="outline" size="sm">
-              <ArrowUpRight className="mr-2 h-4 w-4" /> Send
+              <ArrowUpRight className="mr-1 h-4 w-4" /> Send
           </Button>
           <Button variant="outline" size="sm">
-              <ArrowDownLeft className="mr-2 h-4 w-4" /> Receive
+              <ArrowDownLeft className="mr-1 h-4 w-4" /> Receive
           </Button>
           <Button variant="outline" size="sm">
-              <History className="mr-2 h-4 w-4" /> History
+              <History className="mr-1 h-4 w-4" /> History
           </Button>
       </CardFooter>
     </Card>
