@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb } from 'lucide-react';
+import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,8 @@ export default function CryptoPage() {
     const { marketData, loading } = useMarketData();
     const [listType, setListType] = React.useState('Gainers');
     const [tradeType, setTradeType] = React.useState('Spot');
+    const [watchlists, setWatchlists] = React.useState(['Top watchlist', 'Watchlist 1', 'Watchlist 2']);
+    const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
 
 
     const spotData = marketData;
@@ -52,38 +54,41 @@ export default function CryptoPage() {
         id: `${crypto.id}-fut`
     })), [marketData]);
 
-    const mutualFundsData: CryptoCurrency[] = React.useMemo(() => [
-        {
-            id: 'blue-chip-fund',
-            name: 'Blue Chip Crypto Fund',
-            symbol: 'BCCF',
-            icon: Coins,
-            price: marketData.find(c => c.id === 'bitcoin')!.price * 0.5 + marketData.find(c => c.id === 'ethereum')!.price * 0.5,
-            change24h: (marketData.find(c => c.id === 'bitcoin')!.change24h + marketData.find(c => c.id === 'ethereum')!.change24h) / 2,
-            volume24h: 1500000000,
-            priceHistory: marketData.find(c => c.id === 'bitcoin')!.priceHistory,
-        },
-        {
-            id: 'meme-coin-fund',
-            name: 'Meme Coin Mania Fund',
-            symbol: 'MEME',
-            icon: Coins,
-            price: marketData.find(c => c.id === 'dogecoin')!.price * 0.4 + marketData.find(c => c.id === 'shiba-inu')!.price * 0.4 + marketData.find(c => c.id === 'pepe')!.price * 0.2,
-            change24h: (marketData.find(c => c.id === 'dogecoin')!.change24h + marketData.find(c => c.id === 'shiba-inu')!.change24h + marketData.find(c => c.id === 'pepe')!.change24h) / 3,
-            volume24h: 800000000,
-            priceHistory: marketData.find(c => c.id === 'dogecoin')!.priceHistory,
-        },
-        {
-            id: 'ai-infra-fund',
-            name: 'AI & Infrastructure Fund',
-            symbol: 'AIF',
-            icon: Coins,
-            price: marketData.find(c => c.id === 'singularitynet')!.price * 0.5 + marketData.find(c => c.id === 'tron')!.price * 0.5,
-            change24h: (marketData.find(c => c.id === 'singularitynet')!.change24h + marketData.find(c => c.id === 'tron')!.change24h) / 2,
-            volume24h: 500000000,
-            priceHistory: marketData.find(c => c.id === 'singularitynet')!.priceHistory,
-        }
-    ], [marketData]);
+    const mutualFundsData: CryptoCurrency[] = React.useMemo(() => {
+        if (loading) return [];
+        return [
+            {
+                id: 'blue-chip-fund',
+                name: 'Blue Chip Crypto Fund',
+                symbol: 'BCCF',
+                icon: Coins,
+                price: (marketData.find(c => c.id === 'bitcoin')?.price || 0) * 0.5 + (marketData.find(c => c.id === 'ethereum')?.price || 0) * 0.5,
+                change24h: ((marketData.find(c => c.id === 'bitcoin')?.change24h || 0) + (marketData.find(c => c.id === 'ethereum')?.change24h || 0)) / 2,
+                volume24h: 1500000000,
+                priceHistory: marketData.find(c => c.id === 'bitcoin')?.priceHistory || [],
+            },
+            {
+                id: 'meme-coin-fund',
+                name: 'Meme Coin Mania Fund',
+                symbol: 'MEME',
+                icon: Coins,
+                price: (marketData.find(c => c.id === 'dogecoin')?.price || 0) * 0.4 + (marketData.find(c => c.id === 'shiba-inu')?.price || 0) * 0.4 + (marketData.find(c => c.id === 'pepe')?.price || 0) * 0.2,
+                change24h: ((marketData.find(c => c.id === 'dogecoin')?.change24h || 0) + (marketData.find(c => c.id === 'shiba-inu')?.change24h || 0) + (marketData.find(c => c.id === 'pepe')?.change24h || 0)) / 3,
+                volume24h: 800000000,
+                priceHistory: marketData.find(c => c.id === 'dogecoin')?.priceHistory || [],
+            },
+            {
+                id: 'ai-infra-fund',
+                name: 'AI & Infrastructure Fund',
+                symbol: 'AIF',
+                icon: Coins,
+                price: (marketData.find(c => c.id === 'singularitynet')?.price || 0) * 0.5 + (marketData.find(c => c.id === 'tron')?.price || 0) * 0.5,
+                change24h: ((marketData.find(c => c.id === 'singularitynet')?.change24h || 0) + (marketData.find(c => c.id === 'tron')?.change24h || 0)) / 2,
+                volume24h: 500000000,
+                priceHistory: marketData.find(c => c.id === 'singularitynet')?.priceHistory || [],
+            }
+        ];
+    }, [marketData, loading]);
 
     const displayData = tradeType === 'Spot' 
         ? spotData 
@@ -108,7 +113,12 @@ export default function CryptoPage() {
     };
 
     const activeList = listMap[listType as keyof typeof listMap];
-
+    
+    const handleAddWatchlist = () => {
+        const newWatchlistName = `Watchlist ${watchlists.length + 1 - 1}`;
+        setWatchlists([...watchlists, newWatchlistName]);
+        setActiveWatchlist(newWatchlistName);
+    };
 
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -126,10 +136,21 @@ export default function CryptoPage() {
             
             <div className="border-b border-border">
                 <div className="overflow-x-auto px-4">
-                    <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        <Button variant="ghost" size="sm" className="text-primary px-3">Top watchlist</Button>
-                        <Button variant="ghost" size="sm" className="px-3">Watchlist 1</Button>
-                        <Button variant="ghost" size="sm" className="px-3">Watchlist 2</Button>
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                        {watchlists.map(watchlist => (
+                            <Button
+                                key={watchlist}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setActiveWatchlist(watchlist)}
+                                className={cn("px-3", activeWatchlist === watchlist && 'text-primary')}
+                            >
+                                {watchlist}
+                            </Button>
+                        ))}
+                         <Button variant="ghost" size="icon" onClick={handleAddWatchlist} className="w-8 h-8">
+                            <Plus className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
             </div>

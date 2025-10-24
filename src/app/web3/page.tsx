@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb } from 'lucide-react';
+import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,8 @@ export default function Web3Page() {
     const { marketData, loading } = useMarketData();
     const [listType, setListType] = React.useState('Gainers');
     const [viewType, setViewType] = React.useState('AI');
+    const [watchlists, setWatchlists] = React.useState(['Top watchlist', 'Watchlist 1', 'Watchlist 2']);
+    const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
     
     const aiData = React.useMemo(() => marketData.filter(c => ['singularitynet'].includes(c.id)), [marketData]);
 
@@ -76,6 +78,11 @@ export default function Web3Page() {
 
     const navItems = ['AI', 'NFT', 'DEX'];
 
+    const handleAddWatchlist = () => {
+        const newWatchlistName = `Watchlist ${watchlists.length + 1 - 1}`;
+        setWatchlists([...watchlists, newWatchlistName]);
+        setActiveWatchlist(newWatchlistName);
+    };
 
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -93,10 +100,21 @@ export default function Web3Page() {
             
             <div className="border-b border-border">
                 <div className="overflow-x-auto px-4">
-                    <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        <Button variant="ghost" size="sm" className="text-primary px-3">Top watchlist</Button>
-                        <Button variant="ghost" size="sm" className="px-3">Watchlist 1</Button>
-                        <Button variant="ghost" size="sm" className="px-3">Watchlist 2</Button>
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                        {watchlists.map(watchlist => (
+                            <Button
+                                key={watchlist}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setActiveWatchlist(watchlist)}
+                                className={cn("px-3", activeWatchlist === watchlist && 'text-primary')}
+                            >
+                                {watchlist}
+                            </Button>
+                        ))}
+                         <Button variant="ghost" size="icon" onClick={handleAddWatchlist} className="w-8 h-8">
+                            <Plus className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
             </div>
