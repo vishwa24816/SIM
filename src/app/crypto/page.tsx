@@ -4,66 +4,83 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, PlusCircle } from 'lucide-react';
+import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Textarea } from '@/components/ui/textarea';
 import { Header } from '@/components/dashboard/header';
+import { useMarketData } from '@/hooks/use-market-data';
+import { CryptoCurrency } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const trendingCrypto = [
-  { symbol: 'SHIB', name: 'Shiba Inu', price: '₹0.00', change: '+3.70%' },
-  { symbol: 'DOGE', name: 'Dogecoin', price: '₹12.80', change: '+3.23%' },
-  { symbol: 'XRP', name: 'XRP', price: '₹38.40', change: '+2.13%' },
-  { symbol: 'TRX', name: 'TRON', price: '₹9.60', change: '+2.56%' },
-  { symbol: 'USDC', name: 'USDCoin', price: '₹80.00', change: '+0.00%' },
-];
+const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
+    const Icon = crypto.icon;
+    const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
+    const price = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: crypto.price < 1 ? 6 : 2,
+    }).format(crypto.price);
 
-const topCrypto = [
-    { symbol: 'BTC', name: 'Crypto', price: '₹5,200,000.00', change: '+96040.00 (1.88%)', changeColor: 'text-green-500' },
-    { symbol: 'ETH', name: 'Crypto', price: '₹272,000.00', change: '-4016.00 (-1.45%)', changeColor: 'text-red-500' },
-    { symbol: 'USDT', name: 'Crypto', price: '₹80.00', change: '+0.00 (0.00%)', changeColor: 'text-muted-foreground' },
-    { symbol: 'BNB', name: 'Crypto', price: '₹46,400.00', change: '+408.00 (0.89%)', changeColor: 'text-green-500' },
-    { symbol: 'XRP', name: 'Crypto', price: '₹38.40', change: '+0.80 (2.13%)', changeColor: 'text-green-500' },
-    { symbol: 'USDC', name: 'Crypto', price: '₹80.00', change: '+0.00 (0.00%)', changeColor: 'text-muted-foreground' },
-    { symbol: 'ADA', name: 'Crypto', price: '₹36.00', change: '-0.80 (-2.17%)', changeColor: 'text-red-500' },
-    { symbol: 'DOGE', name: 'Crypto', price: '₹12.80', change: '', changeColor: 'text-muted-foreground' },
-];
-
-const gainers = [
-  { symbol: 'NOT', name: 'Notcoin', price: '₹1.60', change: '+25.00%' },
-  { symbol: 'PEPE', name: 'Pepe', price: '₹0.00', change: '+18.87%' },
-  { symbol: 'WIF', name: 'dogwithat', price: '₹280.00', change: '+14.75%' },
-  { symbol: 'FLOKI', name: 'Floki', price: '₹0.02', change: '+12.00%' },
-  { symbol: 'AGIX', name: 'SingularityNET', price: '₹70.00', change: '+9.20%' },
-];
-
-const CryptoListItem = ({ symbol, name, price, change, changeColor }: { symbol: string, name: string, price: string, change: string, changeColor?: string }) => (
-    <div className="flex items-center justify-between py-3">
-        <div className="flex items-center gap-3">
-            <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm">
-                {symbol.slice(0, 2)}
+    return (
+        <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+                <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
+                    <Icon className="w-6 h-6" />
+                </div>
+                <div>
+                    <p className="font-semibold">{crypto.symbol}</p>
+                    <p className="text-xs text-muted-foreground">{crypto.name}</p>
+                </div>
             </div>
-            <div>
-                <p className="font-semibold">{symbol}</p>
-                <p className="text-xs text-muted-foreground">{name}</p>
+            <div className="text-right">
+                <p className="font-semibold">{price}</p>
+                <p className={cn("text-xs", changeColor)}>{crypto.change24h.toFixed(2)}%</p>
             </div>
         </div>
-        <div className="text-right">
-            <p className="font-semibold">{price}</p>
-            <p className={cn("text-xs", changeColor || (change.startsWith('+') ? 'text-green-500' : 'text-red-500'))}>{change}</p>
-        </div>
+    );
+};
+
+const CryptoListSkeleton = () => (
+    <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between py-3">
+                <div className="flex items-center gap-3">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div>
+                        <Skeleton className="h-4 w-12 mb-1" />
+                        <Skeleton className="h-3 w-20" />
+                    </div>
+                </div>
+                <div className="text-right">
+                    <Skeleton className="h-4 w-24 mb-1" />
+                    <Skeleton className="h-3 w-16 ml-auto" />
+                </div>
+            </div>
+        ))}
     </div>
 )
 
 
 export default function CryptoPage() {
+    const { marketData, loading } = useMarketData();
     const [activeTab, setActiveTab] = React.useState('Gainers');
-  
+
+    const trendingIds = ['shiba-inu', 'dogecoin', 'ripple', 'tron', 'usd-coin'];
+    const topIds = ['bitcoin', 'ethereum', 'tether', 'binancecoin', 'ripple', 'usd-coin', 'cardano', 'dogecoin'];
+
+    const trendingCrypto = marketData.filter(c => trendingIds.includes(c.id));
+    const topCrypto = marketData.filter(c => topIds.includes(c.id));
+
+    const gainers = [...marketData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
+    const losers = [...marketData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
+
+
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 overflow-y-auto pb-4">
+        <main className="flex-1 overflow-y-auto">
             <div className="border-b border-border">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
@@ -88,14 +105,14 @@ export default function CryptoPage() {
                 <div>
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending Crypto</h2>
                     <div className="divide-y">
-                        {trendingCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
+                        {loading ? <CryptoListSkeleton /> : trendingCrypto.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
                     </div>
                 </div>
 
                 <div>
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top Crypto</h2>
                     <div className="divide-y">
-                        {topCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
+                        {loading ? <CryptoListSkeleton /> : topCrypto.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
                     </div>
                 </div>
 
@@ -113,7 +130,7 @@ export default function CryptoPage() {
                         </Button>
                     </div>
                     <div className="divide-y">
-                        {(activeTab === 'Gainers' ? gainers : []).map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
+                         {loading ? <CryptoListSkeleton /> : (activeTab === 'Gainers' ? gainers : losers).map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
                     </div>
                 </div>
 
