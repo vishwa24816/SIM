@@ -27,10 +27,12 @@ interface PriceChartProps {
 }
 
 export function PriceChart({ crypto, loading }: PriceChartProps) {
+  const isPositiveChange = crypto.change24h >= 0;
+
   const chartConfig = {
     price: {
       label: crypto.symbol,
-      color: "hsl(var(--accent))",
+      color: isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)",
     },
   }
 
@@ -97,15 +99,15 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
               <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
               <defs>
                   <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.6}/>
+                      <stop offset="5%" stopColor={isPositiveChange ? "var(--color-price)" : "var(--color-price)"} stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor={isPositiveChange ? "var(--color-price)" : "var(--color-price)"} stopOpacity={0.7}/>
                   </linearGradient>
               </defs>
               <Area
                 dataKey="value"
                 type="natural"
                 fill="url(#fillPrice)"
-                stroke="hsl(var(--accent))"
+                stroke="var(--color-price)"
                 stackId="a"
               />
             </AreaChart>
