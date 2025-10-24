@@ -8,11 +8,11 @@ import { PortfolioView } from "@/components/dashboard/portfolio-view";
 import { useMarketData } from "@/hooks/use-market-data";
 import { usePortfolio } from "@/hooks/use-portfolio";
 import { CryptoCurrency } from "@/lib/types";
-import { Home, ListOrdered, Bot, ScreenShare, Users } from "lucide-react";
+import { Home, ListOrdered, ScreenShare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
-  const { marketData, setSelectedCryptoId } = useMarketData();
+  const { marketData, setSelectedCryptoId, loading } = useMarketData();
   const { portfolio, totalPortfolioValue } = usePortfolio(marketData);
 
   return (
@@ -45,16 +45,8 @@ export default function DashboardPage() {
             <span className="text-xs">Orders</span>
           </Button>
           <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
-            <Bot className="h-6 w-6" />
-            <span className="text-xs">Simbot</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
             <ScreenShare className="h-6 w-6" />
             <span className="text-xs">Screener</span>
-          </Button>
-           <Button variant="ghost" className="flex flex-col h-auto items-center text-muted-foreground">
-            <Users className="h-6 w-6" />
-            <span className="text-xs">Community</span>
           </Button>
         </nav>
       </footer>
