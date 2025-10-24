@@ -32,7 +32,7 @@ export async function GET() {
         ];
 
         return {
-          ...crypto,
+          ...crypto, // Keep original data like icon
           price: newPrice,
           change24h: liveData.price_change_percentage_24h ?? crypto.change24h,
           volume24h: liveData.total_volume ?? crypto.volume24h,
