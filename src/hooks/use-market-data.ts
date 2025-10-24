@@ -12,6 +12,7 @@ export function useMarketData() {
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
 
   const fetchMarketData = async () => {
+    setLoading(true);
     try {
       const response = await fetch('/api/market-data');
       if (!response.ok) {
@@ -38,6 +39,7 @@ export function useMarketData() {
     } catch (error) {
       console.error(error);
       // Keep using existing or initial data if fetch fails
+      setMarketData(INITIAL_CRYPTO_DATA);
     } finally {
         setLoading(false);
     }
@@ -45,18 +47,12 @@ export function useMarketData() {
 
 
   useEffect(() => {
-    fetchMarketData(); // Initial fetch
-    
-    const interval = setInterval(() => {
-        fetchMarketData();
-    }, 5000); // Update every 5 seconds
-
-    return () => clearInterval(interval);
+    fetchMarketData(); // Fetch data once on component mount
   }, []);
 
   const selectedCrypto = useMemo(() => {
     return marketData.find(c => c.id === selectedCryptoId) || marketData[0] || defaultCrypto;
   }, [marketData, selectedCryptoId]);
 
-  return { loading, marketData, selectedCrypto, setSelectedCryptoId };
+  return { loading, marketData, selectedCrypto, setSelectedCryptoId, fetchMarketData };
 }
