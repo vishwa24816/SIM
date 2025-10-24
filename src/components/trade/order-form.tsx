@@ -25,6 +25,16 @@ export function OrderForm({ crypto }: OrderFormProps) {
   const [spPlanType, setSpPlanType] = React.useState('sip');
   const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
   const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
+  const [quantity, setQuantity] = React.useState('');
+  const [price, setPrice] = React.useState('');
+
+  const marginRequired = React.useMemo(() => {
+    const qty = parseFloat(quantity);
+    const prc = parseFloat(price) || (orderType === 'market' ? crypto.price : 0);
+    if (!qty || !prc) return 0;
+    return qty * prc;
+  }, [quantity, price, orderType, crypto.price]);
+
 
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -44,16 +54,18 @@ export function OrderForm({ crypto }: OrderFormProps) {
                 </div>
             </RadioGroup>
             
-            <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <Label htmlFor="qty">Qty.</Label>
-                    <Input id="qty" placeholder="0" type="number" />
+            {investmentType !== 'sp' && (
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <Label htmlFor="qty">Qty.</Label>
+                        <Input id="qty" placeholder="0" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} />
+                    </div>
+                    <div>
+                        <Label htmlFor="price">Price</Label>
+                        <Input id="price" placeholder={crypto.price.toString()} type="number" disabled={orderType === 'market'} value={price} onChange={e => setPrice(e.target.value)} />
+                    </div>
                 </div>
-                <div>
-                    <Label htmlFor="price">Price</Label>
-                    <Input id="price" placeholder={crypto.price.toString()} type="number" disabled={orderType === 'market'} />
-                </div>
-            </div>
+            )}
 
             {investmentType === 'hodl' && (
                 <div className="space-y-4 mb-4">
@@ -189,10 +201,12 @@ export function OrderForm({ crypto }: OrderFormProps) {
             </RadioGroup>
 
             <div className="text-sm text-muted-foreground">
-                Margin required: <span className="font-semibold text-foreground">$0.00</span>
+                Margin required: <span className="font-semibold text-foreground">${marginRequired.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
 
         </div>
     </div>
   );
 }
+
+    
