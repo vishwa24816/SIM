@@ -13,14 +13,14 @@ interface SimbotAnalysisProps {
 }
 export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
   return (
-    <Card>
-        <CardHeader>
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="flex flex-col space-y-1.5 p-6">
             <div className="flex items-center gap-2">
                 <Bot className="h-5 w-5" />
-                <CardTitle className="text-lg">Simbot Analysis</CardTitle>
+                <h3 className="text-lg font-semibold leading-none tracking-tight">Simbot Analysis</h3>
             </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="p-6 pt-0">
             <div className="flex gap-3">
                 <Avatar>
                     <AvatarFallback>B</AvatarFallback>
@@ -29,7 +29,7 @@ export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
                     <p>Based on recent trends, {crypto.name} ({crypto.symbol}) is showing strong bullish momentum. Key indicators suggest a potential breakout above the ${crypto.price.toFixed(4)} level in the short term.</p>
                 </div>
             </div>
-        </CardContent>
-    </Card>
+        </div>
+    </div>
   );
 }

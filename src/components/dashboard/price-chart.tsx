@@ -40,12 +40,12 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
   const isUp = crypto.price >= lastPrice;
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex justify-between items-start">
             <div>
-                <CardTitle>{crypto.name} Price</CardTitle>
-                <CardDescription>Live data from CoinGecko.</CardDescription>
+                <h3 className="text-2xl font-semibold leading-none tracking-tight">{crypto.name} Price</h3>
+                <p className="text-sm text-muted-foreground">Live data from CoinGecko.</p>
             </div>
             <div className="text-right">
               {loading ? (
@@ -68,8 +68,8 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
               )}
             </div>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-6 pt-0">
         {loading ? (
             <div className="h-[250px] w-full">
               <Skeleton className="h-full w-full" />
@@ -98,22 +98,26 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
               />
               <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
               <defs>
-                  <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={isPositiveChange ? "var(--color-price)" : "var(--color-price)"} stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor={isPositiveChange ? "var(--color-price)" : "var(--color-price)"} stopOpacity={0.7}/>
+                  <linearGradient id="fillGreen" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(142.1 76.2% 41.2%)" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="hsl(142.1 76.2% 41.2%)" stopOpacity={0.7}/>
+                  </linearGradient>
+                  <linearGradient id="fillRed" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(0 84.2% 60.2%)" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="hsl(0 84.2% 60.2%)" stopOpacity={0.7}/>
                   </linearGradient>
               </defs>
               <Area
                 dataKey="value"
                 type="natural"
-                fill="url(#fillPrice)"
-                stroke="var(--color-price)"
+                fill={isPositiveChange ? "url(#fillGreen)" : "url(#fillRed)"}
+                stroke={isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)"}
                 stackId="a"
               />
             </AreaChart>
           </ChartContainer>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

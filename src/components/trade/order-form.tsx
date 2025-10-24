@@ -27,8 +27,8 @@ export function OrderForm({ crypto }: OrderFormProps) {
   const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
 
   return (
-    <Card>
-        <CardContent className="pt-6">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="pt-6 p-6">
             <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-4">
                 <div className="flex items-center space-x-2">
                     <RadioGroupItem value="delivery" id="delivery"/>
@@ -192,7 +192,7 @@ export function OrderForm({ crypto }: OrderFormProps) {
                 Margin required: <span className="font-semibold text-foreground">$0.00</span>
             </div>
 
-        </CardContent>
-    </Card>
+        </div>
+    </div>
   );
 }

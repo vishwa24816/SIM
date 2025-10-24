@@ -24,14 +24,14 @@ const dummySellOrders = [
 
 export function MarketDepth() {
   return (
-    <Card>
-        <CardHeader>
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="flex flex-col space-y-1.5 p-6">
             <div className="flex items-center gap-2">
                 <List className="h-5 w-5" />
-                <CardTitle className="text-lg">Market Depth</CardTitle>
+                <h3 className="text-lg font-semibold leading-none tracking-tight">Market Depth</h3>
             </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="p-6 pt-0">
             <div className="grid grid-cols-2 gap-4 text-center text-sm">
                 <div>
                     <h4 className="font-semibold mb-2">Buy Orders <span className="text-muted-foreground font-normal">Total: 846</span></h4>
@@ -60,7 +60,7 @@ export function MarketDepth() {
                 <Button variant="outline">Add to Basket</Button>
                 <Button variant="outline">Add Alert</Button>
             </div>
-        </CardContent>
-    </Card>
+        </div>
+    </div>
   );
 }
