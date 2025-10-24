@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
+import { useTheme } from 'next-themes';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { setTheme, theme } = useTheme();
 
   return (
     <header className="sticky top-0 z-40 bg-primary/95 backdrop-blur-sm">
@@ -49,10 +51,11 @@ export function Header() {
                                 <Button variant="ghost" className="justify-start gap-3">
                                     <LogOut /> Log Out
                                 </Button>
-                                <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="icon"><Sun className="h-5 w-5" /></Button>
-                                    <Button variant="ghost" size="icon"><Moon className="h-5 w-5" /></Button>
-                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+                                    <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                    <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                    <span className="sr-only">Toggle theme</span>
+                                </Button>
                            </div>
                         </SheetFooter>
                     </SheetContent>
