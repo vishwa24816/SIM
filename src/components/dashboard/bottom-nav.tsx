@@ -14,7 +14,7 @@ export function BottomNav() {
     { href: '/', icon: Home, label: 'Home' },
     { href: '/orders', icon: ListOrdered, label: 'Orders' },
     { href: '/crypto', icon: Bitcoin, label: 'Trade' },
-    { href: '#', icon: Globe, label: 'Web3' },
+    { href: '/web3', icon: Globe, label: 'Web3' },
     { href: '#', icon: ScreenShare, label: 'Screener' },
   ];
 
