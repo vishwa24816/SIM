@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -97,7 +98,7 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
               <defs>
                   <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.4}/>
                   </linearGradient>
               </defs>
               <Area
