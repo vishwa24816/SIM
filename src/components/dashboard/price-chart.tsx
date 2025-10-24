@@ -5,13 +5,6 @@ import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -45,7 +38,6 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
         <div className="flex justify-between items-start">
             <div>
                 <h3 className="text-2xl font-semibold leading-none tracking-tight">{crypto.name} Price</h3>
-                <p className="text-sm text-muted-foreground">Live data from CoinGecko.</p>
             </div>
             <div className="text-right">
               {loading ? (
