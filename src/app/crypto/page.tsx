@@ -13,6 +13,7 @@ import { CryptoCurrency } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoList } from '@/components/dashboard/crypto-list';
+import { Coins } from 'lucide-react';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -42,6 +43,7 @@ export default function CryptoPage() {
 
 
     const spotData = marketData;
+    
     const futuresData = React.useMemo(() => marketData.map(crypto => ({
         ...crypto,
         price: crypto.price * 1.02,
@@ -50,7 +52,44 @@ export default function CryptoPage() {
         id: `${crypto.id}-fut`
     })), [marketData]);
 
-    const displayData = tradeType === 'Spot' ? spotData : futuresData;
+    const mutualFundsData: CryptoCurrency[] = React.useMemo(() => [
+        {
+            id: 'blue-chip-fund',
+            name: 'Blue Chip Crypto Fund',
+            symbol: 'BCCF',
+            icon: Coins,
+            price: marketData.find(c => c.id === 'bitcoin')!.price * 0.5 + marketData.find(c => c.id === 'ethereum')!.price * 0.5,
+            change24h: (marketData.find(c => c.id === 'bitcoin')!.change24h + marketData.find(c => c.id === 'ethereum')!.change24h) / 2,
+            volume24h: 1500000000,
+            priceHistory: marketData.find(c => c.id === 'bitcoin')!.priceHistory,
+        },
+        {
+            id: 'meme-coin-fund',
+            name: 'Meme Coin Mania Fund',
+            symbol: 'MEME',
+            icon: Coins,
+            price: marketData.find(c => c.id === 'dogecoin')!.price * 0.4 + marketData.find(c => c.id === 'shiba-inu')!.price * 0.4 + marketData.find(c => c.id === 'pepe')!.price * 0.2,
+            change24h: (marketData.find(c => c.id === 'dogecoin')!.change24h + marketData.find(c => c.id === 'shiba-inu')!.change24h + marketData.find(c => c.id === 'pepe')!.change24h) / 3,
+            volume24h: 800000000,
+            priceHistory: marketData.find(c => c.id === 'dogecoin')!.priceHistory,
+        },
+        {
+            id: 'ai-infra-fund',
+            name: 'AI & Infrastructure Fund',
+            symbol: 'AIF',
+            icon: Coins,
+            price: marketData.find(c => c.id === 'singularitynet')!.price * 0.5 + marketData.find(c => c.id === 'tron')!.price * 0.5,
+            change24h: (marketData.find(c => c.id === 'singularitynet')!.change24h + marketData.find(c => c.id === 'tron')!.change24h) / 2,
+            volume24h: 500000000,
+            priceHistory: marketData.find(c => c.id === 'singularitynet')!.priceHistory,
+        }
+    ], [marketData]);
+
+    const displayData = tradeType === 'Spot' 
+        ? spotData 
+        : tradeType === 'Futures'
+        ? futuresData
+        : mutualFundsData;
 
     const trendingCrypto = [...displayData]
       .sort((a, b) => b.volume24h - a.volume24h)
@@ -80,7 +119,7 @@ export default function CryptoPage() {
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button onClick={() => setTradeType('Spot')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Spot' && 'text-primary')}>Spot</Button>
                         <Button onClick={() => setTradeType('Futures')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Futures' && 'text-primary')}>Futures</Button>
-                        <Button variant="ghost" size="sm" className="px-3">Mutual Fund</Button>
+                        <Button onClick={() => setTradeType('Mutual Fund')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Mutual Fund' && 'text-primary')}>Mutual Fund</Button>
                     </div>
                 </div>
             </div>
@@ -97,14 +136,14 @@ export default function CryptoPage() {
 
             <div className="p-4 space-y-6">
                 <div className="p-4">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending Crypto</h2>
+                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending {tradeType}</h2>
                     <div className="divide-y">
                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} />}
                     </div>
                 </div>
 
                 <div className="p-4">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top Crypto</h2>
+                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
                     <div className="divide-y">
                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} />}
                     </div>
