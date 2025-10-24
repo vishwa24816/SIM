@@ -11,31 +11,29 @@ export function useMarketData() {
   const [marketData, setMarketData] = useState<CryptoCurrency[]>(INITIAL_CRYPTO_DATA);
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
 
+  const fetchMarketData = async () => {
+    try {
+      const response = await fetch('/api/market-data');
+      if (!response.ok) {
+        throw new Error('Failed to fetch market data');
+      }
+      const data = await response.json();
+      setMarketData(data);
+    } catch (error) {
+      console.error(error);
+      // Keep using existing or initial data if fetch fails
+    } finally {
+        setLoading(false);
+    }
+  };
+
+
   useEffect(() => {
-    setLoading(false);
+    fetchMarketData(); // Initial fetch
+    
     const interval = setInterval(() => {
-      setMarketData(prevData =>
-        prevData.map(crypto => {
-          const changePercent = (Math.random() - 0.5) * 0.02; // max 2% change
-          const newPrice = crypto.price * (1 + changePercent);
-          const newChange24h = crypto.change24h * 0.95 + (changePercent * 100);
-          const newVolume24h = crypto.volume24h * (1 + (Math.random() - 0.5) * 0.05);
-
-          const newHistory = [
-            ...crypto.priceHistory.slice(1),
-            { time: new Date().toISOString().split('T')[0], value: newPrice },
-          ];
-
-          return {
-            ...crypto,
-            price: newPrice,
-            change24h: newChange24h,
-            volume24h: newVolume24h,
-            priceHistory: newHistory,
-          };
-        })
-      );
-    }, 2000); // Update every 2 seconds
+        fetchMarketData();
+    }, 5000); // Update every 5 seconds
 
     return () => clearInterval(interval);
   }, []);

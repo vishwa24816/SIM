@@ -31,7 +31,7 @@ export function PriceChart({ crypto }: PriceChartProps) {
     },
   }
 
-  const lastPrice = crypto.priceHistory[crypto.priceHistory.length - 1]?.value ?? 0;
+  const lastPrice = crypto.priceHistory[crypto.priceHistory.length - 2]?.value ?? crypto.price;
   const isUp = crypto.price >= lastPrice;
 
   return (
@@ -40,12 +40,12 @@ export function PriceChart({ crypto }: PriceChartProps) {
         <div className="flex justify-between items-start">
             <div>
                 <CardTitle>{crypto.name} Price</CardTitle>
-                <CardDescription>Simulated data, not from a live feed.</CardDescription>
+                <CardDescription>Live data from Yahoo Finance.</CardDescription>
             </div>
             <div className="text-right">
                 <div className="flex items-center justify-end gap-1">
                     <div className={cn("text-2xl font-bold", isUp ? "text-green-500" : "text-red-500")}>
-                        ${crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ${crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2 })}
                     </div>
                     {isUp ? <TrendingUp className="h-6 w-6 text-green-500" /> : <TrendingDown className="h-6 w-6 text-red-500" />}
                 </div>
