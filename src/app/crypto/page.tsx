@@ -115,7 +115,7 @@ export default function CryptoPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary"><path d="M3 17L9 11L13 15L21 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 7H21V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                            Top Gainers & Losers
+                            Top Gainers &amp; Losers
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
