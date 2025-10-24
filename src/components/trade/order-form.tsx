@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { CryptoCurrency } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface OrderFormProps {
     crypto: CryptoCurrency;
@@ -22,6 +22,9 @@ export function OrderForm({ crypto }: OrderFormProps) {
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
   const [takeProfitType, setTakeProfitType] = React.useState<'price' | 'percentage'>('price');
+  const [spPlanType, setSpPlanType] = React.useState('sip');
+  const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
+  const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
 
   return (
     <Card>
@@ -69,8 +72,8 @@ export function OrderForm({ crypto }: OrderFormProps) {
             )}
             
             {investmentType === 'sp' && (
-                 <div className="mb-4">
-                    <RadioGroup defaultValue="sip" className="flex space-x-4">
+                 <div className="mb-4 space-y-4">
+                    <RadioGroup value={spPlanType} onValueChange={setSpPlanType} className="flex space-x-4">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="sip" id="sip"/>
                             <Label htmlFor="sip">SIP</Label>
@@ -80,6 +83,68 @@ export function OrderForm({ crypto }: OrderFormProps) {
                             <Label htmlFor="swp">SWP</Label>
                         </div>
                     </RadioGroup>
+
+                    {spPlanType === 'sip' && (
+                        <div className="space-y-4 p-4 border rounded-md">
+                            <div className="space-y-2">
+                                <Label>SIP Installment</Label>
+                                <div className="flex gap-2">
+                                    <Input placeholder="0.00" type="number" />
+                                    <div className="flex rounded-md bg-muted p-1">
+                                        <Button variant={sipInvestmentType === 'amount' ? 'default' : 'ghost'} size="sm" onClick={() => setSipInvestmentType('amount')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Amt</Button>
+                                        <Button variant={sipInvestmentType === 'qty' ? 'default' : 'ghost'} size="sm" onClick={() => setSipInvestmentType('qty')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Qty</Button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>SIP Mode</Label>
+                                <Select defaultValue="monthly">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="daily">Daily</SelectItem>
+                                        <SelectItem value="weekly">Weekly</SelectItem>
+                                        <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="annually">Annually</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {spPlanType === 'swp' && (
+                         <div className="space-y-4 p-4 border rounded-md">
+                            <div className="space-y-2">
+                                <Label>Lumpsum Amount</Label>
+                                <Input placeholder="0.00" type="number" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Withdrawal</Label>
+                                <div className="flex gap-2">
+                                    <Input placeholder="0.00" type="number" />
+                                     <div className="flex rounded-md bg-muted p-1">
+                                        <Button variant={swpWithdrawalType === 'amount' ? 'default' : 'ghost'} size="sm" onClick={() => setSwpWithdrawalType('amount')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Amt</Button>
+                                        <Button variant={swpWithdrawalType === 'qty' ? 'default' : 'ghost'} size="sm" onClick={() => setSwpWithdrawalType('qty')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Qty</Button>
+                                    </div>
+                                </div>
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Withdrawal Mode</Label>
+                                <Select defaultValue="monthly">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="daily">Daily</SelectItem>
+                                        <SelectItem value="weekly">Weekly</SelectItem>
+                                        <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="annually">Annually</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                         </div>
+                    )}
                 </div>
             )}
 
