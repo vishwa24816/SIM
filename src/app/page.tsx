@@ -9,7 +9,6 @@ import { useMarketData } from "@/hooks/use-market-data";
 import { usePortfolio } from "@/hooks/use-portfolio";
 import { CryptoCurrency } from "@/lib/types";
 import { Home, ListOrdered, Bot, ScreenShare, Users } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
@@ -20,32 +19,20 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
       <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
-        <Tabs defaultValue="holdings">
-          <div className="overflow-x-auto">
-            <TabsList className="bg-transparent p-0 border-b border-border rounded-none">
-              <TabsTrigger value="flat">Flat</TabsTrigger>
-              <TabsTrigger value="crypto">Crypto</TabsTrigger>
-              <TabsTrigger value="exchange">Exchange</TabsTrigger>
-              <TabsTrigger value="holdings">Holdings</TabsTrigger>
-              <TabsTrigger value="positions">Positions</TabsTrigger>
-              <TabsTrigger value="watchlist">Portfolio Watchlist</TabsTrigger>
-            </TabsList>
+        <div className="pt-6">
+          <div className="grid grid-cols-1 gap-6 max-w-screen-2xl mx-auto">
+            <PortfolioView
+              portfolio={portfolio}
+              marketData={marketData}
+              totalPortfolioValue={totalPortfolioValue}
+            />
+            <MarketTable
+              cryptos={marketData}
+              onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)}
+            />
+            <NewsFeed />
           </div>
-          <TabsContent value="holdings" className="pt-6">
-            <div className="grid grid-cols-1 gap-6 max-w-screen-2xl mx-auto">
-              <PortfolioView
-                portfolio={portfolio}
-                marketData={marketData}
-                totalPortfolioValue={totalPortfolioValue}
-              />
-              <MarketTable
-                cryptos={marketData}
-                onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)}
-              />
-              <NewsFeed />
-            </div>
-          </TabsContent>
-        </Tabs>
+        </div>
       </main>
       <footer className="sticky bottom-0 z-50 mt-auto bg-card/90 backdrop-blur-sm border-t">
         <nav className="flex justify-around items-center h-16 px-4">
