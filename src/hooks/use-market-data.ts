@@ -51,9 +51,7 @@ export function useMarketData() {
 
 
   useEffect(() => {
-    fetchMarketData(true); // Fetch data once on component mount
-    const interval = setInterval(() => fetchMarketData(false), 30000); // Poll every 30 seconds
-    return () => clearInterval(interval); // Cleanup on unmount
+    fetchMarketData(true); // Fetch data on component mount (covers refresh and initial load)
   }, []);
 
   const selectedCrypto = useMemo(() => {
