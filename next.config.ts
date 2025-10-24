@@ -30,6 +30,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // Exclude problematic files from yahoo-finance2
+    config.resolve.alias['yahoo-finance2/esm/tests/fetchCache.js'] = false;
+    config.resolve.alias['yahoo-finance2/esm/tests/setup.js'] = false;
+    return config;
+  },
 };
 
 export default nextConfig;
