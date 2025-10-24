@@ -87,7 +87,7 @@ export default function CryptoPage() {
             <div className="p-4 space-y-6">
                 <div>
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending Crypto</h2>
-                    <div className="divide-y border rounded-lg p-4 bg-card">
+                    <div className="divide-y">
                         {trendingCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
                     </div>
                 </div>
@@ -101,7 +101,7 @@ export default function CryptoPage() {
                             <PlusCircle />
                         </Button>
                     </div>
-                    <div className="divide-y border rounded-lg p-4 bg-card">
+                    <div className="divide-y">
                         {topCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
                     </div>
                 </div>
@@ -119,7 +119,7 @@ export default function CryptoPage() {
                             <ArrowDown className="mr-2 h-4 w-4 text-red-500"/> Losers
                         </Button>
                     </div>
-                    <div className="divide-y border rounded-lg p-4 bg-card">
+                    <div className="divide-y">
                         {(activeTab === 'Gainers' ? gainers : []).map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
                     </div>
                 </div>
