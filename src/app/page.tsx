@@ -20,7 +20,7 @@ export default function DashboardPage() {
       <Header />
       <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
         <div className="pt-6">
-          <div className="grid grid-cols-1 gap-6 max-w-screen-2xl mx-auto">
+          <div className="space-y-6 w-[90%] mx-auto">
             <PortfolioView
               portfolio={portfolio}
               marketData={marketData}

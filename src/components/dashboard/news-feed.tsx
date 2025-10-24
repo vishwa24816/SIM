@@ -1,13 +1,6 @@
 "use client";
 
 import * as React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Newspaper, Lightbulb } from "lucide-react";
@@ -15,17 +8,17 @@ import { Newspaper, Lightbulb } from "lucide-react";
 export function NewsFeed() {
   
   return (
-    <Card className="bg-card">
-      <CardHeader>
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="p-6">
         <div className="flex items-center gap-3">
           <Newspaper className="w-6 h-6 text-primary" />
           <div>
-            <CardTitle>Top Market News</CardTitle>
-            <CardDescription>Latest headlines relevant to your view and AI-powered summaries.</CardDescription>
+            <h3 className="text-2xl font-semibold leading-none tracking-tight">Top Market News</h3>
+            <p className="text-sm text-muted-foreground">Latest headlines relevant to your view and AI-powered summaries.</p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      </div>
+      <div className="p-6 pt-0 space-y-6">
         <div>
             <h3 className="text-lg font-semibold mb-4">Recent Headlines</h3>
             <div className="flex items-center justify-center h-24 rounded-lg bg-secondary/50">
@@ -43,7 +36,7 @@ export function NewsFeed() {
                 className="bg-secondary/50 min-h-[100px]"
             />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CryptoCurrency, Portfolio } from "@/lib/types";
 import { PieChart } from "lucide-react";
 
@@ -33,14 +32,14 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
     .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="flex flex-row items-center justify-between p-6">
         <div className="flex items-center gap-3">
           <PieChart className="w-6 h-6 text-primary" />
-          <CardTitle>Crypto Positions</CardTitle>
+          <h3 className="text-2xl font-semibold leading-none tracking-tight">Crypto Positions</h3>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-6 pt-0">
         {holdingsWithValue.length > 0 ? (
           <Table>
             <TableHeader>
@@ -81,7 +80,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
             <p className="text-muted-foreground">You have no crypto positions.</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

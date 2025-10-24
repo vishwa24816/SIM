@@ -1,12 +1,4 @@
 import * as React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CryptoCurrency, Portfolio } from "@/lib/types";
 import { ArrowUpRight, ArrowDownLeft, History, Bitcoin } from "lucide-react";
@@ -31,16 +23,16 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
   const dayPlPercent = totalPortfolioValue > 0 ? (dayPl / totalPortfolioValue) * 100 : 0;
 
   return (
-    <Card className="bg-card">
-      <CardHeader>
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-md">
             <Bitcoin className="w-6 h-6 text-primary" />
           </div>
-          <CardTitle>Trading Wallet</CardTitle>
+          <h3 className="text-2xl font-semibold leading-none tracking-tight">Trading Wallet</h3>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-6 pt-0">
         <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
                 <p className={cn("text-2xl font-bold", overallPl >= 0 ? "text-green-500" : "text-red-500")}>
@@ -66,8 +58,8 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
                 <p className="font-semibold">{totalPortfolioValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}</p>
             </div>
         </div>
-      </CardContent>
-      <CardFooter className="flex items-center justify-center gap-2">
+      </div>
+      <div className="flex items-center justify-center p-6 pt-0 gap-2">
           <Button variant="outline" size="sm" className="gap-1">
               <ArrowUpRight className="h-4 w-4" /> Send
           </Button>
@@ -77,7 +69,7 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
           <Button variant="outline" size="sm" className="gap-1">
               <History className="h-4 w-4" /> History
           </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
