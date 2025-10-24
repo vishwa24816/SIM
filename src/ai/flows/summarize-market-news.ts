@@ -36,9 +36,9 @@ const summarizeMarketNewsPrompt = ai.definePrompt({
   prompt: `You are an AI assistant helping users to stay up to date on the cryptocurrency market.
   Summarize the following news articles, focusing on the most important trends and events:
 
-  {% for article in newsArticles %}
-  Article {{loop.index}}: {{{article}}}
-  {% endfor %}
+  {{#each newsArticles}}
+  Article {{@index}}: {{{this}}}
+  {{/each}}
   `,
 });
 
