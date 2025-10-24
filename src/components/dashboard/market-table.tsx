@@ -10,7 +10,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CryptoCurrency } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { Aperture, List, MoreHorizontal, Clock } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface MarketTableProps {
   cryptos: CryptoCurrency[];
@@ -19,23 +20,29 @@ interface MarketTableProps {
 
 export function MarketTable({ cryptos, onRowClick }: MarketTableProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Market Overview</CardTitle>
+    <Card className="bg-card">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Aperture className="w-6 h-6 text-primary" />
+          <CardTitle>Crypto & Web3 Holdings</CardTitle>
+        </div>
+        <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon"><List className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon"><MoreHorizontal className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon"><Clock className="h-5 w-5" /></Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader>
+          <TableHeader className="hidden">
             <TableRow>
               <TableHead>Asset</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">24h Change</TableHead>
-              <TableHead className="text-right">24h Volume</TableHead>
+              <TableHead className="text-right">Value & Change</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {cryptos.map((crypto) => (
-              <TableRow key={crypto.id} onClick={() => onRowClick(crypto)} className="cursor-pointer">
+              <TableRow key={crypto.id} onClick={() => onRowClick(crypto)} className="cursor-pointer border-b-0">
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <crypto.icon className="h-8 w-8" />
@@ -45,17 +52,13 @@ export function MarketTable({ cryptos, onRowClick }: MarketTableProps) {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-right font-mono">
-                  ${crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2 })}
-                </TableCell>
-                <TableCell className={cn("text-right font-medium", crypto.change24h >= 0 ? "text-green-500" : "text-red-500")}>
-                  <div className="flex items-center justify-end gap-1">
-                     {crypto.change24h >= 0 ? <TrendingUp className="h-4 w-4"/> : <TrendingDown className="h-4 w-4"/>}
-                    {crypto.change24h.toFixed(2)}%
+                <TableCell className="text-right">
+                  <div className="font-mono font-semibold">
+                    ${crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2 })}
                   </div>
-                </TableCell>
-                <TableCell className="text-right font-mono">
-                  ${(crypto.volume24h / 1_000_000_000).toFixed(2)}B
+                   <div className={cn("text-sm", crypto.change24h >= 0 ? "text-green-500" : "text-red-500")}>
+                    ({crypto.change24h.toFixed(2)}%)
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
