@@ -62,20 +62,19 @@ export default function CryptoPage() {
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 overflow-y-auto p-4 space-y-6">
-            <div className="border-b border-border">
-                <div className="px-4 overflow-x-auto">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="border-b border-border -mx-4 px-4">
+                <div className="overflow-x-auto">
                     <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button variant="ghost" className="text-primary px-3">Spot</Button>
                         <Button variant="ghost" className="px-3">Futures</Button>
-                        <Button variant="ghost" className="px-3">Options</Button>
                         <Button variant="ghost" className="px-3">Mutual Fund</Button>
                     </div>
                 </div>
             </div>
             
-            <div className="border-b border-border">
-                <div className="px-4 overflow-x-auto">
+            <div className="border-b border-border -mx-4 px-4">
+                <div className="overflow-x-auto">
                     <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button variant="ghost" className="text-primary px-3">Top watchlist</Button>
                         <Button variant="ghost" className="px-3">Watchlist 1</Button>
