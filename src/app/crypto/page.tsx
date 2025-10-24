@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus } from 'lucide-react';
+import { Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoList } from '@/components/dashboard/crypto-list';
 import { Coins } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -40,9 +41,11 @@ export default function CryptoPage() {
     const { marketData, loading } = useMarketData();
     const [listType, setListType] = React.useState('Gainers');
     const [tradeType, setTradeType] = React.useState('Spot');
-    const [watchlists, setWatchlists] = React.useState(['Top watchlist']);
+    
+    // Watchlist state
+    const [watchlists, setWatchlists] = React.useState<Record<string, string[]>>({ 'Top watchlist': [] });
     const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
-
+    const [searchTerm, setSearchTerm] = React.useState('');
 
     const spotData = marketData;
     
@@ -111,14 +114,43 @@ export default function CryptoPage() {
         'Gainers': gainers,
         'Losers': losers,
     };
-
     const activeList = listMap[listType as keyof typeof listMap];
+
+    const watchlistNames = Object.keys(watchlists);
     
     const handleAddWatchlist = () => {
-        const newWatchlistName = `Watchlist ${watchlists.length}`;
-        setWatchlists([...watchlists, newWatchlistName]);
+        const newWatchlistName = `Watchlist ${watchlistNames.length}`;
+        setWatchlists(prev => ({...prev, [newWatchlistName]: []}));
         setActiveWatchlist(newWatchlistName);
     };
+
+    const handleAddToWatchlist = (cryptoId: string) => {
+        if (activeWatchlist !== 'Top watchlist' && !watchlists[activeWatchlist].includes(cryptoId)) {
+            setWatchlists(prev => ({
+                ...prev,
+                [activeWatchlist]: [...prev[activeWatchlist], cryptoId]
+            }));
+        }
+    };
+    
+    const searchResults = React.useMemo(() => {
+        if (!searchTerm) return [];
+        return displayData.filter(crypto =>
+            crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [searchTerm, displayData]);
+
+    const activeWatchlistCryptos = React.useMemo(() => {
+        if (activeWatchlist === 'Top watchlist') {
+            return topCrypto;
+        }
+        const currentWatchlistIds = watchlists[activeWatchlist] || [];
+        return displayData.filter(crypto => currentWatchlistIds.includes(crypto.id));
+    }, [activeWatchlist, watchlists, displayData, topCrypto]);
+
+
+    const isCustomWatchlist = activeWatchlist !== 'Top watchlist';
 
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -137,7 +169,7 @@ export default function CryptoPage() {
             <div className="border-b border-border">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        {watchlists.map(watchlist => (
+                        {watchlistNames.map(watchlist => (
                             <Button
                                 key={watchlist}
                                 variant="ghost"
@@ -155,20 +187,65 @@ export default function CryptoPage() {
                 </div>
             </div>
 
-            <div className="p-4 space-y-6">
-                <div className="p-4">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending {tradeType}</h2>
-                    <div className="divide-y">
-                        {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} />}
+            {isCustomWatchlist && (
+                <div className="p-4 space-y-4">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input 
+                            placeholder="Search to add to watchlist..."
+                            className="pl-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
+                    {searchTerm && (
+                        <Card>
+                            <CardContent className="p-2 max-h-60 overflow-y-auto">
+                                {searchResults.length > 0 ? searchResults.map(crypto => (
+                                    <div key={crypto.id} className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
+                                        <div className="flex items-center gap-2">
+                                            <crypto.icon className="w-6 h-6" />
+                                            <div>
+                                                <p className="font-semibold">{crypto.name}</p>
+                                                <p className="text-xs text-muted-foreground">{crypto.symbol}</p>
+                                            </div>
+                                        </div>
+                                        <Button size="sm" onClick={() => handleAddToWatchlist(crypto.id)}>Add</Button>
+                                    </div>
+                                )) : <p className="text-center text-muted-foreground p-4">No results found.</p>}
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
+            )}
 
-                <div className="p-4">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
-                    <div className="divide-y">
-                        {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} />}
+            <div className="p-4 space-y-6">
+                
+                {isCustomWatchlist ? (
+                     <div className="p-4">
+                        <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> {activeWatchlist}</h2>
+                        <div className="divide-y">
+                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <>
+                        <div className="p-4">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending {tradeType}</h2>
+                            <div className="divide-y">
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} />}
+                            </div>
+                        </div>
+
+                        <div className="p-4">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
+                            <div className="divide-y">
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} />}
+                            </div>
+                        </div>
+                    </>
+                )}
+
 
                 <div className="p-4">
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
@@ -228,3 +305,5 @@ export default function CryptoPage() {
     </div>
   );
 }
+
+    
