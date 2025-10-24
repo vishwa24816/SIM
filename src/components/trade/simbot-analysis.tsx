@@ -13,7 +13,7 @@ interface SimbotAnalysisProps {
     crypto: CryptoCurrency;
 }
 export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
-  const [activeTab, setActiveTab] = React.useState('Analysis');
+  const [activeTab, setActiveTab] = React.useState('Overview');
   const navItems = ['Overview', 'Analysis', 'Technicals', 'News'];
 
   return (
@@ -36,12 +36,12 @@ export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
             </div>
         </div>
 
-        {activeTab === 'Analysis' && (
+        {activeTab === 'Overview' && (
             <>
                 <div className="flex flex-col space-y-1.5 p-6">
                     <div className="flex items-center gap-2">
                         <Bot className="h-5 w-5" />
-                        <h3 className="text-lg font-semibold leading-none tracking-tight">Simbot Analysis</h3>
+                        <h3 className="text-lg font-semibold leading-none tracking-tight">Simbot Overview</h3>
                     </div>
                 </div>
                 <div className="p-6 pt-0">
@@ -56,7 +56,7 @@ export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
                 </div>
             </>
         )}
-        {activeTab !== 'Analysis' && (
+        {activeTab !== 'Overview' && (
              <div className="flex items-center justify-center h-32">
                 <p className="text-muted-foreground">Content for {activeTab} goes here.</p>
             </div>
