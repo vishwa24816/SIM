@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { CryptoCurrency } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Aperture, List, MoreHorizontal, Clock } from "lucide-react";
@@ -25,11 +25,6 @@ export function MarketTable({ cryptos, onRowClick }: MarketTableProps) {
         <div className="flex items-center gap-3">
           <Aperture className="w-6 h-6 text-primary" />
           <CardTitle>Crypto & Web3 Holdings</CardTitle>
-        </div>
-        <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon"><List className="h-5 w-5" /></Button>
-            <Button variant="ghost" size="icon"><MoreHorizontal className="h-5 w-5" /></Button>
-            <Button variant="ghost" size="icon"><Clock className="h-5 w-5" /></Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -65,6 +60,11 @@ export function MarketTable({ cryptos, onRowClick }: MarketTableProps) {
           </TableBody>
         </Table>
       </CardContent>
+       <CardFooter className="flex items-center justify-center gap-2">
+            <Button variant="ghost" size="icon"><List className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon"><MoreHorizontal className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon"><Clock className="h-5 w-5" /></Button>
+        </CardFooter>
     </Card>
   );
 }
