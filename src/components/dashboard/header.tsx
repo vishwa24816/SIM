@@ -18,13 +18,6 @@ export function Header() {
                     </div>
                 </div>
             </div>
-            <div className="flex items-center space-x-1 overflow-x-auto pb-2 -mx-4 px-4">
-                <Button variant="secondary" size="sm" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground rounded-full">Portfolio</Button>
-                <Button variant="ghost" size="sm" className="text-primary-foreground/70 hover:text-primary-foreground rounded-full">Fiat</Button>
-                <Button variant="ghost" size="sm" className="text-primary-foreground/70 hover:text-primary-foreground rounded-full">Wealth</Button>
-                <Button variant="ghost" size="sm" className="text-primary-foreground/70 hover:text-primary-foreground rounded-full">Crypto</Button>
-                <Button variant="ghost" size="sm" className="text-primary-foreground/70 hover:text-primary-foreground rounded-full">Web3</Button>
-            </div>
         </div>
     </header>
   );
