@@ -21,7 +21,7 @@ export function OrderForm({ crypto }: OrderFormProps) {
     <Card>
         <CardContent className="pt-6">
             <div className="grid grid-cols-2 gap-4 mb-4">
-                <RadioGroup defaultValue="delivery" className="flex">
+                <RadioGroup defaultValue="delivery" className="flex space-x-4">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="delivery" id="delivery"/>
                         <Label htmlFor="delivery">Delivery</Label>
@@ -29,6 +29,10 @@ export function OrderForm({ crypto }: OrderFormProps) {
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="hodl" id="hodl"/>
                         <Label htmlFor="hodl">HODL</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="sp" id="sp"/>
+                        <Label htmlFor="sp">SP</Label>
                     </div>
                 </RadioGroup>
             </div>
