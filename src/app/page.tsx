@@ -19,21 +19,17 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
       <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
-        <div className="pt-6">
-          <div className="space-y-6 w-[90%] mx-auto">
-            <PortfolioView
-              portfolio={portfolio}
-              marketData={marketData}
-              totalPortfolioValue={totalPortfolioValue}
-            />
-            <MarketTable
-              cryptos={marketData}
-              onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)}
-            />
-            <CryptoPositions portfolio={portfolio} marketData={marketData} />
-            <NewsFeed />
-          </div>
-        </div>
+        <PortfolioView
+          portfolio={portfolio}
+          marketData={marketData}
+          totalPortfolioValue={totalPortfolioValue}
+        />
+        <MarketTable
+          cryptos={marketData}
+          onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)}
+        />
+        <CryptoPositions portfolio={portfolio} marketData={marketData} />
+        <NewsFeed />
       </main>
       <BottomNav />
     </div>
