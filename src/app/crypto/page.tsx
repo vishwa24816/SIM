@@ -67,11 +67,13 @@ export default function CryptoPage() {
     const { marketData, loading } = useMarketData();
     const [activeTab, setActiveTab] = React.useState('Gainers');
 
-    const trendingIds = ['shiba-inu', 'dogecoin', 'ripple', 'tron', 'usd-coin'];
-    const topIds = ['bitcoin', 'ethereum', 'tether', 'binancecoin', 'ripple', 'usd-coin', 'cardano', 'dogecoin'];
-
-    const trendingCrypto = marketData.filter(c => trendingIds.includes(c.id));
-    const topCrypto = marketData.filter(c => topIds.includes(c.id));
+    const trendingCrypto = [...marketData]
+      .sort((a, b) => b.volume24h - a.volume24h)
+      .slice(0, 5);
+      
+    const topCrypto = [...marketData]
+      .sort((a,b) => (b.price * b.volume24h) - (a.price * a.volume24h))
+      .slice(0, 8);
 
     const gainers = [...marketData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
     const losers = [...marketData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
