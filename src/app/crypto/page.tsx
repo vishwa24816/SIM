@@ -40,7 +40,7 @@ export default function CryptoPage() {
     const { marketData, loading } = useMarketData();
     const [listType, setListType] = React.useState('Gainers');
     const [tradeType, setTradeType] = React.useState('Spot');
-    const [watchlists, setWatchlists] = React.useState(['Top watchlist', 'Watchlist 1', 'Watchlist 2']);
+    const [watchlists, setWatchlists] = React.useState(['Top watchlist']);
     const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
 
 
@@ -115,7 +115,7 @@ export default function CryptoPage() {
     const activeList = listMap[listType as keyof typeof listMap];
     
     const handleAddWatchlist = () => {
-        const newWatchlistName = `Watchlist ${watchlists.length + 1 - 1}`;
+        const newWatchlistName = `Watchlist ${watchlists.length}`;
         setWatchlists([...watchlists, newWatchlistName]);
         setActiveWatchlist(newWatchlistName);
     };

@@ -40,7 +40,7 @@ export default function Web3Page() {
     const { marketData, loading } = useMarketData();
     const [listType, setListType] = React.useState('Gainers');
     const [viewType, setViewType] = React.useState('AI');
-    const [watchlists, setWatchlists] = React.useState(['Top watchlist', 'Watchlist 1', 'Watchlist 2']);
+    const [watchlists, setWatchlists] = React.useState(['Top watchlist']);
     const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
     
     const aiData = React.useMemo(() => marketData.filter(c => ['singularitynet'].includes(c.id)), [marketData]);
@@ -79,7 +79,7 @@ export default function Web3Page() {
     const navItems = ['AI', 'NFT', 'DEX'];
 
     const handleAddWatchlist = () => {
-        const newWatchlistName = `Watchlist ${watchlists.length + 1 - 1}`;
+        const newWatchlistName = `Watchlist ${watchlists.length}`;
         setWatchlists([...watchlists, newWatchlistName]);
         setActiveWatchlist(newWatchlistName);
     };
