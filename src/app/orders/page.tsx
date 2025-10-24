@@ -93,7 +93,7 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
             <Search className="h-5 w-5 text-muted-foreground" />
             <Button variant="link" className="text-primary">
                 <BarChart2 className="h-4 w-4 mr-2" />
