@@ -23,7 +23,6 @@ export default function DashboardPage() {
         <Tabs defaultValue="holdings">
           <div className="overflow-x-auto">
             <TabsList className="bg-transparent p-0 border-b border-border rounded-none">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="flat">Flat</TabsTrigger>
               <TabsTrigger value="crypto">Crypto</TabsTrigger>
               <TabsTrigger value="exchange">Exchange</TabsTrigger>
