@@ -94,13 +94,6 @@ export default function CryptoPage() {
 
                 <div>
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top Crypto</h2>
-                    <p className="text-sm text-muted-foreground mb-4">Tap items to view order page.</p>
-                    <div className="relative mb-4">
-                        <Input placeholder="Enter symbol (e.g., RELIANCE, NIFTYJANFI)" className="pr-10" />
-                        <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 text-primary">
-                            <PlusCircle />
-                        </Button>
-                    </div>
                     <div className="divide-y">
                         {topCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
                     </div>
