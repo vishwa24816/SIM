@@ -17,8 +17,24 @@ export function useMarketData() {
       if (!response.ok) {
         throw new Error('Failed to fetch market data');
       }
-      const data = await response.json();
-      setMarketData(data);
+      const liveData = await response.json();
+      
+      // Merge live data with initial static data to preserve icon components
+      const updatedData = INITIAL_CRYPTO_DATA.map(initialCrypto => {
+        const liveCrypto = liveData.find((d: any) => d.id === initialCrypto.id);
+        if (liveCrypto) {
+          return {
+            ...initialCrypto, // This keeps the original icon and other static properties
+            price: liveCrypto.price,
+            change24h: liveCrypto.change24h,
+            volume24h: liveCrypto.volume24h,
+            priceHistory: liveCrypto.priceHistory,
+          };
+        }
+        return initialCrypto; // Fallback to initial data if no live data is found
+      });
+
+      setMarketData(updatedData);
     } catch (error) {
       console.error(error);
       // Keep using existing or initial data if fetch fails
