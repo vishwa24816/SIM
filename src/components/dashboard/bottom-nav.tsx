@@ -13,7 +13,7 @@ export function BottomNav() {
   const navItems = [
     { href: '/', icon: Home, label: 'Home' },
     { href: '/orders', icon: ListOrdered, label: 'Orders' },
-    { href: '#', icon: Bitcoin, label: 'Crypto' },
+    { href: '/crypto', icon: Bitcoin, label: 'Crypto' },
     { href: '#', icon: Globe, label: 'Web3' },
     { href: '#', icon: ScreenShare, label: 'Screener' },
   ];
