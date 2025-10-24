@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { INITIAL_CRYPTO_DATA } from '@/lib/data';
 
-// IDs for CoinGecko API
-const cryptoIds = ['bitcoin', 'ethereum', 'dogecoin'];
+// Dynamically get IDs from the initial data
+const cryptoIds = INITIAL_CRYPTO_DATA.map(crypto => crypto.id);
 
 export async function GET() {
   try {
