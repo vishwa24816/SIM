@@ -11,8 +11,10 @@ export function useMarketData() {
   const [marketData, setMarketData] = useState<CryptoCurrency[]>(INITIAL_CRYPTO_DATA);
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
 
-  const fetchMarketData = async () => {
-    setLoading(true);
+  const fetchMarketData = async (isInitialLoad = false) => {
+    if (isInitialLoad) {
+        setLoading(true);
+    }
     try {
       const response = await fetch('/api/market-data');
       if (!response.ok) {
@@ -41,13 +43,17 @@ export function useMarketData() {
       // Keep using existing or initial data if fetch fails
       setMarketData(INITIAL_CRYPTO_DATA);
     } finally {
-        setLoading(false);
+        if (isInitialLoad) {
+            setLoading(false);
+        }
     }
   };
 
 
   useEffect(() => {
-    fetchMarketData(); // Fetch data once on component mount
+    fetchMarketData(true); // Fetch data once on component mount
+    const interval = setInterval(() => fetchMarketData(false), 30000); // Poll every 30 seconds
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
   const selectedCrypto = useMemo(() => {
