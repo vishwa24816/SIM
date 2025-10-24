@@ -2,7 +2,6 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CryptoCurrency } from '@/lib/types';
@@ -21,7 +20,7 @@ export function SimbotAnalysis({ crypto }: SimbotAnalysisProps) {
     <div>
         <div className="border-b border-t border-border">
             <div className="overflow-x-auto px-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                <div className="flex items-center gap-0 text-sm font-medium text-muted-foreground whitespace-nowrap">
                     {navItems.map(item => (
                         <Button
                             key={item}
