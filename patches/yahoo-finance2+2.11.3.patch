@@ -1,0 +1,41 @@
+diff --git a/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.js b/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.js
+index b81b7ac..040c114 100644
+--- a/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.js
++++ b/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.js
+@@ -1,6 +1,6 @@
+ // tests/fetchCache.ts
+ //
+-// This is a test file for fetch-mock-cache, but we can't really test
++// This is a test file for fetch-mock-cache.
+ // deno vs node vs browser in a single test run, so this file is just
+ // for local testing. It is not run in CI.
+ //
+diff --git a/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.node.js b/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.node.js
+index b7d6273..040c114 100644
+--- a/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.node.js
++++ b/node_modules/yahoo-finance2/dist/esm/tests/fetchCache.node.js
+@@ -1,6 +1,6 @@
+ // tests/fetchCache.ts
+ //
+-// This is a test file for fetch-mock-cache, but we can't really test
++// This is a test file for fetch-mock-cache.
+ // deno vs node vs browser in a single test run, so this file is just
+ // for local testing. It is not run in CI.
+ //
+diff --git a/node_modules/yahoo-finance2/esm/tests/fetchCache.js b/node_modules/yahoo-finance2/esm/tests/fetchCache.js
+index 7ca5431..29d91f1 100644
+--- a/node_modules/yahoo-finance2/esm/tests/fetchCache.js
++++ b/node_modules/yahoo-finance2/esm/tests/fetchCache.js
+@@ -1,9 +1,2 @@
+-// tests/fetchCache.ts
+-//
+-// This is a test file for fetch-mock-cache, but we can't really test
+-// deno vs node vs browser in a single test run, so this file is just
+-// for local testing. It is not run in CI.
+-//
+-import createFetchCache from "@gadicc/fetch-mock-cache/runtimes/deno.ts";
+-import Store from "@gadicc/fetch-mock-cache/stores/fs.ts";
+-const fetchCache = createFetchCache({ Store });
+-const originalFetch = globalThis.fetch;
+-globalThis.fetch = fetchCache.mock;
++// This file is intentionally left blank to prevent build errors in Next.js
