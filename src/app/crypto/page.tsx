@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -83,55 +84,45 @@ export default function CryptoPage() {
                 </div>
             </div>
 
-            <div className="p-4 space-y-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg"><Flame className="text-orange-500" /> Trending Crypto</CardTitle>
-                    </CardHeader>
-                    <CardContent className="divide-y">
+            <div className="p-4 space-y-6">
+                <div>
+                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending Crypto</h2>
+                    <div className="divide-y border rounded-lg p-4 bg-card">
                         {trendingCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg"><Eye /> Top Crypto</CardTitle>
-                        <p className="text-sm text-muted-foreground">Tap items to view order page.</p>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="relative mb-4">
-                            <Input placeholder="Enter symbol (e.g., RELIANCE, NIFTYJANFI)" className="pr-10" />
-                            <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 text-primary">
-                                <PlusCircle />
-                            </Button>
-                        </div>
-                        <div className="divide-y">
-                            {topCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
-                        </div>
-                    </CardContent>
-                </Card>
+                <div>
+                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top Crypto</h2>
+                    <p className="text-sm text-muted-foreground mb-4">Tap items to view order page.</p>
+                    <div className="relative mb-4">
+                        <Input placeholder="Enter symbol (e.g., RELIANCE, NIFTYJANFI)" className="pr-10" />
+                        <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 text-primary">
+                            <PlusCircle />
+                        </Button>
+                    </div>
+                    <div className="divide-y border rounded-lg p-4 bg-card">
+                        {topCrypto.map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary"><path d="M3 17L9 11L13 15L21 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 7H21V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                            Top Gainers &amp; Losers
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex rounded-md bg-muted p-1 mb-4">
-                            <Button onClick={() => setActiveTab('Gainers')} variant={activeTab === 'Gainers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-                                <ArrowUp className="mr-2 h-4 w-4 text-green-500"/> Gainers
-                            </Button>
-                            <Button onClick={() => setActiveTab('Losers')} variant={activeTab === 'Losers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-                                <ArrowDown className="mr-2 h-4 w-4 text-red-500"/> Losers
-                            </Button>
-                        </div>
-                        <div className="divide-y">
-                            {(activeTab === 'Gainers' ? gainers : []).map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
-                        </div>
-                    </CardContent>
-                </Card>
+                <div>
+                    <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary"><path d="M3 17L9 11L13 15L21 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 7H21V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        Top Gainers &amp; Losers
+                    </h2>
+                    <div className="flex rounded-md bg-muted p-1 mb-4">
+                        <Button onClick={() => setActiveTab('Gainers')} variant={activeTab === 'Gainers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+                            <ArrowUp className="mr-2 h-4 w-4 text-green-500"/> Gainers
+                        </Button>
+                        <Button onClick={() => setActiveTab('Losers')} variant={activeTab === 'Losers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+                            <ArrowDown className="mr-2 h-4 w-4 text-red-500"/> Losers
+                        </Button>
+                    </div>
+                    <div className="divide-y border rounded-lg p-4 bg-card">
+                        {(activeTab === 'Gainers' ? gainers : []).map(crypto => <CryptoListItem key={crypto.symbol} {...crypto} />)}
+                    </div>
+                </div>
 
                 <Card>
                     <CardHeader>
