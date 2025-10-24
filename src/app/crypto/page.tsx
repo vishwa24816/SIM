@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
@@ -12,35 +11,8 @@ import { Header } from '@/components/dashboard/header';
 import { useMarketData } from '@/hooks/use-market-data';
 import { CryptoCurrency } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
-    const Icon = crypto.icon;
-    const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
-    const price = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: crypto.price < 1 ? 6 : 2,
-    }).format(crypto.price);
-
-    return (
-        <div className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-3">
-                <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
-                    <Icon className="w-6 h-6" />
-                </div>
-                <div>
-                    <p className="font-semibold">{crypto.symbol}</p>
-                    <p className="text-xs text-muted-foreground">{crypto.name}</p>
-                </div>
-            </div>
-            <div className="text-right">
-                <p className="font-semibold">{price}</p>
-                <p className={cn("text-xs", changeColor)}>{crypto.change24h.toFixed(2)}%</p>
-            </div>
-        </div>
-    );
-};
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CryptoList } from '@/components/dashboard/crypto-list';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -65,18 +37,38 @@ const CryptoListSkeleton = () => (
 
 export default function CryptoPage() {
     const { marketData, loading } = useMarketData();
-    const [activeTab, setActiveTab] = React.useState('Gainers');
+    const [listType, setListType] = React.useState('Gainers');
+    const [tradeType, setTradeType] = React.useState('Spot');
 
-    const trendingCrypto = [...marketData]
+
+    const spotData = marketData;
+    const futuresData = React.useMemo(() => marketData.map(crypto => ({
+        ...crypto,
+        price: crypto.price * 1.02,
+        symbol: `${crypto.symbol}-FUT`,
+        name: `${crypto.name} Futures`,
+        id: `${crypto.id}-fut`
+    })), [marketData]);
+
+    const displayData = tradeType === 'Spot' ? spotData : futuresData;
+
+    const trendingCrypto = [...displayData]
       .sort((a, b) => b.volume24h - a.volume24h)
       .slice(0, 5);
       
-    const topCrypto = [...marketData]
+    const topCrypto = [...displayData]
       .sort((a,b) => (b.price * b.volume24h) - (a.price * a.volume24h))
       .slice(0, 8);
 
-    const gainers = [...marketData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
-    const losers = [...marketData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
+    const gainers = [...displayData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
+    const losers = [...displayData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
+
+    const listMap = {
+        'Gainers': gainers,
+        'Losers': losers,
+    };
+
+    const activeList = listMap[listType as keyof typeof listMap];
 
 
     return (
@@ -85,9 +77,9 @@ export default function CryptoPage() {
         <main className="flex-1 overflow-y-auto">
             <div className="border-b border-border">
                 <div className="overflow-x-auto px-4">
-                    <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        <Button variant="ghost" size="sm" className="text-primary px-3">Spot</Button>
-                        <Button variant="ghost" size="sm" className="px-3">Futures</Button>
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                        <Button onClick={() => setTradeType('Spot')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Spot' && 'text-primary')}>Spot</Button>
+                        <Button onClick={() => setTradeType('Futures')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Futures' && 'text-primary')}>Futures</Button>
                         <Button variant="ghost" size="sm" className="px-3">Mutual Fund</Button>
                     </div>
                 </div>
@@ -104,35 +96,35 @@ export default function CryptoPage() {
             </div>
 
             <div className="p-4 space-y-6">
-                <div>
+                <div className="p-4">
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending Crypto</h2>
                     <div className="divide-y">
-                        {loading ? <CryptoListSkeleton /> : trendingCrypto.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
+                        {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} />}
                     </div>
                 </div>
 
-                <div>
+                <div className="p-4">
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top Crypto</h2>
                     <div className="divide-y">
-                        {loading ? <CryptoListSkeleton /> : topCrypto.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
+                        {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} />}
                     </div>
                 </div>
 
-                <div>
+                <div className="p-4">
                     <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary"><path d="M3 17L9 11L13 15L21 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 7H21V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         Top Gainers &amp; Losers
                     </h2>
                     <div className="flex rounded-md bg-muted p-1 mb-4">
-                        <Button onClick={() => setActiveTab('Gainers')} variant={activeTab === 'Gainers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+                        <Button onClick={() => setListType('Gainers')} variant={listType === 'Gainers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                             <ArrowUp className="mr-2 h-4 w-4 text-green-500"/> Gainers
                         </Button>
-                        <Button onClick={() => setActiveTab('Losers')} variant={activeTab === 'Losers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+                        <Button onClick={() => setListType('Losers')} variant={listType === 'Losers' ? 'default' : 'ghost'} className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                             <ArrowDown className="mr-2 h-4 w-4 text-red-500"/> Losers
                         </Button>
                     </div>
                     <div className="divide-y">
-                         {loading ? <CryptoListSkeleton /> : (activeTab === 'Gainers' ? gainers : losers).map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
+                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} />}
                     </div>
                 </div>
 
