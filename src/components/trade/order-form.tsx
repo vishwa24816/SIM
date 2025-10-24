@@ -8,15 +8,17 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { CryptoCurrency } from '@/lib/types';
-import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface OrderFormProps {
     crypto: CryptoCurrency;
+    price: string;
+    setPrice: (price: string) => void;
+    orderType: string;
+    setOrderType: (type: string) => void;
 }
 
-export function OrderForm({ crypto }: OrderFormProps) {
-  const [orderType, setOrderType] = React.useState('limit');
+export function OrderForm({ crypto, price, setPrice, orderType, setOrderType }: OrderFormProps) {
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
@@ -26,7 +28,6 @@ export function OrderForm({ crypto }: OrderFormProps) {
   const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
   const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
   const [quantity, setQuantity] = React.useState('');
-  const [price, setPrice] = React.useState('');
 
   const marginRequired = React.useMemo(() => {
     const qty = parseFloat(quantity);
@@ -189,7 +190,7 @@ export function OrderForm({ crypto }: OrderFormProps) {
                 )}
             </div>
             
-            <RadioGroup defaultValue="limit" onValueChange={setOrderType} className="grid grid-cols-2 gap-4 mb-4">
+            <RadioGroup value={orderType} onValueChange={setOrderType} className="grid grid-cols-2 gap-4 mb-4">
                 <div className="flex items-center space-x-2">
                     <RadioGroupItem value="market" id="market"/>
                     <Label htmlFor="market">Market</Label>

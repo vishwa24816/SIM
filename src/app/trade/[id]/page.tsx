@@ -16,10 +16,27 @@ import { BottomNav } from '@/components/dashboard/bottom-nav';
 export default function TradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
   const { portfolio, buy, sell } = usePortfolio(marketData);
+  
+  const [price, setPrice] = React.useState('');
+  const [orderType, setOrderType] = React.useState('limit');
 
   const crypto = React.useMemo(() => {
     return marketData.find(c => c.id === params.id);
   }, [marketData, params.id]);
+
+  const handlePriceSelect = (selectedPrice: number) => {
+    setPrice(selectedPrice.toFixed(crypto?.price && crypto.price < 1 ? 6 : 2));
+    setOrderType('limit');
+  };
+
+  React.useEffect(() => {
+    if (crypto) {
+        setPrice(crypto.price.toFixed(crypto.price < 1 ? 6 : 2));
+    }
+    if (orderType === 'market' && crypto) {
+        setPrice(crypto.price.toFixed(crypto.price < 1 ? 6 : 2));
+    }
+  }, [crypto, orderType]);
 
   if (marketLoading) {
     return (
@@ -52,8 +69,14 @@ export default function TradePage({ params }: { params: { id: string } }) {
       <OrderPageHeader crypto={crypto} />
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         <PriceChart crypto={crypto} loading={marketLoading} />
-        <OrderForm crypto={crypto} />
-        <MarketDepth />
+        <OrderForm
+          crypto={crypto}
+          price={price}
+          setPrice={setPrice}
+          orderType={orderType}
+          setOrderType={setOrderType}
+        />
+        <MarketDepth crypto={crypto} onPriceSelect={handlePriceSelect} />
         <SimbotAnalysis crypto={crypto} />
       </main>
       <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
