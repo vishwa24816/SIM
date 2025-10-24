@@ -65,18 +65,6 @@ export default function CryptoPage() {
         <main className="flex-1 overflow-y-auto p-4 space-y-6">
             <div className="border-b border-border">
                 <div className="px-4 overflow-x-auto">
-                    <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        <Button variant="ghost" className="p-0 h-auto">Portfolio</Button>
-                        <Button variant="ghost" className="p-0 h-auto">Fiat</Button>
-                        <Button variant="ghost" className="p-0 h-auto">Wealth</Button>
-                        <Button variant="ghost" className="p-0 h-auto text-primary font-semibold border-b-2 border-primary">Crypto</Button>
-                        <Button variant="ghost" className="p-0 h-auto">Web3</Button>
-                    </div>
-                </div>
-            </div>
-
-            <div className="border-b border-border">
-                <div className="px-4 overflow-x-auto">
                     <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button variant="ghost" className="text-primary px-3">Spot</Button>
                         <Button variant="ghost" className="px-3">Futures</Button>
