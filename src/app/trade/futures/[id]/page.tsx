@@ -8,11 +8,14 @@ import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { FuturesOrderForm } from '@/components/trade/futures-order-form';
 import { MarketDepth } from '@/components/trade/market-depth';
-import { SimbotAnalysis } from '@/components/trade/simbot-analysis';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Separator } from '@/components/ui/separator';
+import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
+import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
+import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FuturesTradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -89,7 +92,18 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
         <Separator className="bg-border/50" />
         <MarketDepth crypto={crypto} onPriceSelect={handlePriceSelect} />
         <Separator className="bg-border/50" />
-        <SimbotAnalysis crypto={crypto} />
+        <Tabs defaultValue="technicals" className="w-full">
+            <TabsList>
+                <TabsTrigger value="technicals">Technicals</TabsTrigger>
+                <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            </TabsList>
+            <TabsContent value="technicals">
+                <CryptoTechnicals crypto={crypto} />
+            </TabsContent>
+            <TabsContent value="analysis">
+                <CryptoAnalysis crypto={crypto} />
+            </TabsContent>
+        </Tabs>
       </main>
       <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <div className="grid grid-cols-2 gap-4">
