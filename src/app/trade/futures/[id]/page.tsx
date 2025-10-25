@@ -15,7 +15,6 @@ import { Separator } from '@/components/ui/separator';
 import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
 import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FuturesTradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -23,6 +22,9 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('limit');
+  const [activeTab, setActiveTab] = React.useState('Technicals');
+  
+  const TABS = ['Technicals', 'Analysis'];
   
   const futuresData = React.useMemo(() => marketData.map(crypto => ({
       ...crypto,
@@ -79,6 +81,25 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <OrderPageHeader crypto={crypto} />
+      
+       <div className="border-b border-border">
+          <div className="overflow-x-auto px-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                  {TABS.map((tab) => (
+                      <Button
+                          key={tab}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setActiveTab(tab)}
+                          className={cn("px-3", activeTab === tab ? 'text-primary bg-muted rounded-full' : '')}
+                      >
+                          {tab}
+                      </Button>
+                  ))}
+              </div>
+          </div>
+      </div>
+
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
         <PriceChart crypto={crypto} loading={marketLoading} />
         <Separator className="bg-border/50" />
@@ -92,18 +113,10 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
         <Separator className="bg-border/50" />
         <MarketDepth crypto={crypto} onPriceSelect={handlePriceSelect} />
         <Separator className="bg-border/50" />
-        <Tabs defaultValue="technicals" className="w-full">
-            <TabsList>
-                <TabsTrigger value="technicals">Technicals</TabsTrigger>
-                <TabsTrigger value="analysis">Analysis</TabsTrigger>
-            </TabsList>
-            <TabsContent value="technicals">
-                <CryptoTechnicals crypto={crypto} />
-            </TabsContent>
-            <TabsContent value="analysis">
-                <CryptoAnalysis crypto={crypto} />
-            </TabsContent>
-        </Tabs>
+        
+        {activeTab === 'Technicals' && <CryptoTechnicals crypto={crypto} />}
+        {activeTab === 'Analysis' && <CryptoAnalysis crypto={crypto} />}
+        
       </main>
       <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <div className="grid grid-cols-2 gap-4">
