@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -99,7 +100,7 @@ const MemoizedScreenerListItem = React.memo(ScreenerListItem);
 
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
-    const [activeTab, setActiveTab] = React.useState('All');
+    const [activeTab, setActiveTab] = React.useState('AI');
     const [prompt, setPrompt] = React.useState('');
     const [isAiLoading, setIsAiLoading] = React.useState(false);
     const [aiFilteredIds, setAiFilteredIds] = React.useState<string[] | null>(null);
@@ -123,7 +124,7 @@ export default function ScreenerPage() {
         if (loading) return [];
         return marketData.map(crypto => {
             // A more stable way to calculate market cap if circulating_supply is not directly available
-            const circulatingSupply = crypto.volume24h > 0 && crypto.price > 0 ? (crypto.volume24h / crypto.price) / (Math.random() * 10 + 1) : 1000000;
+            const circulatingSupply = crypto.volume24h > 0 && crypto.price > 0 ? (crypto.volume24h / crypto.price) / (10 + 1) : 1000000;
             const marketCap = crypto.price * circulatingSupply;
             return { ...crypto, marketCap };
         });
@@ -132,7 +133,7 @@ export default function ScreenerPage() {
     const allCryptos = React.useMemo(() => dataWithMarketCap.sort((a, b) => b.marketCap - a.marketCap), [dataWithMarketCap]);
     const trendingCryptos = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.volume24h - a.volume24h), [dataWithMarketCap]);
     const topGainers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.change24h - a.change24h), [dataWithMarketCap]);
-    const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWith-marketCap]);
+    const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWithMarketCap]);
     const aiScreenedCryptos = React.useMemo(() => {
         if (aiFilteredIds === null) return [];
         const filteredSet = new Set(aiFilteredIds);
@@ -244,3 +245,5 @@ export default function ScreenerPage() {
         </div>
     );
 }
+
+    
