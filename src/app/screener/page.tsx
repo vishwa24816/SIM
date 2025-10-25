@@ -85,14 +85,8 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
 
 const AIScreener = () => {
     const presetFilters = [
-        "IT stocks with P/E greater than 30",
-        "Banking stocks with ROE greater than 15%",
-        "Large cap stocks over 5,00,000Cr market cap",
-        "FMCG stocks with low debt",
         "High Volume Crypto",
         "New Crypto Projects",
-        "High Return ELSS Funds",
-        "Top Small Cap Mutual Funds",
     ];
 
     return (
@@ -130,7 +124,7 @@ const AIScreener = () => {
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
     const [searchTerm, setSearchTerm] = React.useState('');
-    const [activeTab, setActiveTab] = React.useState('All');
+    const [activeTab, setActiveTab] = React.useState('AI');
     
     const aiIds = ['singularitynet'];
 
@@ -142,8 +136,9 @@ export default function ScreenerPage() {
             data = data.sort((a, b) => b.change24h - a.change24h);
         } else if (activeTab === 'Top Losers') {
             data = data.sort((a, b) => a.change24h - b.change24h);
+        } else if (activeTab === 'AI') {
+             return data.filter(c => aiIds.includes(c.id));
         }
-        // AI tab is handled separately now
 
         if (searchTerm) {
             return data.filter(c => 
@@ -161,7 +156,7 @@ export default function ScreenerPage() {
              <div className="border-b border-border mt-4">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-0 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        {['All', 'AI', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
+                        {['AI', 'All', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
                              <Button 
                                 key={tab} 
                                 onClick={() => setActiveTab(tab)} 
