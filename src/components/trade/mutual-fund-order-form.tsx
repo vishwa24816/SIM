@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { MutualFund } from '@/lib/types';
+import { SwipeToConfirm } from '../ui/swipe-to-confirm';
+import { useToast } from '@/hooks/use-toast';
 
 interface MutualFundOrderFormProps {
     fund: MutualFund;
@@ -15,6 +17,24 @@ interface MutualFundOrderFormProps {
 export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
     const [investmentType, setInvestmentType] = React.useState('one-time');
     const [amount, setAmount] = React.useState('');
+    const { toast } = useToast();
+
+    const handleSwipeConfirm = () => {
+        if (!amount || parseFloat(amount) <= 0) {
+            toast({
+                variant: 'destructive',
+                title: 'Invalid Amount',
+                description: 'Please enter a valid investment amount.',
+            });
+            return;
+        }
+        toast({
+            title: 'Investment Successful',
+            description: `Your investment of $${amount} in ${fund.name} is being processed.`,
+        });
+        // Here you would typically call an API to process the investment
+        console.log(`Investing $${amount} in ${fund.name}`);
+    };
 
     return (
         <div>
@@ -45,10 +65,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     />
                 </div>
 
-                <Button size="lg" className="w-full text-lg">
-                    <svg className="w-6 h-6 mr-2 animate-pulse" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 5L13 19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                    Swipe to Invest
-                </Button>
+                <SwipeToConfirm onConfirm={handleSwipeConfirm} />
 
                 <div className="grid grid-cols-2 gap-4 text-sm mt-6 text-muted-foreground">
                     <div>
