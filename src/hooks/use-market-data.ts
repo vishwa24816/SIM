@@ -65,7 +65,7 @@ export function useMarketData() {
     fetchMarketData(true); // Initial fetch
     const intervalId = setInterval(() => {
       fetchMarketData(false);
-    }, 6000); // Poll every 6 seconds
+    }, 30000); // Poll every 30 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
