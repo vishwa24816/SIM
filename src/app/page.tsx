@@ -34,7 +34,6 @@ export default function DashboardPage() {
           addUsd={addUsd}
           withdrawUsd={withdrawUsd}
         />
-        <CryptoPositions portfolio={portfolio} marketData={marketData} />
         
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
           <div className="flex flex-row items-center justify-between p-6">
@@ -49,6 +48,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        <CryptoPositions portfolio={portfolio} marketData={marketData} />
 
         <NewsFeed />
       </main>
