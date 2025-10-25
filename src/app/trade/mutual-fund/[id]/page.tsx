@@ -72,11 +72,8 @@ export default function MutualFundTradePage({ params }: { params: { id: string }
         <MutualFundOrderForm fund={fund} />
         <Separator className="bg-border/50" />
         <FundDetails fund={fund} />
-        <Separator className="bg-border/50" />
-        <SimbotAnalysis crypto={cryptoEquivalent} />
       </main>
       <BottomNav />
     </div>
   );
 }
-
