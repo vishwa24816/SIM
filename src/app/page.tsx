@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -13,7 +14,7 @@ import { CryptoPositions } from "@/components/dashboard/crypto-positions";
 
 export default function DashboardPage() {
   const { marketData, setSelectedCryptoId, loading } = useMarketData();
-  const { portfolio, totalPortfolioValue } = usePortfolio(marketData);
+  const { portfolio, totalPortfolioValue, addUsd, withdrawUsd } = usePortfolio(marketData);
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -23,6 +24,8 @@ export default function DashboardPage() {
           portfolio={portfolio}
           marketData={marketData}
           totalPortfolioValue={totalPortfolioValue}
+          addUsd={addUsd}
+          withdrawUsd={withdrawUsd}
         />
         <MarketTable
           cryptos={marketData}

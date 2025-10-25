@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -12,6 +13,35 @@ const INITIAL_PORTFOLIO: Portfolio = {
 export function usePortfolio(marketData: CryptoCurrency[]) {
   const [portfolio, setPortfolio] = useState<Portfolio>(INITIAL_PORTFOLIO);
   const { toast } = useToast();
+
+  const addUsd = (amount: number) => {
+    if (amount <= 0) {
+      toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a positive amount to add." });
+      return;
+    }
+    setPortfolio(prev => ({
+      ...prev,
+      usdBalance: prev.usdBalance + amount
+    }));
+    toast({ title: "Funds Added", description: `$${amount.toFixed(2)} has been added to your wallet.` });
+  };
+
+  const withdrawUsd = (amount: number) => {
+    if (amount <= 0) {
+      toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a positive amount to withdraw." });
+      return;
+    }
+    if (amount > portfolio.usdBalance) {
+      toast({ variant: "destructive", title: "Insufficient Funds", description: "Withdrawal amount cannot exceed your balance." });
+      return;
+    }
+    setPortfolio(prev => ({
+      ...prev,
+      usdBalance: prev.usdBalance - amount
+    }));
+    toast({ title: "Withdrawal Successful", description: `$${amount.toFixed(2)} has been withdrawn from your wallet.` });
+  };
+
 
   const buy = (cryptoId: string, usdAmount: number) => {
     if (usdAmount <= 0) {
@@ -87,5 +117,5 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
     return portfolio.usdBalance + holdingsValue;
   }, [portfolio, marketData]);
 
-  return { portfolio, buy, sell, totalPortfolioValue };
+  return { portfolio, buy, sell, totalPortfolioValue, addUsd, withdrawUsd };
 }

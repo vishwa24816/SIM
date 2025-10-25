@@ -1,17 +1,26 @@
+
+"use client";
+
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { CryptoCurrency, Portfolio } from "@/lib/types";
 import { ArrowUpRight, ArrowDownLeft, History, Bitcoin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
+import { ManageFundsDialog } from "./manage-funds-dialog";
 
 interface PortfolioViewProps {
   portfolio: Portfolio;
   marketData: CryptoCurrency[];
   totalPortfolioValue: number;
+  addUsd: (amount: number) => void;
+  withdrawUsd: (amount: number) => void;
 }
 
-export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: PortfolioViewProps) {
+export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addUsd, withdrawUsd }: PortfolioViewProps) {
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
+
   const overallPl = totalPortfolioValue - portfolio.usdBalance; // Simple P/L for example
   const overallPlPercent = portfolio.usdBalance > 0 ? (overallPl / portfolio.usdBalance) * 100 : 0;
   const dayPl = marketData.reduce((acc, crypto) => {
@@ -23,7 +32,22 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
   }, 0)
   const dayPlPercent = totalPortfolioValue > 0 ? (dayPl / totalPortfolioValue) * 100 : 0;
 
+  const handleOpenDialog = (action: 'add' | 'withdraw') => {
+    setDialogAction(action);
+    setIsDialogOpen(true);
+  }
+
+  const handleConfirm = (amount: number) => {
+    if (dialogAction === 'add') {
+      addUsd(amount);
+    } else {
+      withdrawUsd(amount);
+    }
+    setIsDialogOpen(false);
+  }
+
   return (
+    <>
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex items-center gap-3">
@@ -73,9 +97,17 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
       </div>
        <Separator />
         <div className="p-4 grid grid-cols-2 gap-4">
-            <Button variant="default" className="w-full">Add Money</Button>
-            <Button variant="secondary" className="w-full">Withdraw Money</Button>
+            <Button variant="default" className="w-full" onClick={() => handleOpenDialog('add')}>Add Money</Button>
+            <Button variant="secondary" className="w-full" onClick={() => handleOpenDialog('withdraw')}>Withdraw Money</Button>
         </div>
     </div>
+    <ManageFundsDialog 
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        action={dialogAction}
+        balance={portfolio.usdBalance}
+        onConfirm={handleConfirm}
+    />
+    </>
   );
 }
