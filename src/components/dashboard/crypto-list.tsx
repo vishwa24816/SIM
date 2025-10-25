@@ -6,7 +6,7 @@ import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-const CryptoListItem = ({ crypto, isTradePage }: { crypto: CryptoCurrency, isTradePage?: boolean }) => {
+const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeType?: 'Spot' | 'Futures' }) => {
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
@@ -34,9 +34,10 @@ const CryptoListItem = ({ crypto, isTradePage }: { crypto: CryptoCurrency, isTra
         </div>
     );
     
-    if (isTradePage) {
+    if (tradeType) {
+        const path = tradeType === 'Futures' ? `/trade/futures/${crypto.id}` : `/trade/${crypto.id}`;
         return (
-            <Link href={`/trade/${crypto.id}`} legacyBehavior>
+            <Link href={path} legacyBehavior>
                 <a>{content}</a>
             </Link>
         )
@@ -47,13 +48,13 @@ const CryptoListItem = ({ crypto, isTradePage }: { crypto: CryptoCurrency, isTra
 
 interface CryptoListProps {
     cryptos: CryptoCurrency[];
-    isTradePage?: boolean;
+    tradeType?: 'Spot' | 'Futures';
 }
 
-export function CryptoList({ cryptos, isTradePage }: CryptoListProps) {
+export function CryptoList({ cryptos, tradeType }: CryptoListProps) {
     return (
         <>
-            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} isTradePage={isTradePage} />)}
+            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} tradeType={tradeType} />)}
         </>
     );
 }
