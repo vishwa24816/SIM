@@ -93,6 +93,7 @@ const AIScreener = ({ aiQuery, setAiQuery, onRunScreener }: AIScreenerProps) => 
     const presetFilters = [
         "High Volume Crypto",
         "New Crypto Projects",
+        "AI-related",
     ];
 
     return (
@@ -147,7 +148,7 @@ export default function ScreenerPage() {
             results = [...marketData].sort((a,b) => b.volume24h - a.volume24h).slice(0, 10);
         } else if (lowerCaseQuery.includes('new crypto')) {
             // This is a placeholder for new projects logic
-            results = [...marketData].sort((a,b) => new Date(b.priceHistory[0].time).getTime() - new Date(a.priceHistory[0].time).getTime()).slice(0, 5);
+            results = [...marketData].sort((a,b) => new Date(b.priceHistory[b.priceHistory.length - 1].time).getTime() - new Date(a.priceHistory[a.priceHistory.length - 1].time).getTime()).slice(0, 5);
         } else if (lowerCaseQuery.includes('ai')) {
              results = marketData.filter(c => aiIds.includes(c.id));
         } else {
