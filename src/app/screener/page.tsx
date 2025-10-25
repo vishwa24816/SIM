@@ -85,6 +85,8 @@ export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
     const [searchTerm, setSearchTerm] = React.useState('');
     const [activeTab, setActiveTab] = React.useState('All');
+    
+    const aiIds = ['singularitynet'];
 
     const filteredData = React.useMemo(() => {
         let data = [...marketData];
@@ -94,6 +96,8 @@ export default function ScreenerPage() {
             data = data.sort((a, b) => b.change24h - a.change24h);
         } else if (activeTab === 'Top Losers') {
             data = data.sort((a, b) => a.change24h - b.change24h);
+        } else if (activeTab === 'AI') {
+            data = data.filter(c => aiIds.includes(c.id));
         }
 
         if (searchTerm) {
@@ -112,7 +116,7 @@ export default function ScreenerPage() {
              <div className="border-b border-border mt-4">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-0 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        {['All', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
+                        {['All', 'AI', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
                              <Button 
                                 key={tab} 
                                 onClick={() => setActiveTab(tab)} 
