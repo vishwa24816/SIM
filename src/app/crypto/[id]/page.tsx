@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { NewsFeed } from '@/components/dashboard/news-feed';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
+import { CryptoFundamentals } from '@/components/trade/crypto-fundamentals';
 
 export default function CryptoDetailPage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -87,7 +88,10 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
         {activeTab === 'Analysis' && (
           <CryptoAnalysis crypto={crypto} />
         )}
-        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && (
+        {activeTab === 'Fundamentals' && (
+          <CryptoFundamentals crypto={crypto} />
+        )}
+        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && activeTab !== 'Fundamentals' && (
            <div className="flex items-center justify-center h-48 text-muted-foreground">
               <p>Content for {activeTab} will be available soon.</p>
             </div>
