@@ -1,15 +1,15 @@
+
 'use client';
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Search } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Header } from '@/components/dashboard/header';
 import { useMarketData } from '@/hooks/use-market-data';
 import { CryptoCurrency } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
 const ScreenerListItem = ({
@@ -29,10 +29,10 @@ const ScreenerListItem = ({
   }).format(crypto.price);
 
   const formatMarketData = (value: number) => {
-    if (value > 1_000_000_000) {
+    if (value >= 1_000_000_000) {
       return `$${(value / 1_000_000_000).toFixed(2)}B`;
     }
-    if (value > 1_000_000) {
+    if (value >= 1_000_000) {
       return `$${(value / 1_000_000).toFixed(2)}M`;
     }
     return `$${value.toLocaleString()}`;
@@ -97,26 +97,30 @@ export default function ScreenerPage() {
     const [activeTab, setActiveTab] = React.useState('All');
     
     const processedData = React.useMemo(() => {
+        if (loading) return [];
         return marketData.map(crypto => {
+            // This calculation is now stable and deterministic
             const circulatingSupply = crypto.volume24h / crypto.price;
             const marketCap = crypto.price * circulatingSupply;
             return { ...crypto, marketCap };
-        });
-    }, [marketData]);
+        }).sort((a, b) => b.marketCap - a.marketCap); // Sort all data by market cap initially
+    }, [marketData, loading]);
 
     const trendingData = React.useMemo(() => [...processedData].sort((a,b) => b.volume24h - a.volume24h), [processedData]);
     const topGainers = React.useMemo(() => [...processedData].sort((a,b) => b.change24h - a.change24h), [processedData]);
     const topLosers = React.useMemo(() => [...processedData].sort((a,b) => a.change24h - b.change24h), [processedData]);
+    const aiData = React.useMemo(() => processedData.filter(c => ['singularitynet'].includes(c.id)), [processedData]);
     
     const dataMap: { [key: string]: typeof processedData } = {
         'All': processedData,
+        'AI': aiData,
         'Trending': trendingData,
         'Top Gainers': topGainers,
         'Top Losers': topLosers,
     };
     
-    const displayData = dataMap[activeTab];
-    const navItems = ['All', 'Trending', 'Top Gainers', 'Top Losers'];
+    const displayData = dataMap[activeTab] || [];
+    const navItems = ['All', 'AI', 'Trending', 'Top Gainers', 'Top Losers'];
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -149,9 +153,9 @@ export default function ScreenerPage() {
                         ))}
                     </div>
                 )}
-                {displayData && displayData.length === 0 && !loading && (
+                {displayData.length === 0 && !loading && (
                     <div className="flex items-center justify-center h-48 text-muted-foreground">
-                        No assets found.
+                        No assets found for this category.
                     </div>
                 )}
             </main>
