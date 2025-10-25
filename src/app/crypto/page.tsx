@@ -50,7 +50,7 @@ export default function CryptoPage() {
     
     const futuresData = React.useMemo(() => marketData.map(crypto => ({
         ...crypto,
-        price: crypto.price * 1.02,
+        price: crypto.price,
         symbol: `${crypto.symbol}-FUT`,
         name: `${crypto.name} Futures`,
         id: `${crypto.id}-fut`

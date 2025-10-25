@@ -23,7 +23,7 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
   
   const futuresData = React.useMemo(() => marketData.map(crypto => ({
       ...crypto,
-      price: crypto.price * 1.02,
+      price: crypto.price,
       symbol: `${crypto.symbol}-FUT`,
       name: `${crypto.name} Futures`,
       id: `${crypto.id}-fut`
@@ -101,4 +101,3 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     </div>
   );
 }
-
