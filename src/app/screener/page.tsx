@@ -106,10 +106,7 @@ export default function ScreenerPage() {
     const [aiFilteredIds, setAiFilteredIds] = React.useState<string[] | null>(null);
 
     const examplePrompts = [
-      "Newly trending meme coins",
-      "AI tokens with high volume",
-      "Undervalued DeFi assets",
-      "Coins with recent positive news",
+      "Top 10 most traded cryptos",
     ];
 
     const handleRunScreener = async () => {
