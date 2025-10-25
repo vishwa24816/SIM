@@ -51,8 +51,9 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
         notation: 'compact',
     }).format(crypto.volume24h);
     
-    // Simplified, stable market cap calculation
-    const marketCapValue = (crypto.price * (crypto.volume24h / (crypto.price || 1) / 100));
+    // Stable market cap calculation
+    const circulatingSupply = crypto.volume24h / (crypto.price * 0.1);
+    const marketCapValue = crypto.price * circulatingSupply;
     const marketCap = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -143,7 +144,7 @@ export default function ScreenerPage() {
     
     const aiIds = ['singularitynet'];
 
-    const handleRunScreener = () => {
+    const handleRunScreener = React.useCallback(() => {
         setAiSearchPerformed(true);
         let results: CryptoCurrency[] = [];
         const lowerCaseQuery = aiQuery.toLowerCase();
@@ -154,15 +155,15 @@ export default function ScreenerPage() {
              results = marketData.filter(c => aiIds.includes(c.id));
         } else if (lowerCaseQuery.includes('market cap more than 100b')) {
             results = marketData.filter(c => {
-                const estimatedCirculatingSupply = c.volume24h / (c.price || 1) * 20;
-                const marketCap = c.price * estimatedCirculatingSupply;
+                const circulatingSupply = c.volume24h / (c.price * 0.1);
+                const marketCap = c.price * circulatingSupply;
                 return marketCap > 100000000000;
             });
         } else {
              results = marketData.filter(c => c.name.toLowerCase().includes(lowerCaseQuery) || c.symbol.toLowerCase().includes(lowerCaseQuery));
         }
         setAiResults(results);
-    };
+    }, [aiQuery, marketData]);
 
     const filteredData = React.useMemo(() => {
         let data = [...marketData];
