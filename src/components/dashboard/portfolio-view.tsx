@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { CryptoCurrency, Portfolio } from "@/lib/types";
-import { ArrowUpRight, ArrowDownLeft, History, Bitcoin, QrCode } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, History, Bitcoin, QrCode, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { ManageFundsDialog } from "./manage-funds-dialog";
@@ -13,16 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import QRCode from 'qrcode.react';
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
-interface PortfolioViewProps {
-  portfolio: Portfolio;
-  marketData: CryptoCurrency[];
-  totalPortfolioValue: number;
-  addUsd: (amount: number) => void;
-  withdrawUsd: (amount: number) => void;
-}
-
-const SendCryptoForm = ({ portfolio, marketData, onConfirm }: { portfolio: Portfolio, marketData: CryptoCurrency[], onConfirm: (assetId: string, recipient: string, amount: number) => void }) => {
+const SendCryptoForm = ({ portfolio, marketData, onConfirm, onCancel }: { portfolio: Portfolio, marketData: CryptoCurrency[], onConfirm: (assetId: string, recipient: string, amount: number) => void, onCancel: () => void }) => {
     const [assetId, setAssetId] = React.useState<string>(portfolio.holdings[0]?.cryptoId || '');
     const [recipient, setRecipient] = React.useState('');
     const [amount, setAmount] = React.useState('');
@@ -55,6 +49,7 @@ const SendCryptoForm = ({ portfolio, marketData, onConfirm }: { portfolio: Portf
         onConfirm(assetId, recipient, numericAmount);
         setRecipient('');
         setAmount('');
+        onCancel();
     };
     
     React.useEffect(() => {
@@ -107,7 +102,61 @@ const SendCryptoForm = ({ portfolio, marketData, onConfirm }: { portfolio: Portf
                         className="bg-background"
                     />
                 </div>
-                <Button onClick={handleConfirm}>Confirm & Send</Button>
+                <div className="flex gap-2">
+                    <Button onClick={onCancel} variant="outline" className="w-full">Cancel</Button>
+                    <Button onClick={handleConfirm} className="w-full">Confirm & Send</Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ReceiveCryptoForm = ({ portfolio, marketData, onCancel }: { portfolio: Portfolio, marketData: CryptoCurrency[], onCancel: () => void }) => {
+    const [assetId, setAssetId] = React.useState<string>(portfolio.holdings[0]?.cryptoId || 'bitcoin');
+    const { copy } = useCopyToClipboard();
+
+    // Mock wallet address generation
+    const walletAddress = React.useMemo(() => {
+        return `0x${[...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
+    }, [assetId]);
+
+    const handleCopy = () => {
+        copy(walletAddress);
+        toast({ title: "Address Copied!", description: "The wallet address has been copied to your clipboard." });
+    };
+
+    const { toast } = useToast();
+
+    const availableAssets = marketData.filter(c => portfolio.holdings.some(h => h.cryptoId === c.id) || c.id === 'bitcoin');
+
+    return (
+        <div className="p-4 bg-muted/50 border-t text-center">
+            <div className="space-y-4">
+                <Select value={assetId} onValueChange={setAssetId}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select an asset" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {availableAssets.map(asset => (
+                            <SelectItem key={asset.id} value={asset.id}>
+                                Receive {asset.name} ({asset.symbol})
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <div className="bg-white p-2 rounded-lg inline-block">
+                    <QRCode value={walletAddress} size={160} />
+                </div>
+                
+                <p className="text-xs text-muted-foreground break-all p-2 bg-background rounded-md">{walletAddress}</p>
+
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={onCancel} className="w-full">Close</Button>
+                    <Button onClick={handleCopy} className="w-full">
+                        <Copy className="mr-2 h-4 w-4" /> Copy Address
+                    </Button>
+                </div>
             </div>
         </div>
     );
@@ -117,6 +166,7 @@ const SendCryptoForm = ({ portfolio, marketData, onConfirm }: { portfolio: Portf
 export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addUsd, withdrawUsd }: PortfolioViewProps) {
   const [isManageFundsOpen, setIsManageFundsOpen] = React.useState(false);
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
+  const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
 
   const handleOpenManageFunds = (action: 'add' | 'withdraw') => {
     setDialogAction(action);
@@ -137,11 +187,15 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
     // Here you would integrate with a real sell/transfer function
     // For now, we just log it.
   }
+  
+  const handleToggleSection = (section: 'send' | 'receive') => {
+      setOpenSection(prev => prev === section ? null : section);
+  }
 
 
   return (
     <>
-    <Collapsible className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-md">
@@ -184,12 +238,10 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
         </div>
       </div>
       <div className="flex items-center justify-center p-6 pt-0 gap-2">
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1">
-                <ArrowUpRight className="h-4 w-4" /> Send
-            </Button>
-          </CollapsibleTrigger>
-          <Button variant="outline" size="sm" className="gap-1">
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => handleToggleSection('send')} data-state={openSection === 'send' ? 'open' : 'closed'}>
+              <ArrowUpRight className="h-4 w-4" /> Send
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => handleToggleSection('receive')} data-state={openSection === 'receive' ? 'open' : 'closed'}>
               <ArrowDownLeft className="h-4 w-4" /> Receive
           </Button>
           <Button variant="outline" size="sm" className="gap-1">
@@ -202,10 +254,17 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
             <Button variant="secondary" className="w-full" onClick={() => handleOpenManageFunds('withdraw')}>Withdraw Money</Button>
         </div>
 
-      <CollapsibleContent>
-        <SendCryptoForm portfolio={portfolio} marketData={marketData} onConfirm={handleSendCrypto} />
-      </CollapsibleContent>
-    </Collapsible>
+        <Collapsible open={openSection === 'send'} onOpenChange={(isOpen) => !isOpen && setOpenSection(null)}>
+            <CollapsibleContent>
+                <SendCryptoForm portfolio={portfolio} marketData={marketData} onConfirm={handleSendCrypto} onCancel={() => setOpenSection(null)} />
+            </CollapsibleContent>
+        </Collapsible>
+        <Collapsible open={openSection === 'receive'} onOpenChange={(isOpen) => !isOpen && setOpenSection(null)}>
+            <CollapsibleContent>
+                <ReceiveCryptoForm portfolio={portfolio} marketData={marketData} onCancel={() => setOpenSection(null)} />
+            </CollapsibleContent>
+        </Collapsible>
+    </div>
     <ManageFundsDialog 
         isOpen={isManageFundsOpen}
         onClose={() => setIsManageFundsOpen(false)}
