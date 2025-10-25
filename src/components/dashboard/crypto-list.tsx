@@ -6,7 +6,7 @@ import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeType?: 'Spot' | 'Futures' | 'Mutual Fund' }) => {
+const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeType?: 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETFs' }) => {
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
@@ -40,6 +40,8 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeTy
             path = `/trade/futures/${crypto.id}`;
         } else if (tradeType === 'Mutual Fund') {
             path = `/trade/mutual-fund/${crypto.id}`;
+        } else if (tradeType === 'Crypto ETFs') {
+            path = `/trade/etf/${crypto.id}`;
         } else {
             path = `/trade/${crypto.id}`;
         }
@@ -56,7 +58,7 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeTy
 
 interface CryptoListProps {
     cryptos: CryptoCurrency[];
-    tradeType?: 'Spot' | 'Futures' | 'Mutual Fund';
+    tradeType?: 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETFs';
 }
 
 export function CryptoList({ cryptos, tradeType }: CryptoListProps) {

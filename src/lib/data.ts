@@ -1,5 +1,5 @@
 import { BitcoinIcon, DogecoinIcon, EthereumIcon } from "@/components/icons";
-import { CryptoCurrency, MutualFund, NewsArticle } from "./types";
+import { CryptoCurrency, MutualFund, NewsArticle, CryptoETF } from "./types";
 import { Coins, Package } from "lucide-react";
 
 const generatePriceHistory = (base: number) => {
@@ -320,6 +320,45 @@ export const MUTUAL_FUNDS_DATA: MutualFund[] = [
     ],
     priceHistory: generatePriceHistory(50.20),
   }
+];
+
+export const CRYPTO_ETFS_DATA: CryptoETF[] = [
+  {
+    id: 'spot-btc-etf',
+    name: 'SIM Bitcoin Trust',
+    symbol: 'SIMBTC',
+    icon: BitcoinIcon,
+    price: 68.50,
+    change24h: 2.6,
+    volume24h: 1500000000,
+    priceHistory: generatePriceHistory(68.50),
+    issuer: 'SIM Investments',
+    inceptionDate: '2024-01-11',
+    expenseRatio: 0.19,
+    aum: 20000000000, // 20B
+    description: 'The SIM Bitcoin Trust (SIMBTC) is an exchange-traded fund that directly holds Bitcoin, offering investors a regulated and straightforward way to gain exposure to the price movements of BTC without needing to own the cryptocurrency itself.',
+    underlyingAssets: [
+      { name: 'Bitcoin', symbol: 'BTC', weight: 100.00 }
+    ],
+  },
+  {
+    id: 'spot-eth-etf',
+    name: 'SIM Ethereum Trust',
+    symbol: 'SIMETH',
+    icon: EthereumIcon,
+    price: 35.80,
+    change24h: -1.1,
+    volume24h: 800000000,
+    priceHistory: generatePriceHistory(35.80),
+    issuer: 'SIM Investments',
+    inceptionDate: '2024-05-23',
+    expenseRatio: 0.21,
+    aum: 5000000000, // 5B
+    description: 'The SIM Ethereum Trust (SIMETH) provides direct exposure to Ethereum, the second-largest cryptocurrency by market capitalization. The ETF allows investors to participate in ETH\'s potential growth through a traditional brokerage account.',
+    underlyingAssets: [
+      { name: 'Ethereum', symbol: 'ETH', weight: 100.00 }
+    ],
+  },
 ];
 
 

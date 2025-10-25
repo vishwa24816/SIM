@@ -56,3 +56,24 @@ export interface MutualFund {
   }[];
   priceHistory: { time: string; value: number }[];
 }
+
+export interface CryptoETF {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: React.ComponentType<{ className?: string }>;
+  price: number;
+  change24h: number;
+  volume24h: number;
+  priceHistory: { time: string; value: number }[];
+  issuer: string;
+  inceptionDate: string;
+  expenseRatio: number;
+  aum: number;
+  description: string;
+  underlyingAssets: {
+    name: string;
+    symbol: string;
+    weight: number;
+  }[];
+}
