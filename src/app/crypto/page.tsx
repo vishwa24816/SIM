@@ -57,9 +57,9 @@ export default function CryptoPage() {
         id: `${crypto.id}-fut`
     })), [marketData]);
 
-    const mutualFundsData: CryptoCurrency[] = React.useMemo(() => {
+    const fundsAndETFsData: CryptoCurrency[] = React.useMemo(() => {
         if (loading) return [];
-        return MUTUAL_FUNDS_DATA.map(fund => ({
+        const funds = MUTUAL_FUNDS_DATA.map(fund => ({
             id: fund.id,
             name: fund.name,
             symbol: fund.symbol,
@@ -68,24 +68,20 @@ export default function CryptoPage() {
             change24h: fund.change1d,
             volume24h: fund.fundSize,
             priceHistory: fund.priceHistory,
-        }))
-
-    }, [marketData, loading]);
-    
-    const etfData: CryptoCurrency[] = React.useMemo(() => {
-        if (loading) return [];
-        return CRYPTO_ETFS_DATA.map(etf => ({
-            ...etf
-        }))
+            assetType: 'Mutual Fund' as const
+        }));
+        const etfs = CRYPTO_ETFS_DATA.map(etf => ({
+            ...etf,
+            assetType: 'Crypto ETF' as const
+        }));
+        return [...funds, ...etfs];
     }, [loading]);
 
     const displayData = tradeType === 'Spot' 
         ? spotData 
         : tradeType === 'Futures'
         ? futuresData
-        : tradeType === 'Crypto ETFs'
-        ? etfData
-        : mutualFundsData;
+        : fundsAndETFsData;
 
     const trendingCrypto = [...displayData]
       .sort((a, b) => b.volume24h - a.volume24h)
@@ -140,8 +136,6 @@ export default function CryptoPage() {
 
     const isCustomWatchlist = activeWatchlist !== 'Top watchlist';
 
-    const canTrade = tradeType === 'Spot' || tradeType === 'Futures' || tradeType === 'Mutual Fund' || tradeType === 'Crypto ETFs';
-
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
@@ -151,8 +145,7 @@ export default function CryptoPage() {
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button onClick={() => setTradeType('Spot')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Spot' && 'text-primary')}>Spot</Button>
                         <Button onClick={() => setTradeType('Futures')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Futures' && 'text-primary')}>Futures</Button>
-                        <Button onClick={() => setTradeType('Mutual Fund')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Mutual Fund' && 'text-primary')}>Mutual Fund</Button>
-                        <Button onClick={() => setTradeType('Crypto ETFs')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Crypto ETFs' && 'text-primary')}>Crypto ETFs</Button>
+                        <Button onClick={() => setTradeType('Mutual Fund')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Mutual Fund' && 'text-primary')}>Funds & ETFs</Button>
                     </div>
                 </div>
             </div>
@@ -216,7 +209,7 @@ export default function CryptoPage() {
                      <div className="p-4">
                         <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> {activeWatchlist}</h2>
                         <div className="divide-y">
-                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETFs'} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
+                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} tradeType={tradeType === 'Mutual Fund' ? 'Funds & ETFs' : tradeType as 'Spot' | 'Futures'} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
                         </div>
                     </div>
                 ) : (
@@ -224,14 +217,14 @@ export default function CryptoPage() {
                         <div className="p-4">
                             <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending {tradeType}</h2>
                             <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETFs'} />}
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} tradeType={tradeType === 'Mutual Fund' ? 'Funds & ETFs' : tradeType as 'Spot' | 'Futures'} />}
                             </div>
                         </div>
 
                         <div className="p-4">
                             <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
                             <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETFs'} />}
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} tradeType={tradeType === 'Mutual Fund' ? 'Funds & ETFs' : tradeType as 'Spot' | 'Futures'} />}
                             </div>
                         </div>
                     </>
@@ -252,7 +245,7 @@ export default function CryptoPage() {
                         </Button>
                     </div>
                     <div className="divide-y">
-                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETFs'} />}
+                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} tradeType={tradeType === 'Mutual Fund' ? 'Funds & ETFs' : tradeType as 'Spot' | 'Futures'} />}
                     </div>
                 </div>
 
@@ -296,3 +289,5 @@ export default function CryptoPage() {
     </div>
   );
 }
+
+    

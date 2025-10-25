@@ -7,6 +7,7 @@ export interface CryptoCurrency {
   change24h: number;
   volume24h: number;
   priceHistory: { time: string; value: number }[];
+  assetType?: 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETF';
 }
 
 export interface Holding {
@@ -77,3 +78,5 @@ export interface CryptoETF {
     weight: number;
   }[];
 }
+
+    
