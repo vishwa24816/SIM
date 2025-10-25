@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -13,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { NewsFeed } from '@/components/dashboard/news-feed';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
-import { CryptoFundamentals } from '@/components/trade/crypto-fundamentals';
+import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
 import { CryptoStudy } from '@/components/trade/crypto-study';
 
 export default function CryptoDetailPage({ params }: { params: { id: string } }) {
@@ -24,7 +25,7 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
     return marketData.find(c => c.id === params.id);
   }, [marketData, params.id]);
 
-  const TABS = ['Market', 'News', 'Analysis', 'Fundamentals', 'Study'];
+  const TABS = ['Market', 'News', 'Analysis', 'Technicals', 'Study'];
 
   if (marketLoading) {
     return (
@@ -87,13 +88,13 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
         {activeTab === 'Analysis' && (
           <CryptoAnalysis crypto={crypto} />
         )}
-        {activeTab === 'Fundamentals' && (
-          <CryptoFundamentals crypto={crypto} />
+        {activeTab === 'Technicals' && (
+          <CryptoTechnicals crypto={crypto} />
         )}
          {activeTab === 'Study' && (
           <CryptoStudy crypto={crypto} />
         )}
-        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && activeTab !== 'Fundamentals' && activeTab !== 'Study' && (
+        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && activeTab !== 'Technicals' && activeTab !== 'Study' && (
            <div className="flex items-center justify-center h-48 text-muted-foreground">
               <p>Content for {activeTab} will be available soon.</p>
             </div>

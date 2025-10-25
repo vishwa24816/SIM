@@ -49,7 +49,7 @@ const PerformanceBar = ({ low, high, current }: { low: number; high: number; cur
 };
 
 
-export const CryptoFundamentals = ({ crypto }: { crypto: CryptoCurrency }) => {
+export const CryptoTechnicals = ({ crypto }: { crypto: CryptoCurrency }) => {
     
     // Mocking some data that is not available in the API
     const marketCap = crypto.price * (crypto.volume24h / crypto.price * 10);
@@ -88,7 +88,7 @@ export const CryptoFundamentals = ({ crypto }: { crypto: CryptoCurrency }) => {
                     <AccordionTrigger className="hover:no-underline">
                         <div className="flex items-center gap-2">
                            <Search className="h-5 w-5 text-muted-foreground" />
-                           <h3 className="font-semibold text-card-foreground">Fundamentals</h3>
+                           <h3 className="font-semibold text-card-foreground">Technicals</h3>
                         </div>
                     </AccordionTrigger>
                     <AccordionContent>
