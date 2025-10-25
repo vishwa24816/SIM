@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { INITIAL_CRYPTO_DATA } from '@/lib/data';
 
@@ -21,7 +22,10 @@ export async function GET() {
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch market data from CoinGecko: ${response.statusText}`);
+        // Log the error but don't throw, so we can return static data
+        console.error(`Failed to fetch market data from CoinGecko: ${response.statusText}`);
+        // Return initial static data as a fallback
+        return NextResponse.json(INITIAL_CRYPTO_DATA);
     }
 
     const coingeckoData: any[] = await response.json();
@@ -52,8 +56,8 @@ export async function GET() {
 
     return NextResponse.json(updatedData);
   } catch (error) {
-    console.error('Failed to fetch market data from CoinGecko:', error);
-    // In case of an error, return the initial static data to prevent the app from crashing.
-    return NextResponse.json(INITIAL_CRYPTO_DATA, { status: 500, statusText: "Failed to fetch live market data" });
+    console.error('Error in market data API route:', error);
+    // In case of any other error, return the initial static data to prevent the app from crashing.
+    return NextResponse.json(INITIAL_CRYPTO_DATA);
   }
 }
