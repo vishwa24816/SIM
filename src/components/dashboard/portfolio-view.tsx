@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CryptoCurrency, Portfolio } from "@/lib/types";
 import { ArrowUpRight, ArrowDownLeft, History, Bitcoin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Separator } from "../ui/separator";
 
 interface PortfolioViewProps {
   portfolio: Portfolio;
@@ -70,6 +71,11 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
               <History className="h-4 w-4" /> History
           </Button>
       </div>
+       <Separator />
+        <div className="p-4 grid grid-cols-2 gap-4">
+            <Button variant="default" className="w-full">Add Money</Button>
+            <Button variant="secondary" className="w-full">Withdraw Money</Button>
+        </div>
     </div>
   );
 }
