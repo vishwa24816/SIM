@@ -7,10 +7,17 @@ const cryptoIds = INITIAL_CRYPTO_DATA.map(crypto => crypto.id);
 export async function GET() {
   try {
     const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${cryptoIds.join(',')}`;
+    
+    const headers: HeadersInit = {
+        'Accept': 'application/json',
+    };
+
+    if (process.env.COINGECKO_API_KEY) {
+      headers['x-cg-demo-api-key'] = process.env.COINGECKO_API_KEY;
+    }
+    
     const response = await fetch(url, {
-        headers: {
-            'Accept': 'application/json',
-        }
+        headers: headers
     });
 
     if (!response.ok) {
