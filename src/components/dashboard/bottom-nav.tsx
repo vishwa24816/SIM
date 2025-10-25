@@ -13,8 +13,8 @@ export function BottomNav() {
     { href: '/', icon: Home, label: 'Home' },
     { href: '/orders', icon: ListOrdered, label: 'Orders' },
     { href: '/crypto', icon: Bitcoin, label: 'Trade' },
-    { href: '/screener', icon: AreaChart, label: 'Screener' },
     { href: '/web3', icon: Globe, label: 'Web3' },
+    { href: '/screener', icon: AreaChart, label: 'Screener' },
   ];
 
   return (
