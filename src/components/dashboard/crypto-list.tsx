@@ -6,7 +6,7 @@ import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeType?: 'Spot' | 'Futures' }) => {
+const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeType?: 'Spot' | 'Futures' | 'Mutual Fund' }) => {
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
@@ -35,7 +35,15 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeTy
     );
     
     if (tradeType) {
-        const path = tradeType === 'Futures' ? `/trade/futures/${crypto.id}` : `/trade/${crypto.id}`;
+        let path = '';
+        if (tradeType === 'Futures') {
+            path = `/trade/futures/${crypto.id}`;
+        } else if (tradeType === 'Mutual Fund') {
+            path = `/trade/mutual-fund/${crypto.id}`;
+        } else {
+            path = `/trade/${crypto.id}`;
+        }
+        
         return (
             <Link href={path} legacyBehavior>
                 <a>{content}</a>
@@ -48,7 +56,7 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeTy
 
 interface CryptoListProps {
     cryptos: CryptoCurrency[];
-    tradeType?: 'Spot' | 'Futures';
+    tradeType?: 'Spot' | 'Futures' | 'Mutual Fund';
 }
 
 export function CryptoList({ cryptos, tradeType }: CryptoListProps) {

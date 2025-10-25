@@ -27,3 +27,32 @@ export interface NewsArticle {
   url: string;
   content: string;
 }
+
+export interface MutualFund {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: React.ComponentType<{ className?: string }>;
+  nav: number;
+  navDate: string;
+  change1d: number;
+  change3y: number;
+  rating: string;
+  risk: string;
+  tags: string[];
+  minSipAmount: number;
+  fundSize: number;
+  about: string;
+  fundManager: {
+    name: string;
+    title: string;
+    company: string;
+    bio: string;
+  };
+  topHoldings: {
+    name: string;
+    symbol: string;
+    percentage: number;
+  }[];
+  priceHistory: { time: string; value: number }[];
+}

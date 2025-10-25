@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoList } from '@/components/dashboard/crypto-list';
 import { Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { MUTUAL_FUNDS_DATA } from '@/lib/data';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -58,38 +59,17 @@ export default function CryptoPage() {
 
     const mutualFundsData: CryptoCurrency[] = React.useMemo(() => {
         if (loading) return [];
-        return [
-            {
-                id: 'blue-chip-fund',
-                name: 'Blue Chip Crypto Fund',
-                symbol: 'BCCF',
-                icon: Coins,
-                price: (marketData.find(c => c.id === 'bitcoin')?.price || 0) * 0.5 + (marketData.find(c => c.id === 'ethereum')?.price || 0) * 0.5,
-                change24h: ((marketData.find(c => c.id === 'bitcoin')?.change24h || 0) + (marketData.find(c => c.id === 'ethereum')?.change24h || 0)) / 2,
-                volume24h: 1500000000,
-                priceHistory: marketData.find(c => c.id === 'bitcoin')?.priceHistory || [],
-            },
-            {
-                id: 'meme-coin-fund',
-                name: 'Meme Coin Mania Fund',
-                symbol: 'MEME',
-                icon: Coins,
-                price: (marketData.find(c => c.id === 'dogecoin')?.price || 0) * 0.4 + (marketData.find(c => c.id === 'shiba-inu')?.price || 0) * 0.4 + (marketData.find(c => c.id === 'pepe')?.price || 0) * 0.2,
-                change24h: ((marketData.find(c => c.id === 'dogecoin')?.change24h || 0) + (marketData.find(c => c.id === 'shiba-inu')?.change24h || 0) + (marketData.find(c => c.id === 'pepe')?.change24h || 0)) / 3,
-                volume24h: 800000000,
-                priceHistory: marketData.find(c => c.id === 'dogecoin')?.priceHistory || [],
-            },
-            {
-                id: 'ai-infra-fund',
-                name: 'AI & Infrastructure Fund',
-                symbol: 'AIF',
-                icon: Coins,
-                price: (marketData.find(c => c.id === 'singularitynet')?.price || 0) * 0.5 + (marketData.find(c => c.id === 'tron')?.price || 0) * 0.5,
-                change24h: ((marketData.find(c => c.id === 'singularitynet')?.change24h || 0) + (marketData.find(c => c.id === 'tron')?.change24h || 0)) / 2,
-                volume24h: 500000000,
-                priceHistory: marketData.find(c => c.id === 'singularitynet')?.priceHistory || [],
-            }
-        ];
+        return MUTUAL_FUNDS_DATA.map(fund => ({
+            id: fund.id,
+            name: fund.name,
+            symbol: fund.symbol,
+            icon: fund.icon,
+            price: fund.nav,
+            change24h: fund.change1d,
+            volume24h: fund.fundSize,
+            priceHistory: fund.priceHistory,
+        }))
+
     }, [marketData, loading]);
 
     const displayData = tradeType === 'Spot' 
@@ -151,7 +131,7 @@ export default function CryptoPage() {
 
     const isCustomWatchlist = activeWatchlist !== 'Top watchlist';
 
-    const canTrade = tradeType === 'Spot' || tradeType === 'Futures';
+    const canTrade = tradeType === 'Spot' || tradeType === 'Futures' || tradeType === 'Mutual Fund';
 
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -226,7 +206,7 @@ export default function CryptoPage() {
                      <div className="p-4">
                         <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> {activeWatchlist}</h2>
                         <div className="divide-y">
-                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} tradeType={canTrade ? tradeType : undefined} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
+                            {loading ? <CryptoListSkeleton /> : activeWatchlistCryptos.length > 0 ? <CryptoList cryptos={activeWatchlistCryptos} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund'} /> : <p className="text-center text-muted-foreground p-4">This watchlist is empty. Use the search bar to add items.</p>}
                         </div>
                     </div>
                 ) : (
@@ -234,14 +214,14 @@ export default function CryptoPage() {
                         <div className="p-4">
                             <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Flame className="text-orange-500" /> Trending {tradeType}</h2>
                             <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} tradeType={canTrade ? tradeType : undefined} />}
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={trendingCrypto} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund'} />}
                             </div>
                         </div>
 
                         <div className="p-4">
                             <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
                             <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} tradeType={canTrade ? tradeType : undefined} />}
+                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund'} />}
                             </div>
                         </div>
                     </>
@@ -262,7 +242,7 @@ export default function CryptoPage() {
                         </Button>
                     </div>
                     <div className="divide-y">
-                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} tradeType={canTrade ? tradeType : undefined} />}
+                         {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeList} tradeType={tradeType as 'Spot' | 'Futures' | 'Mutual Fund'} />}
                     </div>
                 </div>
 

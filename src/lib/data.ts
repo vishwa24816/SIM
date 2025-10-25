@@ -1,6 +1,6 @@
 import { BitcoinIcon, DogecoinIcon, EthereumIcon } from "@/components/icons";
-import { CryptoCurrency, NewsArticle } from "./types";
-import { Coins } from "lucide-react";
+import { CryptoCurrency, MutualFund, NewsArticle } from "./types";
+import { Coins, Package } from "lucide-react";
 
 const generatePriceHistory = (base: number) => {
   const history = [];
@@ -228,6 +228,100 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     priceHistory: generatePriceHistory(2.2),
   }
 ];
+
+export const MUTUAL_FUNDS_DATA: MutualFund[] = [
+  {
+      id: 'crypto-innovators-fund',
+      name: 'Crypto Innovators Fund Direct-Growth',
+      symbol: 'CIF',
+      icon: Package,
+      nav: 2457.60,
+      navDate: '2025-06-20',
+      change1d: 3.02,
+      change3y: 40.57,
+      rating: 'NA',
+      risk: 'Very High Risk',
+      tags: ['Thematic', 'Thematic'],
+      minSipAmount: 1000,
+      fundSize: 504000000000, // 50,400 Cr
+      about: 'An open-ended thematic mutual fund scheme investing in a diversified portfolio of companies that are participating in and benefiting from the crypto and blockchain innovation ecosystem.',
+      fundManager: {
+          name: 'Jane Crypto',
+          title: 'Fund Manager',
+          company: 'Digital Asset Ventures',
+          bio: 'Jane is a pioneer in digital asset management with over 10 years of experience in the crypto space. She specializes in quantitative analysis and on-chain metrics to drive investment decisions.'
+      },
+      topHoldings: [
+          { name: 'Bitcoin', symbol: 'BTC', percentage: 25.50 },
+          { name: 'Ethereum', symbol: 'ETH', percentage: 20.20 },
+          { name: 'Solana', symbol: 'SOL', percentage: 15.80 },
+          { name: 'Render', symbol: 'RNDR', percentage: 10.10 },
+          { name: 'Fetch.ai', symbol: 'FET', percentage: 8.40 },
+      ],
+      priceHistory: generatePriceHistory(2457.60),
+  },
+  {
+    id: 'blue-chip-fund',
+    name: 'Blue Chip Crypto Fund',
+    symbol: 'BCCF',
+    icon: Package,
+    nav: 1200.50,
+    navDate: '2025-06-20',
+    change1d: 1.5,
+    change3y: 35.2,
+    rating: '4 Stars',
+    risk: 'High Risk',
+    tags: ['Large Cap'],
+    minSipAmount: 500,
+    fundSize: 75000000000,
+    about: 'A fund focused on established, large-market-cap cryptocurrencies to provide stable, long-term growth.',
+    fundManager: {
+        name: 'John Stable',
+        title: 'Senior Fund Manager',
+        company: 'Crypto Capital Management',
+        bio: 'John has a background in traditional finance and brings a disciplined, risk-averse approach to crypto investing.'
+    },
+    topHoldings: [
+        { name: 'Bitcoin', symbol: 'BTC', percentage: 40.00 },
+        { name: 'Ethereum', symbol: 'ETH', percentage: 30.00 },
+        { name: 'BNB', symbol: 'BNB', percentage: 10.00 },
+        { name: 'XRP', symbol: 'XRP', percentage: 10.00 },
+        { name: 'Cardano', symbol: 'ADA', percentage: 10.00 },
+    ],
+    priceHistory: generatePriceHistory(1200.50),
+  },
+  {
+    id: 'meme-coin-fund',
+    name: 'Meme Coin Mania Fund',
+    symbol: 'MEME',
+    icon: Package,
+    nav: 50.20,
+    navDate: '2025-06-20',
+    change1d: 12.5,
+    change3y: 150.7,
+    rating: 'NA',
+    risk: 'Very High Risk',
+    tags: ['Meme', 'Small Cap'],
+    minSipAmount: 100,
+    fundSize: 10000000000,
+    about: 'A high-risk, high-reward fund investing in a portfolio of popular meme coins, aiming to capture explosive growth from viral trends.',
+     fundManager: {
+        name: 'Chad Viral',
+        title: 'Chief Meme Officer',
+        company: 'Degen Investments',
+        bio: 'Chad lives and breathes internet culture. His strategy involves constantly monitoring social media trends to identify the next big meme coin.'
+    },
+    topHoldings: [
+        { name: 'Dogecoin', symbol: 'DOGE', percentage: 30.00 },
+        { name: 'Shiba Inu', symbol: 'SHIB', percentage: 25.00 },
+        { name: 'Pepe', symbol: 'PEPE', percentage: 20.00 },
+        { name: 'dogwifhat', symbol: 'WIF', percentage: 15.00 },
+        { name: 'Floki', symbol: 'FLOKI', percentage: 10.00 },
+    ],
+    priceHistory: generatePriceHistory(50.20),
+  }
+];
+
 
 export const NEWS_ARTICLES: NewsArticle[] = [
     {
