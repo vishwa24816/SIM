@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import * as React from 'react';
@@ -16,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { NewsFeed } from '@/components/dashboard/news-feed';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
 import { CryptoFundamentals } from '@/components/trade/crypto-fundamentals';
+import { CryptoStudy } from '@/components/trade/crypto-study';
 
 export default function CryptoDetailPage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -25,7 +24,7 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
     return marketData.find(c => c.id === params.id);
   }, [marketData, params.id]);
 
-  const TABS = ['Market', 'News', 'Analysis', 'Fundamentals', 'Studies'];
+  const TABS = ['Market', 'News', 'Analysis', 'Fundamentals', 'Study'];
 
   if (marketLoading) {
     return (
@@ -91,7 +90,10 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
         {activeTab === 'Fundamentals' && (
           <CryptoFundamentals crypto={crypto} />
         )}
-        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && activeTab !== 'Fundamentals' && (
+         {activeTab === 'Study' && (
+          <CryptoStudy crypto={crypto} />
+        )}
+        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && activeTab !== 'Fundamentals' && activeTab !== 'Study' && (
            <div className="flex items-center justify-center h-48 text-muted-foreground">
               <p>Content for {activeTab} will be available soon.</p>
             </div>
