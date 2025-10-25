@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Home, ListOrdered, Bitcoin, Globe, ScreenShare } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -26,12 +25,16 @@ export function BottomNav() {
             const isActive = pathname === item.href;
             
             return (
-              <Link key={item.label} href={item.href} className={cn(
-                    'flex flex-col h-auto items-center justify-center text-sm',
-                    isActive ? 'text-primary' : 'text-muted-foreground'
-                  )}>
-                  <item.icon className="h-6 w-6" />
-                  <span>{item.label}</span>
+              <Link
+                key={item.label}
+                href={item.href}
+                className={cn(
+                  'flex flex-col h-auto items-center justify-center text-sm',
+                  isActive ? 'text-primary' : 'text-muted-foreground'
+                )}
+              >
+                <item.icon className="h-6 w-6" />
+                <span>{item.label}</span>
               </Link>
             )
         })}
