@@ -51,7 +51,6 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
         notation: 'compact',
     }).format(crypto.volume24h);
     
-    // Stable market cap calculation
     const circulatingSupply = crypto.volume24h / (crypto.price * 0.1);
     const marketCapValue = crypto.price * circulatingSupply;
     const marketCap = new Intl.NumberFormat('en-US', {
@@ -98,7 +97,6 @@ const AIScreener = ({ aiQuery, setAiQuery, onRunScreener }: AIScreenerProps) => 
     const presetFilters = [
         "Top 10 High Volume Crypto",
         "AI-related",
-        "Crypto with market cap more than 100B"
     ];
 
     return (
@@ -153,12 +151,6 @@ export default function ScreenerPage() {
             results = [...marketData].sort((a,b) => b.volume24h - a.volume24h).slice(0, 10);
         } else if (lowerCaseQuery.includes('ai-related')) {
              results = marketData.filter(c => aiIds.includes(c.id));
-        } else if (lowerCaseQuery.includes('market cap more than 100b')) {
-            results = marketData.filter(c => {
-                const circulatingSupply = c.volume24h / (c.price * 0.1);
-                const marketCap = c.price * circulatingSupply;
-                return marketCap > 100000000000;
-            });
         } else {
              results = marketData.filter(c => c.name.toLowerCase().includes(lowerCaseQuery) || c.symbol.toLowerCase().includes(lowerCaseQuery));
         }
