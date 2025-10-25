@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Search } from 'lucide-react';
+import { MoreVertical, Search, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Header } from '@/components/dashboard/header';
@@ -10,6 +10,8 @@ import { useMarketData } from '@/hooks/use-market-data';
 import { CryptoCurrency } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 
 const CryptoRowSkeleton = () => (
     <div className="flex items-center justify-between py-3 px-4 border-b">
@@ -81,6 +83,50 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
     );
 }
 
+const AIScreener = () => {
+    const presetFilters = [
+        "IT stocks with P/E greater than 30",
+        "Banking stocks with ROE greater than 15%",
+        "Large cap stocks over 5,00,000Cr market cap",
+        "FMCG stocks with low debt",
+        "High Volume Crypto",
+        "New Crypto Projects",
+        "High Return ELSS Funds",
+        "Top Small Cap Mutual Funds",
+    ];
+
+    return (
+        <Card className="m-4">
+            <CardHeader>
+                <div className="flex items-center gap-3">
+                    <Zap className="w-6 h-6 text-primary" />
+                    <div>
+                        <CardTitle>AI Screener</CardTitle>
+                         <p className="text-sm text-muted-foreground">Describe the assets you're looking for in plain English, or use a preset filter below.</p>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Textarea 
+                    placeholder="e.g., 'Show me banking stocks with P/E under 20 and ROE above 15%'"
+                    className="min-h-[100px]"
+                />
+                <div className="flex flex-wrap gap-2">
+                    {presetFilters.map(filter => (
+                        <Button key={filter} variant="outline" size="sm" className="font-normal">
+                            {filter}
+                        </Button>
+                    ))}
+                </div>
+                 <Button size="lg" className="w-full">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Run Screener
+                </Button>
+            </CardContent>
+        </Card>
+    )
+}
+
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
     const [searchTerm, setSearchTerm] = React.useState('');
@@ -96,9 +142,8 @@ export default function ScreenerPage() {
             data = data.sort((a, b) => b.change24h - a.change24h);
         } else if (activeTab === 'Top Losers') {
             data = data.sort((a, b) => a.change24h - b.change24h);
-        } else if (activeTab === 'AI') {
-            data = data.filter(c => aiIds.includes(c.id));
         }
+        // AI tab is handled separately now
 
         if (searchTerm) {
             return data.filter(c => 
@@ -131,7 +176,9 @@ export default function ScreenerPage() {
             </div>
            
             <div className="py-2">
-                {loading ? (
+                 {activeTab === 'AI' ? (
+                    <AIScreener />
+                ) : loading ? (
                     <div className="space-y-2">
                         {[...Array(10)].map((_, i) => <CryptoRowSkeleton key={i} />)}
                     </div>
