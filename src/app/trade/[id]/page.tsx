@@ -81,7 +81,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
         <Separator className="bg-border/50" />
         <MarketDepth crypto={crypto} onPriceSelect={handlePriceSelect} />
         <Separator className="bg-border/50" />
-        <SimbotAnalysis crypto={crypto} />
+        <SimbotAnalysis crypto={crypto} showTabs={true} />
       </main>
       <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <div className="grid grid-cols-2 gap-4">
