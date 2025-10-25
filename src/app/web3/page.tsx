@@ -116,7 +116,7 @@ export default function Web3Page() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
         <main className="flex-1 overflow-y-auto">
-            <div className="border-b border-border">
+            <div className="border-b border-border mt-4">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         {navItems.map(item => (
