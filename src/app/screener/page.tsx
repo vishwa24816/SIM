@@ -102,7 +102,6 @@ const AIScreener = () => {
             </CardHeader>
             <CardContent className="space-y-4">
                 <Textarea 
-                    placeholder="e.g., 'Show me banking stocks with P/E under 20 and ROE above 15%'"
                     className="min-h-[100px]"
                 />
                 <div className="flex flex-wrap gap-2">
