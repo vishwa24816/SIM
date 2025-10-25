@@ -146,7 +146,7 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
                         </div>
                         <div className="text-center bg-muted p-4 rounded-lg space-y-2">
                             <p className="text-sm">Your money will last for (at {swpReturns.toFixed(1)}% p.a.)</p>
-                            <p className="text-2xl font-bold">{isFinite(swpYears) ? `${Math.floor(swpYears)} Years and ${Math.round((swpYears % 1) * 12)} Months` : 'Forever'}</p>
+                            <p className="text-2xl font-bold">{isFinite(swpYears) && swpYears <= 40 ? `${Math.floor(swpYears)} Years and ${Math.round((swpYears % 1) * 12)} Months` : 'Forever'}</p>
                         </div>
                     </div>
                 )}

@@ -53,7 +53,7 @@ export function MutualFundPageHeader({ fund, loading }: MutualFundPageHeaderProp
                         <p className={cn("text-2xl font-bold", fund.change3y >= 0 ? 'text-green-500' : 'text-red-500')}>
                             {fund.change3y.toFixed(2)}%
                         </p>
-                        <p className="text-sm text-muted-foreground">3Y annualised</p>
+                        <p className="text-sm text-muted-foreground">annual return</p>
                     </div>
                     <div className={cn("flex items-center text-sm", fund.change1d >= 0 ? 'text-green-500' : 'text-red-500')}>
                         <ArrowUp className={cn("h-4 w-4 mr-1", fund.change1d < 0 && "rotate-180")} />
