@@ -211,3 +211,5 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType }: 
 }
 
     
+
+    

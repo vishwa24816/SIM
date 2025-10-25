@@ -240,3 +240,5 @@ export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderT
 }
 
     
+
+    
