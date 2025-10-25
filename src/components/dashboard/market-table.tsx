@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/table";
 import { CryptoCurrency } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Aperture, List, MoreHorizontal, Clock } from "lucide-react";
-import { Button } from "../ui/button";
+import { Aperture } from "lucide-react";
 
 interface MarketTableProps {
   cryptos: CryptoCurrency[];
@@ -59,11 +58,6 @@ export function MarketTable({ cryptos, onRowClick }: MarketTableProps) {
           </TableBody>
         </Table>
       </div>
-       <div className="flex items-center justify-center p-6 pt-0 gap-2">
-            <Button variant="ghost" size="icon"><List className="h-5 w-5" /></Button>
-            <Button variant="ghost" size="icon"><MoreHorizontal className="h-5 w-5" /></Button>
-            <Button variant="ghost" size="icon"><Clock className="h-5 w-5" /></Button>
-        </div>
     </div>
   );
 }
