@@ -6,9 +6,9 @@ import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-type ExtendedCryptoCurrency = CryptoCurrency & { assetType?: 'Mutual Fund' | 'Crypto ETF' };
+type ExtendedCryptoCurrency = CryptoCurrency & { assetType?: 'Mutual Fund' | 'Crypto ETF' | 'Web3' };
 
-const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency, tradeType?: 'Spot' | 'Futures' | 'Funds & ETFs' }) => {
+const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency, tradeType?: 'Spot' | 'Futures' | 'Funds & ETFs' | 'Web3' }) => {
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
@@ -36,8 +36,9 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency,
         </div>
     );
     
+    let path = `/crypto/${crypto.id}`; // Default path
+    
     if (tradeType) {
-        let path = '';
         if (tradeType === 'Futures') {
             path = `/trade/futures/${crypto.id}`;
         } else if (tradeType === 'Funds & ETFs') {
@@ -46,25 +47,30 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency,
             } else if (crypto.assetType === 'Crypto ETF') {
                 path = `/trade/etf/${crypto.id}`;
             }
-        } else {
+        } else if (tradeType === 'Web3') {
+             path = `/trade/web3/${crypto.id}`;
+        } else if (tradeType === 'Spot') {
             path = `/trade/${crypto.id}`;
         }
-        
-        if (path) {
-            return (
-                <Link href={path}>
-                    {content}
-                </Link>
-            )
+    } else {
+        // Fallback for when tradeType is not provided (e.g. on web3 page before changes)
+        // This is a simple heuristic. A more robust solution might involve checking the crypto's category/id.
+        const web3Ids = ['singularitynet', 'apecoin', 'the-sandbox', 'decentraland', 'uniswap', 'pancakeswap-token'];
+        if (web3Ids.includes(crypto.id)) {
+            path = `/trade/web3/${crypto.id}`;
         }
     }
 
-    return content;
+    return (
+        <Link href={path}>
+            {content}
+        </Link>
+    )
 };
 
 interface CryptoListProps {
     cryptos: ExtendedCryptoCurrency[];
-    tradeType?: 'Spot' | 'Futures' | 'Funds & ETFs';
+    tradeType?: 'Spot' | 'Futures' | 'Funds & ETFs' | 'Web3';
 }
 
 export function CryptoList({ cryptos, tradeType }: CryptoListProps) {
@@ -74,5 +80,3 @@ export function CryptoList({ cryptos, tradeType }: CryptoListProps) {
         </>
     );
 }
-
-    
