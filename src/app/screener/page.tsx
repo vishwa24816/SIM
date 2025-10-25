@@ -83,7 +83,13 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
     );
 }
 
-const AIScreener = () => {
+interface AIScreenerProps {
+    aiQuery: string;
+    setAiQuery: (query: string) => void;
+    onRunScreener: () => void;
+}
+
+const AIScreener = ({ aiQuery, setAiQuery, onRunScreener }: AIScreenerProps) => {
     const presetFilters = [
         "High Volume Crypto",
         "New Crypto Projects",
@@ -103,15 +109,17 @@ const AIScreener = () => {
             <CardContent className="space-y-4">
                 <Textarea 
                     className="min-h-[100px]"
+                    value={aiQuery}
+                    onChange={(e) => setAiQuery(e.target.value)}
                 />
                 <div className="flex flex-wrap gap-2">
                     {presetFilters.map(filter => (
-                        <Button key={filter} variant="outline" size="sm" className="font-normal">
+                        <Button key={filter} variant="outline" size="sm" className="font-normal" onClick={() => setAiQuery(filter)}>
                             {filter}
                         </Button>
                     ))}
                 </div>
-                 <Button size="lg" className="w-full">
+                 <Button size="lg" className="w-full" onClick={onRunScreener}>
                     <Zap className="mr-2 h-4 w-4" />
                     Run Screener
                 </Button>
@@ -124,8 +132,29 @@ export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
     const [searchTerm, setSearchTerm] = React.useState('');
     const [activeTab, setActiveTab] = React.useState('AI');
+    const [aiQuery, setAiQuery] = React.useState('');
+    const [aiResults, setAiResults] = React.useState<CryptoCurrency[] | null>(null);
+    const [aiSearchPerformed, setAiSearchPerformed] = React.useState(false);
     
     const aiIds = ['singularitynet'];
+
+    const handleRunScreener = () => {
+        setAiSearchPerformed(true);
+        let results: CryptoCurrency[] = [];
+        const lowerCaseQuery = aiQuery.toLowerCase();
+
+        if (lowerCaseQuery.includes('high volume')) {
+            results = [...marketData].sort((a,b) => b.volume24h - a.volume24h).slice(0, 10);
+        } else if (lowerCaseQuery.includes('new crypto')) {
+            // This is a placeholder for new projects logic
+            results = [...marketData].sort((a,b) => new Date(b.priceHistory[0].time).getTime() - new Date(a.priceHistory[0].time).getTime()).slice(0, 5);
+        } else if (lowerCaseQuery.includes('ai')) {
+             results = marketData.filter(c => aiIds.includes(c.id));
+        } else {
+             results = marketData.filter(c => c.name.toLowerCase().includes(lowerCaseQuery) || c.symbol.toLowerCase().includes(lowerCaseQuery));
+        }
+        setAiResults(results);
+    };
 
     const filteredData = React.useMemo(() => {
         let data = [...marketData];
@@ -136,7 +165,7 @@ export default function ScreenerPage() {
         } else if (activeTab === 'Top Losers') {
             data = data.sort((a, b) => a.change24h - b.change24h);
         } else if (activeTab === 'AI') {
-             return data.filter(c => aiIds.includes(c.id));
+            return []; // AI tab is now handled by AIScreener
         }
 
         if (searchTerm) {
@@ -171,7 +200,27 @@ export default function ScreenerPage() {
            
             <div className="py-2">
                  {activeTab === 'AI' ? (
-                    <AIScreener />
+                    <>
+                        <AIScreener aiQuery={aiQuery} setAiQuery={setAiQuery} onRunScreener={handleRunScreener} />
+                        {aiSearchPerformed && (
+                             <div className="p-4">
+                                <h2 className="text-lg font-semibold mb-4">Screener Results</h2>
+                                {loading ? (
+                                    <div className="space-y-2">
+                                        {[...Array(5)].map((_, i) => <CryptoRowSkeleton key={i} />)}
+                                    </div>
+                                ) : aiResults && aiResults.length > 0 ? (
+                                     <div className="divide-y divide-border/50">
+                                        {aiResults.map((crypto, index) => (
+                                            <ScreenerListItem key={crypto.id} crypto={crypto} rank={index + 1} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-center text-muted-foreground p-4">No results found for your query.</p>
+                                )}
+                            </div>
+                        )}
+                    </>
                 ) : loading ? (
                     <div className="space-y-2">
                         {[...Array(10)].map((_, i) => <CryptoRowSkeleton key={i} />)}
