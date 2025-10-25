@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -49,12 +50,14 @@ export default function CryptoPage() {
 
     const spotData = marketData;
     
-    const futuresData = React.useMemo(() => marketData.map(crypto => ({
-        ...crypto,
-        price: crypto.price,
-        symbol: `${crypto.symbol}-FUT`,
-        name: `${crypto.name} Futures`,
-        id: `${crypto.id}-fut`
+    const futuresData = React.useMemo(() => marketData
+        .filter(crypto => crypto.id !== 'tether' && crypto.id !== 'usd-coin')
+        .map(crypto => ({
+            ...crypto,
+            price: crypto.price,
+            symbol: `${crypto.symbol}-FUT`,
+            name: `${crypto.name} Futures`,
+            id: `${crypto.id}-fut`
     })), [marketData]);
 
     const fundsAndETFsData: CryptoCurrency[] = React.useMemo(() => {
@@ -289,5 +292,7 @@ export default function CryptoPage() {
     </div>
   );
 }
+
+    
 
     
