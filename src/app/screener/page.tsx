@@ -111,14 +111,14 @@ export default function ScreenerPage() {
         <main className="flex-1 overflow-y-auto">
              <div className="border-b border-border mt-4">
                 <div className="overflow-x-auto px-4">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                    <div className="flex items-center gap-0 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         {['All', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
                              <Button 
                                 key={tab} 
                                 onClick={() => setActiveTab(tab)} 
                                 variant="ghost" 
                                 size="sm" 
-                                className={cn("px-3", activeTab === tab && 'text-primary border-b-2 border-primary rounded-none')}>
+                                className={cn("px-2", activeTab === tab && 'text-primary border-b-2 border-primary rounded-none')}>
                                 {tab}
                              </Button>
                         ))}
