@@ -45,8 +45,8 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: CryptoCurrency, tradeTy
         }
         
         return (
-            <Link href={path} legacyBehavior>
-                <a>{content}</a>
+            <Link href={path}>
+                {content}
             </Link>
         )
     }

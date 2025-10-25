@@ -25,17 +25,12 @@ export function BottomNav() {
             const isActive = pathname === item.href;
             
             return (
-              <Link key={item.label} href={item.href} legacyBehavior passHref>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    'flex flex-col h-auto items-center',
+              <Link key={item.label} href={item.href} className={cn(
+                    'flex flex-col h-auto items-center justify-center text-sm',
                     isActive ? 'text-primary' : 'text-muted-foreground'
-                  )}
-                >
+                  )}>
                   <item.icon className="h-6 w-6" />
-                  <span className="text-xs">{item.label}</span>
-                </Button>
+                  <span>{item.label}</span>
               </Link>
             )
         })}
