@@ -24,7 +24,7 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
     // Lumpsum state
     const [lumpsumAmount, setLumpsumAmount] = React.useState(100000);
     const [lumpsumPeriod, setLumpsumPeriod] = React.useState(10);
-    const [lumpsumReturns, setLumpsumReturns] = React.useState(fund.change3y);
+    const lumpsumReturns = fund.change3y;
 
     const lumpsumFutureValue = lumpsumAmount * Math.pow(1 + (lumpsumReturns / 100), lumpsumPeriod);
     const lumpsumTotalInvestment = lumpsumAmount;
@@ -33,7 +33,7 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
     // SIP state
     const [sipAmount, setSipAmount] = React.useState(10000);
     const [sipPeriod, setSipPeriod] = React.useState(10);
-    const [sipReturns, setSipReturns] = React.useState(fund.change3y);
+    const sipReturns = fund.change3y;
 
     const monthlySipRate = sipReturns / 100 / 12;
     const sipMonths = sipPeriod * 12;
@@ -44,7 +44,7 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
     // SWP state
     const [swpInvestment, setSwpInvestment] = React.useState(1000000);
     const [swpWithdrawal, setSwpWithdrawal] = React.useState(8000);
-    const [swpReturns, setSwpReturns] = React.useState(fund.change3y);
+    const swpReturns = fund.change3y;
 
     const monthlySwpRate = swpReturns / 100 / 12;
     let swpYears = 0;
@@ -95,16 +95,9 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
                             </div>
                             <Slider value={[lumpsumPeriod]} onValueChange={(v) => setLumpsumPeriod(v[0])} min={1} max={40} step={1} />
                         </div>
-                         <div className="space-y-2">
-                             <div className="flex justify-between items-center">
-                                <Label htmlFor="lumpsum-returns">Expected Return (%)</Label>
-                                <Input id="lumpsum-returns" className="w-20" value={lumpsumReturns.toFixed(1)} readOnly />
-                            </div>
-                            <Slider value={[lumpsumReturns]} onValueChange={(v) => setLumpsumReturns(v[0])} min={1} max={30} step={0.1} />
-                        </div>
-
+                        
                         <div className="text-center bg-muted p-4 rounded-lg space-y-2">
-                            <p className="text-sm">Future Value</p>
+                            <p className="text-sm">Future Value (at {lumpsumReturns.toFixed(1)}% p.a.)</p>
                             <p className="text-2xl font-bold">{formatCurrency(lumpsumFutureValue)}</p>
                             <p className="text-sm text-muted-foreground">Total Investment: {formatCurrency(lumpsumTotalInvestment)} | Gains: {formatCurrency(lumpsumGains)}</p>
                         </div>
@@ -127,15 +120,8 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
                             </div>
                             <Slider value={[sipPeriod]} onValueChange={(v) => setSipPeriod(v[0])} min={1} max={40} step={1} />
                         </div>
-                         <div className="space-y-2">
-                             <div className="flex justify-between items-center">
-                                <Label htmlFor="sip-returns">Expected Return (%)</Label>
-                                <Input id="sip-returns" className="w-20" value={sipReturns.toFixed(1)} readOnly />
-                            </div>
-                            <Slider value={[sipReturns]} onValueChange={(v) => setSipReturns(v[0])} min={1} max={30} step={0.1} />
-                        </div>
                         <div className="text-center bg-muted p-4 rounded-lg space-y-2">
-                            <p className="text-sm">Future Value</p>
+                            <p className="text-sm">Future Value (at {sipReturns.toFixed(1)}% p.a.)</p>
                             <p className="text-2xl font-bold">{formatCurrency(sipFutureValue)}</p>
                             <p className="text-sm text-muted-foreground">Total Investment: {formatCurrency(sipTotalInvestment)} | Gains: {formatCurrency(sipGains)}</p>
                         </div>
@@ -158,15 +144,8 @@ const FundCalculator = ({ fund }: { fund: MutualFund }) => {
                             </div>
                             <Slider value={[swpWithdrawal]} onValueChange={(v) => setSwpWithdrawal(v[0])} min={1000} max={100000} step={1000} />
                         </div>
-                         <div className="space-y-2">
-                             <div className="flex justify-between items-center">
-                                <Label htmlFor="swp-returns">Expected Return (%)</Label>
-                                <Input id="swp-returns" className="w-20" value={swpReturns.toFixed(1)} readOnly />
-                            </div>
-                            <Slider value={[swpReturns]} onValueChange={(v) => setSwpReturns(v[0])} min={1} max={30} step={0.1} />
-                        </div>
                         <div className="text-center bg-muted p-4 rounded-lg space-y-2">
-                            <p className="text-sm">Your money will last for</p>
+                            <p className="text-sm">Your money will last for (at {swpReturns.toFixed(1)}% p.a.)</p>
                             <p className="text-2xl font-bold">{isFinite(swpYears) ? `${Math.floor(swpYears)} Years and ${Math.round((swpYears % 1) * 12)} Months` : 'Forever'}</p>
                         </div>
                     </div>
