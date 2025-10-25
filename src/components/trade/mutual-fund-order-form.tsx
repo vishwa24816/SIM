@@ -26,7 +26,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
 
 
     const handleSwipeConfirm = () => {
-        if (investmentType === 'one-time' && (!amount || parseFloat(amount) <= 0)) {
+        if ((investmentType === 'one-time' || investmentType === 'hodl') && (!amount || parseFloat(amount) <= 0)) {
             toast({
                 variant: 'destructive',
                 title: 'Invalid Amount',
@@ -60,7 +60,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     </div>
                 </RadioGroup>
                 
-                {investmentType === 'one-time' && (
+                {(investmentType === 'one-time' || investmentType === 'hodl') && (
                     <div className="space-y-2 mb-6">
                         <Label htmlFor="investment-amount">Investment Amount ($)</Label>
                         <Input 
