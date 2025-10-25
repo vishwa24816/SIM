@@ -150,7 +150,10 @@ export default function ScreenerPage() {
              results = marketData.filter(c => aiIds.includes(c.id));
         } else if (lowerCaseQuery.includes('market cap more than 100b')) {
             results = marketData.filter(c => {
-                const marketCap = c.price * (c.volume24h / c.price); // Simplified market cap
+                // This is a rough estimation since we don't have circulating supply.
+                // Let's assume a correlation between volume and supply for this simulation.
+                const estimatedCirculatingSupply = c.volume24h / c.price * 20;
+                const marketCap = c.price * estimatedCirculatingSupply;
                 return marketCap > 100000000000;
             });
         } else {
@@ -242,5 +245,3 @@ export default function ScreenerPage() {
     </div>
   );
 }
-
-    
