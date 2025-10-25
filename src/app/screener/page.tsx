@@ -107,6 +107,7 @@ export default function ScreenerPage() {
 
     const examplePrompts = [
       "Top 10 most traded cryptos",
+      "Top 5 Proof or stake cryptos"
     ];
 
     const handleRunScreener = async () => {
@@ -121,7 +122,7 @@ export default function ScreenerPage() {
         if (loading) return [];
         return marketData.map(crypto => {
             // A more stable way to calculate market cap if circulating_supply is not directly available
-            const circulatingSupply = crypto.volume24h > 0 && crypto.price > 0 ? (crypto.volume24h / crypto.price) / (10 + 1) : 1000000;
+            const circulatingSupply = crypto.volume24h > 0 && crypto.price > 0 ? (crypto.volume24h / crypto.price) * 10 : 1000000;
             const marketCap = crypto.price * circulatingSupply;
             return { ...crypto, marketCap };
         });
@@ -132,7 +133,7 @@ export default function ScreenerPage() {
     const topGainers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.change24h - a.change24h), [dataWithMarketCap]);
     const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWithMarketCap]);
     const aiScreenedCryptos = React.useMemo(() => {
-        if (aiFilteredIds === null) return [];
+        if (aiFilteredIds === null) return null; // Distinguish between initial state and empty results
         const filteredSet = new Set(aiFilteredIds);
         return dataWithMarketCap.filter(c => filteredSet.has(c.id));
     }, [aiFilteredIds, dataWithMarketCap]);
@@ -157,11 +158,23 @@ export default function ScreenerPage() {
 
     const currentList = React.useMemo(() => {
       switch (activeTab) {
-        case 'AI': return aiFilteredIds !== null ? renderList(aiScreenedCryptos) : (
-          <div className="flex items-center justify-center h-48 text-muted-foreground">
-              Run the AI screener to see results.
-          </div>
-        );
+        case 'AI': 
+          if (aiScreenedCryptos === null) {
+            return (
+              <div className="flex items-center justify-center h-48 text-muted-foreground">
+                Run the AI screener to see results.
+              </div>
+            );
+          }
+          if (aiScreenedCryptos.length === 0) {
+            return (
+              <div>
+                <p className="text-center text-muted-foreground p-4">No results found. Displaying sample data:</p>
+                {renderList(allCryptos.slice(0, 5))}
+              </div>
+            );
+          }
+          return renderList(aiScreenedCryptos);
         case 'Trending': return renderList(trendingCryptos);
         case 'Top Gainers': return renderList(topGainers);
         case 'Top Losers': return renderList(topLosers);
@@ -169,7 +182,7 @@ export default function ScreenerPage() {
         default:
           return renderList(allCryptos);
       }
-    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiScreenedCryptos, aiFilteredIds]);
+    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiScreenedCryptos]);
     
 
     return (
