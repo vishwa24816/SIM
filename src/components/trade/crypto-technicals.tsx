@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CryptoCurrency } from '@/lib/types';
 import { Search, TrendingUp } from 'lucide-react';
 
@@ -83,81 +82,78 @@ export const CryptoTechnicals = ({ crypto }: { crypto: CryptoCurrency }) => {
     
     return (
         <div className="space-y-4">
-             <Accordion type="multiple" defaultValue={['fundamentals', 'performance']} className="w-full">
-                <AccordionItem value="fundamentals" className="border-none">
-                    <AccordionTrigger className="hover:no-underline">
-                        <div className="flex items-center gap-2">
-                           <Search className="h-5 w-5 text-muted-foreground" />
-                           <h3 className="font-semibold text-card-foreground">Technicals</h3>
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <Search className="h-5 w-5 text-muted-foreground" />
+                        <h3 className="font-semibold text-card-foreground">Technicals</h3>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 gap-y-4 text-sm">
+                        <div>
+                            <p className="text-muted-foreground">Mkt Cap</p>
+                            <p className="font-semibold">{formatLargeNumber(marketCap)}</p>
                         </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="grid grid-cols-2 gap-y-4 text-sm pt-4">
+                        <div>
+                            <p className="text-muted-foreground">Technology</p>
+                            <p className="font-semibold">{technology}</p>
+                        </div>
+                        <div>
+                            <p className="text-muted-foreground">Intro. Year</p>
+                            <p className="font-semibold">{introYear}</p>
+                        </div>
+                        <div>
+                            <p className="text-muted-foreground">Market Rank</p>
+                            <p className="font-semibold">#{marketRank}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-muted-foreground" />
+                        <h3 className="font-semibold text-card-foreground">Performance</h3>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-6">
+                        <div>
+                            <PerformanceBar low={low24h} high={high24h} current={crypto.price} />
+                            <div className="flex justify-between text-xs mt-1">
+                                <span>Today's Low</span>
+                                <span>Today's High</span>
+                            </div>
+                        </div>
+                        <div>
+                            <PerformanceBar low={low52w} high={high52w} current={crypto.price} />
+                            <div className="flex justify-between text-xs mt-1">
+                                <span>52 Week Low</span>
+                                <span>52 Week High</span>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-4 text-sm">
                             <div>
-                                <p className="text-muted-foreground">Mkt Cap</p>
+                                <p className="text-muted-foreground">Open Price</p>
+                                <p className="font-semibold">{formatCurrency(openPrice)}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Prev. Close</p>
+                                <p className="font-semibold">{formatCurrency(prevClose)}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Volume (24H)</p>
+                                <p className="font-semibold">{formatLargeNumber(crypto.volume24h)}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Market Cap</p>
                                 <p className="font-semibold">{formatLargeNumber(marketCap)}</p>
                             </div>
-                             <div>
-                                <p className="text-muted-foreground">Technology</p>
-                                <p className="font-semibold">{technology}</p>
-                            </div>
-                             <div>
-                                <p className="text-muted-foreground">Intro. Year</p>
-                                <p className="font-semibold">{introYear}</p>
-                            </div>
-                             <div>
-                                <p className="text-muted-foreground">Market Rank</p>
-                                <p className="font-semibold">#{marketRank}</p>
-                            </div>
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="performance" className="border-none">
-                     <AccordionTrigger className="hover:no-underline">
-                        <div className="flex items-center gap-2">
-                           <TrendingUp className="h-5 w-5 text-muted-foreground" />
-                           <h3 className="font-semibold text-card-foreground">Performance</h3>
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="space-y-6 pt-4">
-                             <div>
-                                <PerformanceBar low={low24h} high={high24h} current={crypto.price} />
-                                <div className="flex justify-between text-xs mt-1">
-                                    <span>Today's Low</span>
-                                    <span>Today's High</span>
-                                </div>
-                            </div>
-                             <div>
-                                <PerformanceBar low={low52w} high={high52w} current={crypto.price} />
-                                <div className="flex justify-between text-xs mt-1">
-                                    <span>52 Week Low</span>
-                                    <span>52 Week High</span>
-                                </div>
-                            </div>
-
-                             <div className="grid grid-cols-2 gap-y-4 text-sm">
-                                <div>
-                                    <p className="text-muted-foreground">Open Price</p>
-                                    <p className="font-semibold">{formatCurrency(openPrice)}</p>
-                                </div>
-                                 <div>
-                                    <p className="text-muted-foreground">Prev. Close</p>
-                                    <p className="font-semibold">{formatCurrency(prevClose)}</p>
-                                </div>
-                                 <div>
-                                    <p className="text-muted-foreground">Volume (24H)</p>
-                                    <p className="font-semibold">{formatLargeNumber(crypto.volume24h)}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground">Market Cap</p>
-                                    <p className="font-semibold">{formatLargeNumber(marketCap)}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };
