@@ -19,7 +19,15 @@ export function useMarketData() {
     try {
       const response = await fetch('/api/market-data');
       if (!response.ok) {
-        throw new Error('Failed to fetch market data');
+        // Don't throw an error, just log it and the app will use the existing (or initial) data.
+        console.error('Failed to fetch market data:', response.statusText);
+        // If the initial load fails, we should stop the loading state.
+        if (isInitialLoad) {
+          setLoading(false);
+          // And ensure we have some data to show
+          setMarketData(INITIAL_CRYPTO_DATA);
+        }
+        return;
       }
       const liveData = await response.json();
       
