@@ -88,7 +88,7 @@ export default function OrdersPage() {
               <Button variant="ghost" className="text-primary px-3">Limit</Button>
               <Button variant="ghost" className="px-3">HODL</Button>
               <Button variant="ghost" className="px-3">Baskets</Button>
-              <Button variant="ghost" className="px-3">SIPs</Button>
+              <Button variant="ghost" className="px-3">SP</Button>
               <Button variant="ghost" className="px-3">Alerts</Button>
             </div>
           </div>
