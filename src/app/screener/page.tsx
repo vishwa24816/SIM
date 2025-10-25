@@ -95,32 +95,21 @@ const ScreenerListSkeleton = () => (
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
     const [activeTab, setActiveTab] = React.useState('All');
-    const [searchTerm, setSearchTerm] = React.useState('');
-
+    
     const processedData = React.useMemo(() => {
         return marketData.map(crypto => {
-            // Stable calculation for circulating supply and market cap
-            const circulatingSupply = (crypto.volume24h / crypto.price) * 10; // Example stable factor
+            const circulatingSupply = crypto.volume24h / crypto.price;
             const marketCap = crypto.price * circulatingSupply;
             return { ...crypto, marketCap };
         });
     }, [marketData]);
 
-    const filteredData = React.useMemo(() => {
-        if (!searchTerm) return processedData;
-        return processedData.filter(
-            crypto =>
-                crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [processedData, searchTerm]);
-
-    const trendingData = React.useMemo(() => [...filteredData].sort((a,b) => b.volume24h - a.volume24h), [filteredData]);
-    const topGainers = React.useMemo(() => [...filteredData].sort((a,b) => b.change24h - a.change24h), [filteredData]);
-    const topLosers = React.useMemo(() => [...filteredData].sort((a,b) => a.change24h - b.change24h), [filteredData]);
+    const trendingData = React.useMemo(() => [...processedData].sort((a,b) => b.volume24h - a.volume24h), [processedData]);
+    const topGainers = React.useMemo(() => [...processedData].sort((a,b) => b.change24h - a.change24h), [processedData]);
+    const topLosers = React.useMemo(() => [...processedData].sort((a,b) => a.change24h - b.change24h), [processedData]);
     
     const dataMap: { [key: string]: typeof processedData } = {
-        'All': filteredData,
+        'All': processedData,
         'Trending': trendingData,
         'Top Gainers': topGainers,
         'Top Losers': topLosers,
@@ -134,15 +123,6 @@ export default function ScreenerPage() {
             <Header />
             <main className="flex-1 overflow-y-auto">
                 <div className="sticky top-0 bg-background z-10 p-4 space-y-4 border-b">
-                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input 
-                            placeholder="Search asset..."
-                            className="pl-10"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
                     <div className="overflow-x-auto">
                         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                             {navItems.map(item => (
