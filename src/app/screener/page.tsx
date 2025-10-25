@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import Link from 'next/link';
 
 const CryptoRowSkeleton = () => (
     <div className="flex items-center justify-between py-3 px-4 border-b">
@@ -37,8 +38,6 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     
-    // Note: Prices are in USD from the API. The image shows INR (?), 
-    // but for this simulation, we'll display USD with a $ prefix.
     const price = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -51,36 +50,40 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
         currency: 'USD',
         notation: 'compact',
     }).format(crypto.volume24h);
-
+    
+    // Simplified, stable market cap calculation
+    const marketCapValue = (crypto.price * (crypto.volume24h / (crypto.price || 1) / 100));
     const marketCap = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         notation: 'compact',
-    }).format(crypto.price * (crypto.volume24h / crypto.price)); // A simplified market cap calculation
+    }).format(marketCapValue);
 
     return (
-         <div className="flex items-center justify-between py-3 px-4 border-b border-border/50">
-            <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground w-4 text-center">{rank}</span>
-                <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
-                    <Icon className="w-6 h-6" />
+        <Link href={`/trade/${crypto.id}`} legacyBehavior>
+            <a className="flex items-center justify-between py-3 px-4 border-b border-border/50 cursor-pointer hover:bg-muted/50">
+                <div className="flex items-center gap-4">
+                    <span className="text-sm text-muted-foreground w-4 text-center">{rank}</span>
+                    <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
+                        <Icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="font-bold text-base">{crypto.symbol}</p>
+                        <p className="text-xs text-muted-foreground">Mkt. Cap: {marketCap}</p>
+                    </div>
                 </div>
-                <div>
-                    <p className="font-bold text-base">{crypto.symbol}</p>
-                    <p className="text-xs text-muted-foreground">Mkt. Cap: {marketCap}</p>
+                <div className="text-right flex items-center">
+                    <div className='mr-4'>
+                        <p className="font-semibold">{price}</p>
+                        <p className={cn("text-xs font-semibold", changeColor)}>{crypto.change24h >= 0 && '+'}{crypto.change24h.toFixed(2)}%</p>
+                        <p className="text-xs text-muted-foreground mt-1">Vol (24h): {volume}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-5 w-5" />
+                    </Button>
                 </div>
-            </div>
-            <div className="text-right flex items-center">
-                 <div className='mr-4'>
-                    <p className="font-semibold">{price}</p>
-                    <p className={cn("text-xs font-semibold", changeColor)}>{crypto.change24h >= 0 && '+'}{crypto.change24h.toFixed(2)}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">Vol (24h): {volume}</p>
-                 </div>
-                 <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="h-5 w-5" />
-                 </Button>
-            </div>
-        </div>
+            </a>
+        </Link>
     );
 }
 
@@ -151,9 +154,7 @@ export default function ScreenerPage() {
              results = marketData.filter(c => aiIds.includes(c.id));
         } else if (lowerCaseQuery.includes('market cap more than 100b')) {
             results = marketData.filter(c => {
-                // This is a rough estimation since we don't have circulating supply.
-                // Let's assume a correlation between volume and supply for this simulation.
-                const estimatedCirculatingSupply = c.volume24h / c.price * 20;
+                const estimatedCirculatingSupply = c.volume24h / (c.price || 1) * 20;
                 const marketCap = c.price * estimatedCirculatingSupply;
                 return marketCap > 100000000000;
             });
@@ -246,5 +247,3 @@ export default function ScreenerPage() {
     </div>
   );
 }
-
-    
