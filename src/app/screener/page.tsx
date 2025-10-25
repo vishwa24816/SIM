@@ -109,20 +109,7 @@ export default function ScreenerPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
         <main className="flex-1 overflow-y-auto">
-            <div className="p-4 bg-primary/95">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-foreground/50" />
-                    <Input
-                        type="search"
-                        placeholder="Search crypto, spot, future..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 rounded-lg bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 border-none focus:ring-2 focus:ring-primary-foreground"
-                    />
-                </div>
-            </div>
-            
-             <div className="border-b border-border">
+             <div className="border-b border-border mt-4">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         {['All', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
