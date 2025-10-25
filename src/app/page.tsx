@@ -10,10 +10,17 @@ import { usePortfolio } from "@/hooks/use-portfolio";
 import { CryptoCurrency } from "@/lib/types";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { CryptoPositions } from "@/components/dashboard/crypto-positions";
+import { MarketTable } from "@/components/dashboard/market-table";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const { marketData, setSelectedCryptoId, loading } = useMarketData();
   const { portfolio, totalPortfolioValue, addUsd, withdrawUsd } = usePortfolio(marketData);
+  const router = useRouter();
+
+  const handleCryptoSelect = (crypto: CryptoCurrency) => {
+    router.push(`/crypto/${crypto.id}`);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -27,6 +34,7 @@ export default function DashboardPage() {
           withdrawUsd={withdrawUsd}
         />
         <CryptoPositions portfolio={portfolio} marketData={marketData} />
+        <MarketTable cryptos={marketData} onRowClick={handleCryptoSelect} />
         <NewsFeed />
       </main>
       <BottomNav />
