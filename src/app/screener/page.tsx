@@ -51,7 +51,8 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
         notation: 'compact',
     }).format(crypto.volume24h);
     
-    const circulatingSupply = crypto.volume24h / (crypto.price * 0.1);
+    // Stable calculation for circulating supply and market cap
+    const circulatingSupply = crypto.volume24h / (crypto.price * 0.1); // Use a fixed factor
     const marketCapValue = crypto.price * circulatingSupply;
     const marketCap = new Intl.NumberFormat('en-US', {
         style: 'currency',
