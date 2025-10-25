@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -13,6 +14,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { NewsFeed } from '@/components/dashboard/news-feed';
+import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
 
 export default function CryptoDetailPage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -82,7 +84,10 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
         {activeTab === 'News' && (
           <NewsFeed />
         )}
-        {activeTab !== 'Market' && activeTab !== 'News' && (
+        {activeTab === 'Analysis' && (
+          <CryptoAnalysis crypto={crypto} />
+        )}
+        {activeTab !== 'Market' && activeTab !== 'News' && activeTab !== 'Analysis' && (
            <div className="flex items-center justify-center h-48 text-muted-foreground">
               <p>Content for {activeTab} will be available soon.</p>
             </div>
