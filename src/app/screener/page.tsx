@@ -44,7 +44,7 @@ const ScreenerListItem = ({
 
   return (
     <div className="border-b">
-      <Link href={`/trade/${crypto.id}`} className="flex items-center p-4 cursor-pointer hover:bg-muted/50">
+      <Link href={`/crypto/${crypto.id}`} className="flex items-center p-4 cursor-pointer hover:bg-muted/50">
         <div className="w-8 text-sm text-muted-foreground">{rank}</div>
         <div className="flex-1 flex items-center gap-3">
           <Icon className="w-8 h-8" />
