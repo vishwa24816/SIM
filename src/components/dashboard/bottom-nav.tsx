@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Home, ListOrdered, Bitcoin, Globe, ScreenShare } from 'lucide-react';
+import { Home, ListOrdered, Bitcoin, Globe } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +14,6 @@ export function BottomNav() {
     { href: '/orders', icon: ListOrdered, label: 'Orders' },
     { href: '/crypto', icon: Bitcoin, label: 'Trade' },
     { href: '/web3', icon: Globe, label: 'Web3' },
-    { href: '/screener', icon: ScreenShare, label: 'Screener' },
   ];
 
   return (
