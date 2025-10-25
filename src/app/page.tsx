@@ -3,7 +3,6 @@
 
 import * as React from "react";
 import { Header } from "@/components/dashboard/header";
-import { MarketTable } from "@/components/dashboard/market-table";
 import { NewsFeed } from "@/components/dashboard/news-feed";
 import { PortfolioView } from "@/components/dashboard/portfolio-view";
 import { useMarketData } from "@/hooks/use-market-data";
@@ -26,10 +25,6 @@ export default function DashboardPage() {
           totalPortfolioValue={totalPortfolioValue}
           addUsd={addUsd}
           withdrawUsd={withdrawUsd}
-        />
-        <MarketTable
-          cryptos={marketData}
-          onRowClick={(crypto: CryptoCurrency) => setSelectedCryptoId(crypto.id)}
         />
         <CryptoPositions portfolio={portfolio} marketData={marketData} />
         <NewsFeed />
