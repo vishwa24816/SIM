@@ -36,7 +36,7 @@ const ScreenerListItem = ({ crypto, rank }: { crypto: CryptoCurrency, rank: numb
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     
-    // Note: Prices are in USD from the API. The image shows INR (₹), 
+    // Note: Prices are in USD from the API. The image shows INR (?), 
     // but for this simulation, we'll display USD with a $ prefix.
     const price = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -91,8 +91,9 @@ interface AIScreenerProps {
 
 const AIScreener = ({ aiQuery, setAiQuery, onRunScreener }: AIScreenerProps) => {
     const presetFilters = [
-        "High Volume Crypto",
+        "Top 10 High Volume Crypto",
         "AI-related",
+        "Crypto with market cap more than 100B"
     ];
 
     return (
@@ -147,6 +148,11 @@ export default function ScreenerPage() {
             results = [...marketData].sort((a,b) => b.volume24h - a.volume24h).slice(0, 10);
         } else if (lowerCaseQuery.includes('ai')) {
              results = marketData.filter(c => aiIds.includes(c.id));
+        } else if (lowerCaseQuery.includes('market cap more than 100b')) {
+            results = marketData.filter(c => {
+                const marketCap = c.price * (c.volume24h / c.price); // Simplified market cap
+                return marketCap > 100000000000;
+            });
         } else {
              results = marketData.filter(c => c.name.toLowerCase().includes(lowerCaseQuery) || c.symbol.toLowerCase().includes(lowerCaseQuery));
         }
@@ -236,3 +242,5 @@ export default function ScreenerPage() {
     </div>
   );
 }
+
+    
