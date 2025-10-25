@@ -12,6 +12,7 @@ import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { CryptoPositions } from "@/components/dashboard/crypto-positions";
 import { MarketTable } from "@/components/dashboard/market-table";
 import { useRouter } from "next/navigation";
+import { Aperture } from "lucide-react";
 
 export default function DashboardPage() {
   const { marketData, setSelectedCryptoId, loading } = useMarketData();
@@ -34,7 +35,21 @@ export default function DashboardPage() {
           withdrawUsd={withdrawUsd}
         />
         <CryptoPositions portfolio={portfolio} marketData={marketData} />
-        <MarketTable cryptos={marketData} onRowClick={handleCryptoSelect} />
+        
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+          <div className="flex flex-row items-center justify-between p-6">
+            <div className="flex items-center gap-3">
+              <Aperture className="w-6 h-6 text-primary" />
+              <h3 className="text-2xl font-semibold leading-none tracking-tight">Crypto & Web3 Holdings</h3>
+            </div>
+          </div>
+          <div className="p-6 pt-0">
+             <div className="flex items-center justify-center h-24 rounded-lg bg-secondary/50">
+                <p className="text-muted-foreground">No data to display.</p>
+            </div>
+          </div>
+        </div>
+
         <NewsFeed />
       </main>
       <BottomNav />
