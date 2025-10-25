@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { NewsFeed } from '@/components/dashboard/news-feed';
 
 export default function CryptoDetailPage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -78,7 +79,10 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
             <SimbotAnalysis crypto={crypto} />
           </>
         )}
-        {activeTab !== 'Market' && (
+        {activeTab === 'News' && (
+          <NewsFeed />
+        )}
+        {activeTab !== 'Market' && activeTab !== 'News' && (
            <div className="flex items-center justify-center h-48 text-muted-foreground">
               <p>Content for {activeTab} will be available soon.</p>
             </div>
