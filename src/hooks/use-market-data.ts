@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -41,7 +42,9 @@ export function useMarketData() {
     } catch (error) {
       console.error(error);
       // Keep using existing or initial data if fetch fails
-      setMarketData(INITIAL_CRYPTO_DATA);
+      if (isInitialLoad) {
+        setMarketData(INITIAL_CRYPTO_DATA);
+      }
     } finally {
         if (isInitialLoad) {
             setLoading(false);
@@ -51,7 +54,12 @@ export function useMarketData() {
 
 
   useEffect(() => {
-    fetchMarketData(true); // Fetch data on component mount (covers refresh and initial load)
+    fetchMarketData(true); // Initial fetch
+    const intervalId = setInterval(() => {
+      fetchMarketData(false);
+    }, 6000); // Poll every 6 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   const selectedCrypto = useMemo(() => {
