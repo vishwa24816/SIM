@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -146,7 +147,7 @@ export default function ScreenerPage() {
 
         if (lowerCaseQuery.includes('high volume')) {
             results = [...marketData].sort((a,b) => b.volume24h - a.volume24h).slice(0, 10);
-        } else if (lowerCaseQuery.includes('ai')) {
+        } else if (lowerCaseQuery.includes('ai-related')) {
              results = marketData.filter(c => aiIds.includes(c.id));
         } else if (lowerCaseQuery.includes('market cap more than 100b')) {
             results = marketData.filter(c => {
@@ -164,7 +165,7 @@ export default function ScreenerPage() {
 
     const filteredData = React.useMemo(() => {
         let data = [...marketData];
-        if (activeTab === 'Trending Coins') {
+        if (activeTab === 'Trending') {
             data = data.sort((a,b) => b.volume24h - a.volume24h);
         } else if (activeTab === 'Top Gainers') {
             data = data.sort((a, b) => b.change24h - a.change24h);
@@ -190,7 +191,7 @@ export default function ScreenerPage() {
              <div className="border-b border-border mt-4">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-0 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                        {['AI', 'All', 'Trending Coins', 'Top Gainers', 'Top Losers'].map(tab => (
+                        {['AI', 'All', 'Trending', 'Top Gainers', 'Top Losers'].map(tab => (
                              <Button 
                                 key={tab} 
                                 onClick={() => setActiveTab(tab)} 
@@ -245,3 +246,5 @@ export default function ScreenerPage() {
     </div>
   );
 }
+
+    
