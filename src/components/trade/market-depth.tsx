@@ -2,10 +2,12 @@
 'use client';
 
 import * as React from 'react';
-import { List } from 'lucide-react';
+import { List, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CryptoCurrency } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { useAlerts } from '@/hooks/use-alerts';
+import { Input } from '../ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 interface MarketDepthProps {
     crypto: CryptoCurrency;
@@ -37,6 +39,10 @@ const generateOrders = (basePrice: number) => {
 
 
 export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
+  const { addAlert } = useAlerts();
+  const { toast } = useToast();
+  const [isSettingAlert, setIsSettingAlert] = React.useState(false);
+  const [alertPrice, setAlertPrice] = React.useState('');
 
   const { buyOrders, sellOrders } = React.useMemo(() => generateOrders(crypto.price), [crypto.price]);
   const totalBuy = buyOrders.reduce((acc, order) => acc + order.total, 0);
@@ -48,6 +54,33 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
       maximumFractionDigits: crypto.price < 1 ? 6 : 2,
     });
   }
+
+  const handleSetAlert = () => {
+    const price = parseFloat(alertPrice);
+    if (isNaN(price) || price <= 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Price',
+            description: 'Please enter a valid price for the alert.'
+        });
+        return;
+    }
+    addAlert({
+        id: `${crypto.id}-${price}-${Date.now()}`,
+        cryptoId: crypto.id,
+        cryptoSymbol: crypto.symbol,
+        price: price,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+    });
+    toast({
+        title: 'Alert Set!',
+        description: `You will be notified when ${crypto.symbol} reaches $${price}.`
+    });
+    setIsSettingAlert(false);
+    setAlertPrice('');
+  };
+
 
   return (
     <div>
@@ -86,10 +119,26 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
             </div>
             <div className="grid grid-cols-2 gap-4 mt-6">
                 <Button variant="outline">Add to Basket</Button>
-                <Button variant="outline">Add Alert</Button>
+                <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                    <BellRing className="w-4 h-4 mr-2"/>
+                    Add Alert
+                </Button>
             </div>
+             {isSettingAlert && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
+                    <div className="flex gap-2">
+                        <Input 
+                            type="number" 
+                            placeholder={`Current: ${formatPrice(crypto.price)}`}
+                            value={alertPrice}
+                            onChange={(e) => setAlertPrice(e.target.value)}
+                        />
+                        <Button onClick={handleSetAlert}>Set Alert</Button>
+                    </div>
+                </div>
+            )}
         </div>
     </div>
   );
 }
-

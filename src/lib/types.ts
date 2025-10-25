@@ -78,3 +78,12 @@ export interface CryptoETF {
     weight: number;
   }[];
 }
+
+export interface Alert {
+    id: string;
+    cryptoId: string;
+    cryptoSymbol: string;
+    price: number;
+    status: 'active' | 'triggered';
+    createdAt: string;
+}

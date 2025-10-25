@@ -1,8 +1,10 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AlertsProvider } from '@/hooks/use-alerts';
 
 export const metadata: Metadata = {
   title: 'SIM | Simulated Crypto Exchange',
@@ -28,8 +30,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <AlertsProvider>
+            {children}
+            <Toaster />
+          </AlertsProvider>
         </ThemeProvider>
       </body>
     </html>
