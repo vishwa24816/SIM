@@ -1,9 +1,8 @@
-
 'use client';
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Search, Sparkles, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Header } from '@/components/dashboard/header';
@@ -11,6 +10,9 @@ import { useMarketData } from '@/hooks/use-market-data';
 import { CryptoCurrency } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { getAiScreenedCryptos } from '../actions';
 
 const ScreenerListItem = ({
   crypto,
@@ -94,48 +96,71 @@ const ScreenerListSkeleton = () => (
 
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
-    const [activeTab, setActiveTab] = React.useState('All');
+    const [prompt, setPrompt] = React.useState('');
+    const [isAiLoading, setIsAiLoading] = React.useState(false);
+    const [aiFilteredIds, setAiFilteredIds] = React.useState<string[] | null>(null);
+
+    const examplePrompts = [
+      "Newly trending meme coins",
+      "AI tokens with high volume",
+      "Undervalued DeFi assets",
+      "Coins with recent positive news",
+    ];
+
+    const handleRunScreener = async () => {
+        setIsAiLoading(true);
+        const resultIds = await getAiScreenedCryptos(prompt, marketData);
+        setAiFilteredIds(resultIds);
+        setIsAiLoading(false);
+    }
     
     const processedData = React.useMemo(() => {
         if (loading) return [];
-        return marketData.map(crypto => {
-            // This calculation is now stable and deterministic
+        const dataWithMarketCap = marketData.map(crypto => {
             const circulatingSupply = crypto.volume24h / crypto.price;
             const marketCap = crypto.price * circulatingSupply;
             return { ...crypto, marketCap };
-        }).sort((a, b) => b.marketCap - a.marketCap); // Sort all data by market cap initially
-    }, [marketData, loading]);
+        }).sort((a, b) => b.marketCap - a.marketCap);
 
-    const trendingData = React.useMemo(() => [...processedData].sort((a,b) => b.volume24h - a.volume24h), [processedData]);
-    const topGainers = React.useMemo(() => [...processedData].sort((a,b) => b.change24h - a.change24h), [processedData]);
-    const topLosers = React.useMemo(() => [...processedData].sort((a,b) => a.change24h - b.change24h), [processedData]);
-    const aiData = React.useMemo(() => processedData.filter(c => ['singularitynet'].includes(c.id)), [processedData]);
-    
-    const dataMap: { [key: string]: typeof processedData } = {
-        'All': processedData,
-        'AI': aiData,
-        'Trending': trendingData,
-        'Top Gainers': topGainers,
-        'Top Losers': topLosers,
-    };
-    
-    const displayData = dataMap[activeTab] || [];
-    const navItems = ['All', 'AI', 'Trending', 'Top Gainers', 'Top Losers'];
+        if (aiFilteredIds) {
+            const filteredSet = new Set(aiFilteredIds);
+            return dataWithMarketCap.filter(c => filteredSet.has(c.id));
+        }
+
+        return dataWithMarketCap;
+    }, [marketData, loading, aiFilteredIds]);
+
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header />
             <main className="flex-1 overflow-y-auto">
-                <div className="sticky top-0 bg-background z-10 p-4 space-y-4 border-b">
-                    <div className="overflow-x-auto">
-                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                            {navItems.map(item => (
-                                 <Button key={item} onClick={() => setActiveTab(item)} variant="ghost" size="sm" className={cn("px-3", activeTab === item && 'text-primary bg-muted')}>
-                                    {item}
-                                 </Button>
-                            ))}
-                        </div>
-                    </div>
+                <div className="p-4 space-y-4 border-b">
+                    <Card className="bg-gradient-to-br from-primary/10 to-background">
+                        <CardContent className="p-4 space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="w-6 h-6 text-primary"/>
+                                <h2 className="text-lg font-semibold">AI Powered Screener</h2>
+                            </div>
+                            <Textarea 
+                                placeholder="e.g., 'Show me AI coins with high 24h volume'"
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                className="bg-background/50"
+                            />
+                            <div className="flex flex-wrap gap-2">
+                                {examplePrompts.map((p, i) => (
+                                    <Button key={i} variant="outline" size="sm" onClick={() => setPrompt(p)}>
+                                        {p}
+                                    </Button>
+                                ))}
+                            </div>
+                             <Button onClick={handleRunScreener} disabled={isAiLoading || !prompt} className="w-full">
+                                <Wand2 className="w-4 h-4 mr-2" />
+                                {isAiLoading ? 'Analyzing...' : 'Run Screener'}
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </div>
 
                 <div className="p-4 hidden md:flex text-sm font-medium text-muted-foreground">
@@ -146,16 +171,16 @@ export default function ScreenerPage() {
                     <div className="w-10"></div>
                 </div>
 
-                {loading ? <ScreenerListSkeleton /> : (
+                {(loading || isAiLoading) ? <ScreenerListSkeleton /> : (
                     <div>
-                        {displayData.map((crypto, index) => (
+                        {processedData.map((crypto, index) => (
                             <ScreenerListItem key={crypto.id} crypto={crypto} rank={index + 1} />
                         ))}
                     </div>
                 )}
-                {displayData.length === 0 && !loading && (
+                {processedData.length === 0 && !loading && !isAiLoading && (
                     <div className="flex items-center justify-center h-48 text-muted-foreground">
-                        No assets found for this category.
+                        No assets match your criteria.
                     </div>
                 )}
             </main>
