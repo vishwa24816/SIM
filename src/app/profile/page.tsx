@@ -93,7 +93,6 @@ export default function ProfilePage() {
     { icon: Info, title: 'About SIM', description: 'Know more about our company and mission' },
     { icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
     { icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us' },
-    { icon: Award, title: 'Professional Tag', description: 'Identify yourself as a finance professional', collapsible: true },
     { icon: Palette, title: 'Platform Colour', description: 'Choose your preferred color theme', collapsible: true },
     { icon: Mic, title: 'SIMBOT Voice', description: 'Choose your preferred voice for the assistant', collapsible: true },
     { icon: Languages, title: 'Platform Language', description: 'Select your display language', collapsible: true },
