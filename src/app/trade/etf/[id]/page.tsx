@@ -95,7 +95,6 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
           <Skeleton className="h-[400px] w-full" />
           <Skeleton className="h-[200px] w-full" />
         </main>
-        <BottomNav />
       </div>
     );
   }
@@ -107,7 +106,6 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
         <main className="flex-1 flex items-center justify-center pb-20">
           <p>ETF not found.</p>
         </main>
-        <BottomNav />
       </div>
     );
   }
@@ -193,13 +191,12 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
               </CardContent>
           </Card>
         </main>
-        <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
+        <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
           <div className="grid grid-cols-2 gap-4">
               <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => { /* Implement sell logic */ }}>Sell</Button>
               <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => { /* Implement buy logic */ }}>Buy</Button>
           </div>
         </footer>
-        <BottomNav />
       </div>
       <AddToBasketDialog
         isOpen={isBasketDialogOpen}

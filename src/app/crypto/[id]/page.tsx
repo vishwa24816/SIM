@@ -100,12 +100,11 @@ export default function CryptoDetailPage({ params }: { params: { id: string } })
             </div>
         )}
       </main>
-      <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
+      <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <Link href={`/trade/${crypto.id}`} passHref>
           <Button size="lg" className="w-full font-bold text-lg">Trade</Button>
         </Link>
       </footer>
-      <BottomNav />
     </div>
   );
 }
