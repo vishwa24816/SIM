@@ -22,7 +22,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
   const holdingsWithValue = portfolio.holdings
     .map(holding => {
       const crypto = marketData.find(c => c.id === holding.cryptoId);
-      if (!crypto) return null;
+      if (!crypto || crypto.assetType === 'Futures') return null;
       const value = holding.amount * crypto.price;
       return {
         ...holding,
@@ -30,18 +30,27 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
         value,
       };
     })
-    .filter((holding): holding is NonNullable<typeof holding> => holding !== null)
-    .filter(h => h.crypto.assetType !== 'Futures'); // Exclude futures from this table
+    .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
 
     const futuresPositions = portfolio.holdings
     .map(holding => {
       const crypto = marketData.find(c => c.id === holding.cryptoId);
-      if (!crypto || crypto.assetType !== 'Futures') return null;
-      const value = holding.amount * crypto.price;
+       if (!crypto || crypto.assetType !== 'Futures') return null;
+
+      const baseAssetId = crypto.id.replace('-fut', '');
+      const baseAsset = marketData.find(c => c.id === baseAssetId && c.assetType === 'Spot');
+      
+      if (!baseAsset) return null;
+
+      const value = holding.amount * baseAsset.price;
+      const leverage = (holding.amount * baseAsset.price) / holding.margin!;
+
       return {
         ...holding,
         crypto,
         value,
+        leverage: isNaN(leverage) ? 0 : leverage,
+        baseAssetPrice: baseAsset.price
       };
     })
     .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
@@ -63,7 +72,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
                   <TableHead>Asset</TableHead>
                   <TableHead>Qty.</TableHead>
                   <TableHead>Price</TableHead>
-                  <TableHead className="text-right">Value (Margin)</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -118,7 +127,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
                   <TableHead>Asset</TableHead>
                   <TableHead>Qty.</TableHead>
                   <TableHead>Price</TableHead>
-                  <TableHead className="text-right">Value (Margin)</TableHead>
+                  <TableHead className="text-right">Margin</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -136,14 +145,14 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
                       </div>
                     </TableCell>
                     <TableCell>
-                      {holding.amount.toFixed(6)}
+                      {holding.amount.toFixed(4)}
                     </TableCell>
                     <TableCell>
-                      ${holding.crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: holding.crypto.price < 1 ? 6 : 2 })}
+                      ${holding.baseAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: holding.baseAssetPrice < 1 ? 6 : 2 })}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="font-mono font-semibold">
-                        ${(holding.value / 5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ${(holding.margin ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </TableCell>
                   </TableRow>

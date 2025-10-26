@@ -19,17 +19,19 @@ interface FuturesOrderFormProps {
     setOrderType: (type: string) => void;
     investmentType: string;
     setInvestmentType: (type: string) => void;
+    quantity: string;
+    setQuantity: (qty: string) => void;
+    leverage: string;
+    setLeverage: (lev: string) => void;
 }
 
 const leverageOptions = [1, 2, 3, 4, 5, 10, 20, 25, 50, 100, 200];
 
-export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderType, investmentType, setInvestmentType }: FuturesOrderFormProps) {
+export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderType, investmentType, setInvestmentType, quantity, setQuantity, leverage, setLeverage }: FuturesOrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
   const [takeProfitType, setTakeProfitType] = React.useState<'price' | 'percentage'>('price');
-  const [quantity, setQuantity] = React.useState('');
-  const [leverage, setLeverage] = React.useState('5');
   const { toast } = useToast();
 
   const [months, setMonths] = React.useState('');

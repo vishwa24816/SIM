@@ -1,3 +1,4 @@
+
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -13,6 +14,7 @@ export interface CryptoCurrency {
 export interface Holding {
   cryptoId: string;
   amount: number;
+  margin?: number; // Margin used for futures
 }
 
 export interface Portfolio {
@@ -153,5 +155,3 @@ export interface LimitOrder {
     quantity: number;
     status: 'Open' | 'Executed' | 'Cancelled';
 }
-
-    

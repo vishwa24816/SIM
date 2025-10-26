@@ -26,7 +26,7 @@ const ALL_INITIAL_ASSETS: CryptoCurrency[] = [
 
 export function useMarketData() {
   const [loading, setLoading] = useState(true);
-  const [marketData, setMarketData] = useState<CryptoCurrency[]>(ALL_INITIAL_ASSETS);
+  const [marketData, setMarketData] = useState<CryptoCurrency[]>([]);
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
 
   const fetchMarketData = async (isInitialLoad = false) => {
@@ -34,7 +34,6 @@ export function useMarketData() {
         setLoading(true);
     }
     try {
-      // We are only fetching live data for the base cryptocurrencies
       const cryptoIds = INITIAL_CRYPTO_DATA.map(c => c.id);
       const response = await fetch(`/api/market-data?ids=${cryptoIds.join(',')}`);
       
@@ -46,29 +45,43 @@ export function useMarketData() {
         return;
       }
       
-      const liveData = await response.json();
+      const liveData: CryptoCurrency[] = await response.json();
       
-      // Merge live data with our comprehensive initial data list
-      const updatedData = ALL_INITIAL_ASSETS.map(initialAsset => {
-        const liveCrypto = liveData.find((d: any) => d.id === initialAsset.id);
-        if (liveCrypto && initialAsset.assetType === 'Spot') {
-          return {
-            ...initialAsset,
-            price: liveCrypto.price,
-            change24h: liveCrypto.change24h,
-            volume24h: liveCrypto.volume24h,
-            priceHistory: liveCrypto.priceHistory,
-          };
-        }
-        // For ETFs and Mutual Funds, or if no live data, return the initial static data
-        return initialAsset;
-      });
+      const baseDataMap = new Map(ALL_INITIAL_ASSETS.map(d => [d.id, d]));
 
-      setMarketData(updatedData);
+      liveData.forEach(live => {
+        baseDataMap.set(live.id, { ...baseDataMap.get(live.id)!, ...live, assetType: 'Spot' });
+      });
+      
+      const combinedData = Array.from(baseDataMap.values());
+
+      const futuresData: CryptoCurrency[] = combinedData
+        .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
+        .map(crypto => ({
+          ...crypto,
+          price: crypto.price,
+          symbol: `${crypto.symbol}-FUT`,
+          name: `${crypto.name} Futures`,
+          id: `${crypto.id}-fut`,
+          assetType: 'Futures' as const,
+      }));
+
+      setMarketData([...combinedData, ...futuresData]);
+
     } catch (error) {
       console.error(error);
       if (isInitialLoad) {
-        setMarketData(ALL_INITIAL_ASSETS);
+        const futuresData: CryptoCurrency[] = ALL_INITIAL_ASSETS
+            .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
+            .map(crypto => ({
+            ...crypto,
+            price: crypto.price,
+            symbol: `${crypto.symbol}-FUT`,
+            name: `${crypto.name} Futures`,
+            id: `${crypto.id}-fut`,
+            assetType: 'Futures' as const,
+        }));
+        setMarketData([...ALL_INITIAL_ASSETS, ...futuresData]);
       }
     } finally {
         if (isInitialLoad) {

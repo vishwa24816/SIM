@@ -43,13 +43,13 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
   };
 
 
-  const buy = (cryptoId: string, usdAmount: number) => {
-    if (usdAmount <= 0) {
+  const buy = (cryptoId: string, margin: number, quantity?: number) => {
+    if (margin <= 0) {
       toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a positive amount." });
       return;
     }
     
-    if (portfolio.usdBalance < usdAmount) {
+    if (portfolio.usdBalance < margin) {
       toast({ variant: "destructive", title: "Insufficient Funds", description: "You do not have enough USD to make this purchase." });
       return;
     }
@@ -57,7 +57,7 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
     const crypto = marketData.find(c => c.id === cryptoId);
     if (!crypto) return;
 
-    const cryptoAmount = usdAmount / crypto.price;
+    const cryptoAmount = quantity ?? margin / crypto.price;
 
     setPortfolio(prev => {
       const existingHolding = prev.holdings.find(h => h.cryptoId === cryptoId);
@@ -65,14 +65,14 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
 
       if (existingHolding) {
         newHoldings = prev.holdings.map(h =>
-          h.cryptoId === cryptoId ? { ...h, amount: h.amount + cryptoAmount } : h
+          h.cryptoId === cryptoId ? { ...h, amount: h.amount + cryptoAmount, margin: (h.margin ?? 0) + margin } : h
         );
       } else {
-        newHoldings = [...prev.holdings, { cryptoId, amount: cryptoAmount }];
+        newHoldings = [...prev.holdings, { cryptoId, amount: cryptoAmount, margin }];
       }
 
       return {
-        usdBalance: prev.usdBalance - usdAmount,
+        usdBalance: prev.usdBalance - margin,
         holdings: newHoldings,
       };
     });
@@ -112,9 +112,22 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
   const totalPortfolioValue = useMemo(() => {
     const holdingsValue = portfolio.holdings.reduce((total, holding) => {
       const crypto = marketData.find(c => c.id === holding.cryptoId);
-      return total + (crypto ? holding.amount * crypto.price : 0);
+      if (!crypto) return total;
+      if (crypto.assetType === 'Futures') {
+        // For futures, their contribution to equity is based on margin, not full value
+        return total;
+      }
+      return total + (holding.amount * crypto.price);
     }, 0);
-    return portfolio.usdBalance + holdingsValue;
+    // Add margins of futures positions to the total value
+    const futuresMargin = portfolio.holdings
+      .filter(h => {
+        const crypto = marketData.find(c => c.id === h.cryptoId);
+        return crypto?.assetType === 'Futures';
+      })
+      .reduce((acc, h) => acc + (h.margin ?? 0), 0);
+      
+    return portfolio.usdBalance + holdingsValue + futuresMargin;
   }, [portfolio, marketData]);
 
   return { portfolio, buy, sell, totalPortfolioValue, addUsd, withdrawUsd };

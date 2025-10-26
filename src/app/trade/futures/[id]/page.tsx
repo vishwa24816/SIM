@@ -14,10 +14,12 @@ import { Separator } from '@/components/ui/separator';
 import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export default function FuturesTradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
-  const { portfolio, buy, sell } = usePortfolio(marketData);
+  const { buy, sell } = usePortfolio(marketData);
+  const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('limit');
@@ -25,11 +27,12 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [quantity, setQuantity] = React.useState('');
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
+  const [leverage, setLeverage] = React.useState('5');
   
   const TABS = ['Technicals', 'Analysis'];
   
   const futuresData = React.useMemo(() => marketData
-    .filter(crypto => crypto.id !== 'tether' && crypto.id !== 'usd-coin')
+    .filter(crypto => crypto.assetType === 'Spot' && crypto.id !== 'tether' && crypto.id !== 'usd-coin')
     .map(crypto => ({
       ...crypto,
       price: crypto.price,
@@ -47,6 +50,22 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     setPrice(selectedPrice.toFixed(crypto?.price && crypto.price < 1 ? 6 : 2));
     setOrderType('limit');
   };
+
+  const handleTrade = (action: 'buy' | 'sell') => {
+    const qty = parseFloat(quantity);
+    if (!crypto || !qty || qty <= 0) {
+      toast({ variant: 'destructive', title: 'Invalid Quantity', description: 'Please enter a valid quantity.' });
+      return;
+    }
+    const prc = parseFloat(price) || crypto.price;
+    const margin = (qty * prc) / parseInt(leverage, 10);
+    
+    if (action === 'buy') {
+      buy(crypto.id, margin, qty);
+    } else {
+      sell(crypto.id, qty);
+    }
+  }
 
   React.useEffect(() => {
     if (crypto) {
@@ -96,6 +115,10 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
           setOrderType={setOrderType}
           investmentType={investmentType}
           setInvestmentType={setInvestmentType}
+          quantity={quantity}
+          setQuantity={setQuantity}
+          leverage={leverage}
+          setLeverage={setLeverage}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
@@ -130,8 +153,8 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => { /* Implement sell logic */ }}>Sell</Button>
-            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => { /* Implement buy logic */ }}>Buy</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => handleTrade('sell')}>Sell / Short</Button>
+            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => handleTrade('buy')}>Buy / Long</Button>
         </div>
       </footer>
     </div>
