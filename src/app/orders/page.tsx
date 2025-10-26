@@ -10,6 +10,7 @@ import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
+import { CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/data';
 
 const orders = [
   {
@@ -128,20 +129,21 @@ export default function OrdersPage() {
   const [activeTab, setActiveTab] = React.useState('Limit');
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
   const { marketData } = useMarketData();
+  const allAssets = React.useMemo(() => [...marketData, ...CRYPTO_ETFS_DATA, ...MUTUAL_FUNDS_DATA.map(f => ({...f, price: f.nav}))], [marketData]);
 
   // Check alerts against current market data
   React.useEffect(() => {
     alerts.forEach(alert => {
         if (alert.status === 'active') {
-            const crypto = marketData.find(c => c.id === alert.cryptoId);
-            if (crypto && crypto.price >= alert.price) {
+            const asset = allAssets.find(c => c.id === alert.cryptoId);
+            if (asset && asset.price >= alert.price) {
                 // In a real app, you'd trigger a notification here.
                 console.log(`Alert triggered for ${alert.cryptoSymbol}! Price reached $${alert.price}`);
                 updateAlertStatus(alert.id, 'triggered');
             }
         }
     })
-  }, [marketData, alerts, updateAlertStatus]);
+  }, [allAssets, alerts, updateAlertStatus]);
 
   const TABS = ['Limit', 'HODL', 'Baskets', 'SP', 'Alerts'];
 
@@ -175,8 +177,8 @@ export default function OrdersPage() {
             ))}
             {activeTab === 'Alerts' && (
                 alerts.length > 0 ? alerts.map(alert => {
-                   const crypto = marketData.find(c => c.id === alert.cryptoId);
-                   return crypto ? <AlertCard key={alert.id} alert={alert} currentPrice={crypto.price} onRemove={removeAlert} /> : null;
+                   const asset = allAssets.find(c => c.id === alert.cryptoId);
+                   return asset ? <AlertCard key={alert.id} alert={alert} currentPrice={asset.price} onRemove={removeAlert} /> : null;
                 }) : (
                     <div className="text-center text-muted-foreground py-10">
                         <p>You have no active alerts.</p>
