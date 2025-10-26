@@ -112,7 +112,7 @@ export function OrderForm({
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
-                            <Input id="months" placeholder="0" type="number" />
+                            <Input id="months" placeholder="0" type="number" max="12" />
                         </div>
                         <div>
                             <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>

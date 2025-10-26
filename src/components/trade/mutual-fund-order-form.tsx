@@ -158,7 +158,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
-                                    <Input id="months" placeholder="0" type="number" />
+                                    <Input id="months" placeholder="0" type="number" max="12" />
                                 </div>
                                 <div>
                                     <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>
@@ -232,7 +232,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                             </div>
                         </div>
                     )}
-
+                    
                     <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mt-6">
                         <div>
                             <p>NAV: {new Date(fund.navDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
