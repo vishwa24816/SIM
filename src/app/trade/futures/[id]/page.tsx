@@ -23,7 +23,7 @@ export default function FuturesTradePage() {
   const params = useParams();
   const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell } = usePortfolioStore();
+  const { buy } = usePortfolioStore();
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
@@ -66,6 +66,7 @@ export default function FuturesTradePage() {
     }
     const executionPrice = parseFloat(price) || crypto.price;
     const margin = (qty * executionPrice) / parseInt(leverage, 10);
+    const tradeQuantity = action === 'buy' ? qty : -qty; // Use negative quantity for shorts
     
     let sl: number | undefined;
     let tp: number | undefined;
@@ -74,7 +75,8 @@ export default function FuturesTradePage() {
     if (generalOrderConfig?.stopLoss) {
         const slValue = parseFloat(generalOrderConfig.stopLoss);
         if (generalOrderConfig.stopLossType === 'percentage') {
-            sl = executionPrice * (1 - slValue / 100);
+            const priceChange = executionPrice * (slValue / 100);
+            sl = action === 'buy' ? executionPrice - priceChange : executionPrice + priceChange;
         } else {
             sl = slValue;
         }
@@ -82,7 +84,8 @@ export default function FuturesTradePage() {
      if (generalOrderConfig?.takeProfit) {
         const tpValue = parseFloat(generalOrderConfig.takeProfit);
         if (generalOrderConfig.takeProfitType === 'percentage') {
-            tp = executionPrice * (1 + tpValue / 100);
+            const priceChange = executionPrice * (tpValue / 100);
+            tp = action === 'buy' ? executionPrice + priceChange : executionPrice - priceChange;
         } else {
             tp = tpValue;
         }
@@ -94,11 +97,7 @@ export default function FuturesTradePage() {
       }
     }
 
-    if (action === 'buy') {
-      buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
-    } else {
-      sell(crypto, qty);
-    }
+    buy(crypto, margin, tradeQuantity, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
   }
 
   React.useEffect(() => {

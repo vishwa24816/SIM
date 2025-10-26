@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
+import { Badge } from "../ui/badge";
 
 interface CryptoPositionsProps {
   portfolio: Portfolio;
@@ -124,7 +125,7 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
 };
 
 
-const FuturesAccordion = ({ positions }: { positions: any[] }) => {
+const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketData: CryptoCurrency[] }) => {
     const { sell } = usePortfolioStore();
 
     if (positions.length === 0) {
@@ -138,14 +139,25 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
     const getAssetPath = (item: { assetType?: string, id: string }) => {
         return `/trade/futures/${item.id}`;
     }
+    
+    const handleSquareOff = (position: any) => {
+        const baseAsset = marketData.find(c => c.id === position.crypto.id.replace('-fut', ''));
+        if (!baseAsset) return;
+
+        // Create a temporary crypto object for the sell action
+        const cryptoToSell = { ...baseAsset, id: position.crypto.id, assetType: 'Futures' as const };
+        
+        // We "sell" the absolute amount to close the position
+        sell(cryptoToSell, Math.abs(position.amount));
+    }
+
 
     return (
         <Accordion type="single" collapsible className="w-full">
             {positions.map((holding) => {
-                const entryPrice = (holding.margin / holding.amount) * holding.leverage;
-                const currentValue = holding.amount * holding.baseAssetPrice;
-                const pnl = currentValue - (entryPrice * holding.amount);
-                const pnlPercent = (pnl / holding.margin) * 100;
+                const isShort = holding.amount < 0;
+                const pnl = (holding.baseAssetPrice - holding.entryPrice) * holding.amount;
+                const pnlPercent = holding.margin > 0 ? (pnl / holding.margin) * 100 : 0;
                 
                 return (
                     <AccordionItem value={holding.crypto.id} key={holding.crypto.id}>
@@ -153,7 +165,12 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
                             <div className="flex items-center gap-3 w-full">
                                 <holding.crypto.icon className="h-8 w-8" />
                                 <div>
-                                    <div className="font-semibold">{holding.crypto.name}</div>
+                                    <div className="font-semibold flex items-center gap-2">
+                                        {holding.crypto.name}
+                                        <Badge variant={isShort ? "destructive" : "default"} className={isShort ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}>
+                                            {isShort ? 'SHORT' : 'LONG'}
+                                        </Badge>
+                                    </div>
                                     <div className="text-xs text-muted-foreground">{holding.crypto.symbol} ({holding.leverage}x)</div>
                                 </div>
                                 <div className="ml-auto text-right">
@@ -172,11 +189,11 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
                                 <div className="grid grid-cols-3 gap-4 text-sm mb-4">
                                     <div>
                                         <p className="text-muted-foreground">Quantity</p>
-                                        <p className="font-semibold">{holding.amount.toFixed(4)}</p>
+                                        <p className="font-semibold">{Math.abs(holding.amount).toFixed(4)}</p>
                                     </div>
                                     <div className="text-center">
                                         <p className="text-muted-foreground">Entry Price</p>
-                                        <p className="font-semibold">${entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                                        <p className="font-semibold">${holding.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-muted-foreground">Current Price</p>
@@ -205,7 +222,7 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
                                     <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
                                         <Button size="sm" variant="outline" className="w-full">Modify</Button>
                                     </Link>
-                                    <Button size="sm" variant="destructive" className="w-full" onClick={() => sell(holding.crypto, holding.amount)}>Square Off</Button>
+                                    <Button size="sm" variant="destructive" className="w-full" onClick={() => handleSquareOff(holding)}>Square Off</Button>
                                 </div>
                             </div>
                         </AccordionContent>
@@ -222,7 +239,6 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
     .map(holding => {
       const crypto = marketData.find(c => c.id === holding.cryptoId);
       if (!crypto || crypto.assetType === 'Futures') return null;
-      // If margin is not recorded, we can estimate it, but for now we assume it is.
       if (!holding.margin) return null;
       
       const value = holding.amount * crypto.price;
@@ -243,17 +259,17 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
       const baseAssetId = crypto.id.replace('-fut', '');
       const baseAsset = marketData.find(c => c.id === baseAssetId && c.assetType === 'Spot');
       
-      if (!baseAsset || !holding.margin) return null;
+      if (!baseAsset || !holding.margin || holding.amount === 0) return null;
 
-      const value = holding.amount * baseAsset.price;
-      const leverage = (holding.amount * baseAsset.price) / holding.margin!;
+      const leverage = Math.abs((holding.amount * baseAsset.price) / holding.margin);
+      const entryPrice = Math.abs((holding.margin * leverage) / holding.amount);
 
       return {
         ...holding,
         crypto,
-        value,
         leverage: isNaN(leverage) ? 0 : Math.round(leverage),
-        baseAssetPrice: baseAsset.price
+        baseAssetPrice: baseAsset.price,
+        entryPrice: isNaN(entryPrice) ? 0 : entryPrice
       };
     })
     .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
@@ -280,7 +296,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
           </div>
         </div>
         <div className="px-6 pb-6">
-          <FuturesAccordion positions={futuresPositions} />
+          <FuturesAccordion positions={futuresPositions} marketData={marketData} />
         </div>
       </div>
     </>
