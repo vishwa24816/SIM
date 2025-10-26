@@ -31,7 +31,7 @@ export default function TradePage() {
   const searchParams = useSearchParams();
   
   const [price, setPrice] = React.useState('');
-  const [orderType, setOrderType] = React.useState('limit');
+  const [orderType, setOrderType] = React.useState('market');
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
   const [quantity, setQuantity] = React.useState('');
   const [investmentType, setInvestmentType] = React.useState('delivery');

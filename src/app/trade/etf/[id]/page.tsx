@@ -28,7 +28,7 @@ export default function ETFTradePage() {
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
-  const [orderType, setOrderType] = React.useState('limit');
+  const [orderType, setOrderType] = React.useState('market');
   const [isSettingAlert, setIsSettingAlert] = React.useState(false);
   const [alertPrice, setAlertPrice] = React.useState('');
   const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);

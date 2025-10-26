@@ -25,7 +25,7 @@ export default function FuturesTradePage() {
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
-  const [orderType, setOrderType] = React.useState('limit');
+  const [orderType, setOrderType] = React.useState('market');
   const [activeTab, setActiveTab] = React.useState('Technicals');
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [quantity, setQuantity] = React.useState('');
