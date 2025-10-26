@@ -14,8 +14,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAlerts } from '@/hooks/use-alerts';
 import { useToast } from '@/hooks/use-toast';
-import { BellRing } from 'lucide-react';
+import { BellRing, Briefcase } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { AddToBasketDialog } from '@/components/trade/add-to-basket-dialog';
 
 export default function ETFTradePage({ params }: { params: { id: string } }) {
   const { loading: marketLoading } = useMarketData();
@@ -26,6 +27,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   const [orderType, setOrderType] = React.useState('limit');
   const [isSettingAlert, setIsSettingAlert] = React.useState(false);
   const [alertPrice, setAlertPrice] = React.useState('');
+  const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
 
   const etf = React.useMemo(() => {
     return CRYPTO_ETFS_DATA.find(e => e.id === params.id);
@@ -108,89 +110,99 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <OrderPageHeader crypto={cryptoEquivalent} />
-      <main className="flex-1 overflow-y-auto p-4 space-y-6">
-        <PriceChart crypto={cryptoEquivalent} loading={marketLoading} />
-        <Separator className="bg-border/50" />
-        <OrderForm
-          crypto={cryptoEquivalent}
-          price={price}
-          setPrice={setPrice}
-          orderType={orderType}
-          setOrderType={setOrderType}
-        />
-        <Separator className="bg-border/50" />
-        
-        <div className="p-4 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline">Add to Basket</Button>
-                <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
-                    <BellRing className="w-4 h-4 mr-2"/>
-                    Add Alert
-                </Button>
-            </div>
-             {isSettingAlert && (
-                <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium">Set a price alert for {etf.symbol}</p>
-                    <div className="flex gap-2">
-                        <Input 
-                            type="number" 
-                            placeholder={`Current: ${formatPrice(etf.price)}`}
-                            value={alertPrice}
-                            onChange={(e) => setAlertPrice(e.target.value)}
-                        />
-                        <Button onClick={handleSetAlert}>Set Alert</Button>
-                    </div>
-                </div>
-            )}
-        </div>
+    <>
+      <div className="flex flex-col min-h-screen bg-background text-foreground">
+        <OrderPageHeader crypto={cryptoEquivalent} />
+        <main className="flex-1 overflow-y-auto p-4 space-y-6">
+          <PriceChart crypto={cryptoEquivalent} loading={marketLoading} />
+          <Separator className="bg-border/50" />
+          <OrderForm
+            crypto={cryptoEquivalent}
+            price={price}
+            setPrice={setPrice}
+            orderType={orderType}
+            setOrderType={setOrderType}
+          />
+          <Separator className="bg-border/50" />
+          
+          <div className="p-4 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      Add to Basket
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                      <BellRing className="w-4 h-4 mr-2"/>
+                      Add Alert
+                  </Button>
+              </div>
+              {isSettingAlert && (
+                  <div className="mt-4 space-y-2">
+                      <p className="text-sm font-medium">Set a price alert for {etf.symbol}</p>
+                      <div className="flex gap-2">
+                          <Input 
+                              type="number" 
+                              placeholder={`Current: ${formatPrice(etf.price)}`}
+                              value={alertPrice}
+                              onChange={(e) => setAlertPrice(e.target.value)}
+                          />
+                          <Button onClick={handleSetAlert}>Set Alert</Button>
+                      </div>
+                  </div>
+              )}
+          </div>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>About {etf.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-                <p className="text-muted-foreground">{etf.description}</p>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <p className="font-semibold">Issuer</p>
-                        <p className="text-muted-foreground">{etf.issuer}</p>
-                    </div>
-                     <div>
-                        <p className="font-semibold">Inception Date</p>
-                        <p className="text-muted-foreground">{etf.inceptionDate}</p>
-                    </div>
-                     <div>
-                        <p className="font-semibold">Expense Ratio</p>
-                        <p className="text-muted-foreground">{etf.expenseRatio}%</p>
-                    </div>
-                     <div>
-                        <p className="font-semibold">Assets Under Management</p>
-                        <p className="text-muted-foreground">${(etf.aum / 1_000_000_000).toFixed(2)}B</p>
-                    </div>
-                </div>
-                 <div>
-                    <h4 className="font-semibold mb-2">Underlying Assets</h4>
-                    <div className="space-y-2">
-                        {etf.underlyingAssets.map(asset => (
-                            <div key={asset.symbol} className="flex justify-between items-center p-2 bg-muted/50 rounded-md">
-                                <span>{asset.name} ({asset.symbol})</span>
-                                <span className="font-medium">{asset.weight.toFixed(2)}%</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-      </main>
-      <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
-        <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => { /* Implement sell logic */ }}>Sell</Button>
-            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => { /* Implement buy logic */ }}>Buy</Button>
-        </div>
-      </footer>
-      <BottomNav />
-    </div>
+          <Card>
+              <CardHeader>
+                  <CardTitle>About {etf.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                  <p className="text-muted-foreground">{etf.description}</p>
+                  <div className="grid grid-cols-2 gap-4">
+                      <div>
+                          <p className="font-semibold">Issuer</p>
+                          <p className="text-muted-foreground">{etf.issuer}</p>
+                      </div>
+                      <div>
+                          <p className="font-semibold">Inception Date</p>
+                          <p className="text-muted-foreground">{etf.inceptionDate}</p>
+                      </div>
+                      <div>
+                          <p className="font-semibold">Expense Ratio</p>
+                          <p className="text-muted-foreground">{etf.expenseRatio}%</p>
+                      </div>
+                      <div>
+                          <p className="font-semibold">Assets Under Management</p>
+                          <p className="text-muted-foreground">${(etf.aum / 1_000_000_000).toFixed(2)}B</p>
+                      </div>
+                  </div>
+                  <div>
+                      <h4 className="font-semibold mb-2">Underlying Assets</h4>
+                      <div className="space-y-2">
+                          {etf.underlyingAssets.map(asset => (
+                              <div key={asset.symbol} className="flex justify-between items-center p-2 bg-muted/50 rounded-md">
+                                  <span>{asset.name} ({asset.symbol})</span>
+                                  <span className="font-medium">{asset.weight.toFixed(2)}%</span>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              </CardContent>
+          </Card>
+        </main>
+        <footer className="sticky bottom-16 sm:bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
+          <div className="grid grid-cols-2 gap-4">
+              <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => { /* Implement sell logic */ }}>Sell</Button>
+              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => { /* Implement buy logic */ }}>Buy</Button>
+          </div>
+        </footer>
+        <BottomNav />
+      </div>
+      <AddToBasketDialog
+        isOpen={isBasketDialogOpen}
+        onClose={() => setIsBasketDialogOpen(false)}
+        instrument={{ id: etf.id, name: etf.name, symbol: etf.symbol, assetType: 'Crypto ETF' }}
+      />
+    </>
   );
 }

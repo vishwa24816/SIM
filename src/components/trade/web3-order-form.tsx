@@ -10,8 +10,9 @@ import { CryptoCurrency } from '@/lib/types';
 import { SwipeToConfirm } from '../ui/swipe-to-confirm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { BellRing } from 'lucide-react';
+import { BellRing, Briefcase } from 'lucide-react';
 import { useAlerts } from '@/hooks/use-alerts';
+import { AddToBasketDialog } from './add-to-basket-dialog';
 
 interface Web3OrderFormProps {
     crypto: CryptoCurrency;
@@ -24,6 +25,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
     const { addAlert } = useAlerts();
     const [isSettingAlert, setIsSettingAlert] = React.useState(false);
     const [alertPrice, setAlertPrice] = React.useState('');
+    const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
 
     const handleSwipeConfirm = () => {
         if (!amount || parseFloat(amount) <= 0) {
@@ -75,86 +77,96 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
     };
 
     return (
-        <div>
-            <div className="p-6">
-                <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-6">
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="one-time" id="one-time"/>
-                        <Label htmlFor="one-time">One-time</Label>
+        <>
+            <div>
+                <div className="p-6">
+                    <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-6">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="one-time" id="one-time"/>
+                            <Label htmlFor="one-time">One-time</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="hodl" id="hodl"/>
+                            <Label htmlFor="hodl">HODL</Label>
+                        </div>
+                    </RadioGroup>
+                    
+                    <div className="space-y-2 mb-6">
+                        <Label htmlFor="investment-amount">Investment Amount ($)</Label>
+                        <Input 
+                            id="investment-amount" 
+                            placeholder="e.g., 500" 
+                            type="number" 
+                            value={amount}
+                            onChange={e => setAmount(e.target.value)} 
+                        />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="hodl" id="hodl"/>
-                        <Label htmlFor="hodl">HODL</Label>
-                    </div>
-                </RadioGroup>
-                
-                <div className="space-y-2 mb-6">
-                    <Label htmlFor="investment-amount">Investment Amount ($)</Label>
-                    <Input 
-                        id="investment-amount" 
-                        placeholder="e.g., 500" 
-                        type="number" 
-                        value={amount}
-                        onChange={e => setAmount(e.target.value)} 
-                    />
-                </div>
-                
-                {investmentType === 'hodl' && (
-                    <div className="space-y-4 mb-4">
-                        <Label>Lock-in Period</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
-                                <Input id="months" placeholder="0" type="number" />
-                            </div>
-                            <div>
-                                <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>
-                                <Input id="years" placeholder="0" type="number" />
+                    
+                    {investmentType === 'hodl' && (
+                        <div className="space-y-4 mb-4">
+                            <Label>Lock-in Period</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
+                                    <Input id="months" placeholder="0" type="number" />
+                                </div>
+                                <div>
+                                    <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>
+                                    <Input id="years" placeholder="0" type="number" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                <div className="mb-6">
-                    <SwipeToConfirm onConfirm={handleSwipeConfirm} />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                    <Button variant="outline">Add to Basket</Button>
-                    <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
-                        <BellRing className="w-4 h-4 mr-2"/>
-                        Add Alert
-                    </Button>
-                </div>
-                {isSettingAlert && (
-                    <div className="mt-4 space-y-2">
-                        <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
-                        <div className="flex gap-2">
-                            <Input 
-                                type="number" 
-                                placeholder={`Current: ${formatPrice(crypto.price)}`}
-                                value={alertPrice}
-                                onChange={(e) => setAlertPrice(e.target.value)}
-                            />
-                            <Button onClick={handleSetAlert}>Set Alert</Button>
+                    <div className="mb-6">
+                        <SwipeToConfirm onConfirm={handleSwipeConfirm} />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                        <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
+                            <Briefcase className="w-4 h-4 mr-2" />
+                            Add to Basket
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                            <BellRing className="w-4 h-4 mr-2"/>
+                            Add Alert
+                        </Button>
+                    </div>
+                    {isSettingAlert && (
+                        <div className="mt-4 space-y-2">
+                            <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
+                            <div className="flex gap-2">
+                                <Input 
+                                    type="number" 
+                                    placeholder={`Current: ${formatPrice(crypto.price)}`}
+                                    value={alertPrice}
+                                    onChange={(e) => setAlertPrice(e.target.value)}
+                                />
+                                <Button onClick={handleSetAlert}>Set Alert</Button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mt-6">
+                        <div>
+                            <p>Price</p>
+                            <p className="font-semibold text-foreground">${crypto.price.toFixed(crypto.price < 1 ? 6 : 2)}</p>
+                        </div>
+                        <div className="text-right">
+                            <p>24h Change</p>
+                            <p className={cn("font-semibold", crypto.change24h >= 0 ? "text-green-500" : "text-red-500")}>
+                                {crypto.change24h.toFixed(2)}%
+                            </p>
                         </div>
                     </div>
-                )}
-                
-                <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mt-6">
-                    <div>
-                        <p>Price</p>
-                        <p className="font-semibold text-foreground">${crypto.price.toFixed(crypto.price < 1 ? 6 : 2)}</p>
-                    </div>
-                    <div className="text-right">
-                        <p>24h Change</p>
-                        <p className={cn("font-semibold", crypto.change24h >= 0 ? "text-green-500" : "text-red-500")}>
-                            {crypto.change24h.toFixed(2)}%
-                        </p>
-                    </div>
-                </div>
 
+                </div>
             </div>
-        </div>
+            <AddToBasketDialog
+                isOpen={isBasketDialogOpen}
+                onClose={() => setIsBasketDialogOpen(false)}
+                instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Web3' }}
+            />
+        </>
     );
 }

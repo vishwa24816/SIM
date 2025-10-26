@@ -87,3 +87,10 @@ export interface Alert {
     status: 'active' | 'triggered';
     createdAt: string;
 }
+
+export type BasketItem = Pick<CryptoCurrency, 'id' | 'name' | 'symbol'> & { assetType: CryptoCurrency['assetType'] };
+
+export interface Basket {
+  name: string;
+  items: BasketItem[];
+}

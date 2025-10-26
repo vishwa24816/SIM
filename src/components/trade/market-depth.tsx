@@ -2,12 +2,13 @@
 'use client';
 
 import * as React from 'react';
-import { List, BellRing } from 'lucide-react';
+import { List, BellRing, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CryptoCurrency } from '@/lib/types';
 import { useAlerts } from '@/hooks/use-alerts';
 import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { AddToBasketDialog } from './add-to-basket-dialog';
 
 interface MarketDepthProps {
     crypto: CryptoCurrency;
@@ -43,6 +44,7 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
   const { toast } = useToast();
   const [isSettingAlert, setIsSettingAlert] = React.useState(false);
   const [alertPrice, setAlertPrice] = React.useState('');
+  const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
 
   const { buyOrders, sellOrders } = React.useMemo(() => generateOrders(crypto.price), [crypto.price]);
   const totalBuy = buyOrders.reduce((acc, order) => acc + order.total, 0);
@@ -83,6 +85,7 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
 
 
   return (
+    <>
     <div>
         <div className="flex flex-col space-y-1.5 p-6">
             <div className="flex items-center gap-2">
@@ -118,7 +121,10 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-6">
-                <Button variant="outline">Add to Basket</Button>
+                <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Add to Basket
+                </Button>
                 <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
                     <BellRing className="w-4 h-4 mr-2"/>
                     Add Alert
@@ -140,5 +146,11 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
             )}
         </div>
     </div>
+    <AddToBasketDialog
+        isOpen={isBasketDialogOpen}
+        onClose={() => setIsBasketDialogOpen(false)}
+        instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
+    />
+    </>
   );
 }

@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/dashboard/header';
 import { Search, BarChart2, Trash2 } from 'lucide-react';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
@@ -11,6 +11,9 @@ import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
 import { CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/data';
+import { useBaskets } from '@/hooks/use-baskets';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import Link from 'next/link';
 
 const orders = [
   {
@@ -129,6 +132,7 @@ export default function OrdersPage() {
   const [activeTab, setActiveTab] = React.useState('Limit');
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
   const { marketData } = useMarketData();
+  const { baskets } = useBaskets();
   const allAssets = React.useMemo(() => [...marketData, ...CRYPTO_ETFS_DATA, ...MUTUAL_FUNDS_DATA.map(f => ({...f, price: f.nav}))], [marketData]);
 
   // Check alerts against current market data
@@ -144,6 +148,17 @@ export default function OrdersPage() {
         }
     })
   }, [allAssets, alerts, updateAlertStatus]);
+  
+  const getAssetPath = (item: { assetType?: string, id: string }) => {
+    switch (item.assetType) {
+        case 'Crypto ETF': return `/trade/etf/${item.id}`;
+        case 'Mutual Fund': return `/trade/mutual-fund/${item.id}`;
+        case 'Web3': return `/trade/web3/${item.id}`;
+        case 'Futures': return `/trade/futures/${item.id}`;
+        default: return `/trade/${item.id}`;
+    }
+  }
+
 
   const TABS = ['Limit', 'HODL', 'Baskets', 'SP', 'Alerts'];
 
@@ -186,7 +201,51 @@ export default function OrdersPage() {
                     </div>
                 )
             )}
-             {(activeTab !== 'Limit' && activeTab !== 'Alerts') && (
+            {activeTab === 'Baskets' && (
+                 baskets.length > 0 ? (
+                    <Accordion type="single" collapsible className="w-full">
+                        {baskets.map(basket => (
+                            <AccordionItem value={basket.name} key={basket.name}>
+                                <AccordionTrigger>
+                                    <div className='flex justify-between w-full pr-4'>
+                                        <span>{basket.name}</span>
+                                        <span className='text-muted-foreground text-sm'>{basket.items.length} items</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="divide-y">
+                                        {basket.items.map(item => {
+                                            const asset = allAssets.find(a => a.id === item.id);
+                                            return (
+                                                <Link href={getAssetPath(item)} key={item.id} className="flex justify-between items-center p-2 hover:bg-muted/50">
+                                                    <div>
+                                                        <p className="font-semibold">{item.name}</p>
+                                                        <p className="text-xs text-muted-foreground">{item.symbol}</p>
+                                                    </div>
+                                                    {asset && (
+                                                        <div className="text-right">
+                                                            <p className='font-semibold'>${asset.price.toLocaleString()}</p>
+                                                            <p className={cn('text-sm', asset.change24h >= 0 ? 'text-green-500' : 'text-red-500')}>
+                                                                {asset.change24h.toFixed(2)}%
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </Link>
+                                            )
+                                        })}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                ) : (
+                    <div className="text-center text-muted-foreground py-10">
+                        <p>You have no baskets.</p>
+                        <p className="text-sm">Create a basket from any trade screen.</p>
+                    </div>
+                )
+            )}
+             {(activeTab !== 'Limit' && activeTab !== 'Alerts' && activeTab !== 'Baskets') && (
                 <div className="text-center text-muted-foreground py-10">
                     <p>No {activeTab.toLowerCase()} orders found.</p>
                 </div>
