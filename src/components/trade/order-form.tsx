@@ -17,9 +17,11 @@ interface OrderFormProps {
     orderType: string;
     setOrderType: (type: string) => void;
     onCanAddToBasketChange: (canAdd: boolean) => void;
+    quantity: string;
+    setQuantity: (qty: string) => void;
 }
 
-export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange }: OrderFormProps) {
+export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, quantity, setQuantity }: OrderFormProps) {
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
@@ -28,7 +30,7 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, on
   const [spPlanType, setSpPlanType] = React.useState('sip');
   const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
   const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
-  const [quantity, setQuantity] = React.useState('');
+  
 
   const marginRequired = React.useMemo(() => {
     const qty = parseFloat(quantity);

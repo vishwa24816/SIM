@@ -88,7 +88,15 @@ export interface Alert {
     createdAt: string;
 }
 
-export type BasketItem = Pick<CryptoCurrency, 'id' | 'name' | 'symbol' | 'assetType'>;
+export interface BasketItem {
+    id: string;
+    name: string;
+    symbol: string;
+    assetType: CryptoCurrency['assetType'];
+    quantity: number;
+    price: number;
+    orderType: string;
+}
 
 export interface Basket {
   name: string;

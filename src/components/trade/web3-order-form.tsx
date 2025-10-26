@@ -83,6 +83,12 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
         setAlertPrice('');
     };
 
+    const quantity = React.useMemo(() => {
+        const numericAmount = parseFloat(amount);
+        if (isNaN(numericAmount) || numericAmount <= 0 || crypto.price <=0) return 0;
+        return numericAmount / crypto.price;
+    }, [amount, crypto.price]);
+
     return (
         <>
             <Collapsible open={isAddingToBasket} onOpenChange={setIsAddingToBasket}>
@@ -173,6 +179,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
                  <CollapsibleContent>
                      <AddToBasketForm
                         instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Web3' }}
+                        orderState={{ price: crypto.price.toString(), quantity: quantity.toString(), orderType: 'one-time'}}
                         onClose={() => setIsAddingToBasket(false)}
                     />
                 </CollapsibleContent>

@@ -30,6 +30,8 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   const [alertPrice, setAlertPrice] = React.useState('');
   const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
+  const [quantity, setQuantity] = React.useState('');
+
 
   const etf = React.useMemo(() => {
     return marketData.find(e => e.id === params.id && e.assetType === 'Crypto ETF') as CryptoCurrency | undefined;
@@ -123,6 +125,8 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
             orderType={orderType}
             setOrderType={setOrderType}
             onCanAddToBasketChange={setCanAddToBasket}
+            quantity={quantity}
+            setQuantity={setQuantity}
           />
           <Separator className="bg-border/50" />
           
@@ -156,8 +160,9 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
                 )}
             </div>
             <CollapsibleContent>
-                <AddToBasketForm
+                 <AddToBasketForm
                     instrument={{ id: etf.id, name: etf.name, symbol: etf.symbol, assetType: 'Crypto ETF' }}
+                    orderState={{price, quantity, orderType}}
                     onClose={() => setIsAddingToBasket(false)}
                 />
             </CollapsibleContent>

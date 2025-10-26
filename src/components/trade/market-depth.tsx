@@ -15,6 +15,11 @@ interface MarketDepthProps {
     crypto: CryptoCurrency;
     onPriceSelect: (price: number) => void;
     canAddToBasket: boolean;
+    orderState: {
+        price: string;
+        quantity: string;
+        orderType: string;
+    }
 }
 
 const generateOrders = (basePrice: number) => {
@@ -41,7 +46,7 @@ const generateOrders = (basePrice: number) => {
 };
 
 
-export function MarketDepth({ crypto, onPriceSelect, canAddToBasket }: MarketDepthProps) {
+export function MarketDepth({ crypto, onPriceSelect, canAddToBasket, orderState }: MarketDepthProps) {
   const { addAlert } = useAlerts();
   const { toast } = useToast();
   const [isSettingAlert, setIsSettingAlert] = React.useState(false);
@@ -152,6 +157,7 @@ export function MarketDepth({ crypto, onPriceSelect, canAddToBasket }: MarketDep
         <CollapsibleContent>
             <AddToBasketForm 
                 instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
+                orderState={orderState}
                 onClose={() => setIsAddingToBasket(false)}
             />
         </CollapsibleContent>

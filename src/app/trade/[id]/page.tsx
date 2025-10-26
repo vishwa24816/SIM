@@ -20,6 +20,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('limit');
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
+  const [quantity, setQuantity] = React.useState('');
 
   const crypto = React.useMemo(() => {
     return marketData.find(c => c.id === params.id);
@@ -66,7 +67,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <OrderPageHeader crypto={crypto} />
-      <main className="flex-1 overflow-y-auto p-4 space-y-6">
+      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-24">
         <PriceChart crypto={crypto} loading={marketLoading} />
         <Separator className="bg-border/50" />
         <OrderForm
@@ -76,9 +77,16 @@ export default function TradePage({ params }: { params: { id: string } }) {
           orderType={orderType}
           setOrderType={setOrderType}
           onCanAddToBasketChange={setCanAddToBasket}
+          quantity={quantity}
+          setQuantity={setQuantity}
         />
         <Separator className="bg-border/50" />
-        <MarketDepth crypto={crypto} onPriceSelect={handlePriceSelect} canAddToBasket={canAddToBasket} />
+        <MarketDepth 
+          crypto={crypto} 
+          onPriceSelect={handlePriceSelect} 
+          canAddToBasket={canAddToBasket}
+          orderState={{price, quantity, orderType}}
+        />
         <Separator className="bg-border/50" />
         <SimbotAnalysis crypto={crypto} showTabs={true} />
       </main>

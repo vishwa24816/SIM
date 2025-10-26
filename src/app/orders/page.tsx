@@ -240,20 +240,37 @@ export default function OrdersPage() {
                                       <div className="divide-y">
                                           {basket.items.map(item => {
                                               const asset = allAssets.find(a => a.id === item.id);
+                                              const margin = item.quantity * item.price;
                                               return (
-                                                  <Link href={getAssetPath(item)} key={item.id} className="flex justify-between items-center p-2 hover:bg-muted/50">
-                                                      <div>
-                                                          <p className="font-semibold">{item.name}</p>
-                                                          <p className="text-xs text-muted-foreground">{item.symbol}</p>
-                                                      </div>
-                                                      {asset && (
-                                                          <div className="text-right">
-                                                              <p className='font-semibold'>${asset.price.toLocaleString()}</p>
-                                                              <p className={cn('text-sm', asset.change24h >= 0 ? 'text-green-500' : 'text-red-500')}>
-                                                                  {asset.change24h.toFixed(2)}%
-                                                              </p>
+                                                  <Link href={getAssetPath(item)} key={item.id} className="block p-2 hover:bg-muted/50">
+                                                      <div className="flex justify-between items-center">
+                                                          <div>
+                                                              <p className="font-semibold">{item.name} <span className="text-xs text-muted-foreground">({item.assetType})</span></p>
+                                                              <p className="text-xs text-muted-foreground">{item.symbol}</p>
                                                           </div>
-                                                      )}
+                                                          {asset && (
+                                                              <div className="text-right">
+                                                                  <p className='font-semibold'>${asset.price.toLocaleString()}</p>
+                                                                  <p className={cn('text-sm', asset.change24h >= 0 ? 'text-green-500' : 'text-red-500')}>
+                                                                      {asset.change24h.toFixed(2)}%
+                                                                  </p>
+                                                              </div>
+                                                          )}
+                                                      </div>
+                                                      <div className="grid grid-cols-3 gap-2 mt-2 text-xs text-muted-foreground">
+                                                          <div>
+                                                              <p>Qty</p>
+                                                              <p className="font-medium text-foreground">{item.quantity}</p>
+                                                          </div>
+                                                           <div>
+                                                              <p>Price</p>
+                                                              <p className="font-medium text-foreground">${item.price.toLocaleString()}</p>
+                                                          </div>
+                                                           <div className="text-right">
+                                                              <p>Margin</p>
+                                                              <p className="font-medium text-foreground">${margin.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                                                          </div>
+                                                      </div>
                                                   </Link>
                                               )
                                           })}

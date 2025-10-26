@@ -13,11 +13,16 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Card, CardContent } from '../ui/card';
 
 interface AddToBasketFormProps {
-  instrument: BasketItem;
+  instrument: Omit<BasketItem, 'price' | 'quantity' | 'orderType'>;
+  orderState: {
+    price: string;
+    quantity: string;
+    orderType: string;
+  };
   onClose: () => void;
 }
 
-export function AddToBasketForm({ instrument, onClose }: AddToBasketFormProps) {
+export function AddToBasketForm({ instrument, orderState, onClose }: AddToBasketFormProps) {
   const { baskets, addToBasket, createAndAddToBasket } = useBaskets();
   const { toast } = useToast();
   
@@ -36,11 +41,16 @@ export function AddToBasketForm({ instrument, onClose }: AddToBasketFormProps) {
 
   const handleConfirm = () => {
     const itemToAdd: BasketItem = {
-      id: instrument.id,
-      name: instrument.name,
-      symbol: instrument.symbol,
-      assetType: instrument.assetType,
+      ...instrument,
+      quantity: parseFloat(orderState.quantity) || 0,
+      price: parseFloat(orderState.price) || 0,
+      orderType: orderState.orderType,
     };
+
+    if (itemToAdd.quantity <= 0) {
+        toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Cannot add an item with zero quantity to the basket.' });
+        return;
+    }
 
     if (basketType === 'existing') {
       if (!selectedBasket) {

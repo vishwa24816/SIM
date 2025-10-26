@@ -80,6 +80,13 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
         setIsSettingAlert(false);
         setAlertPrice('');
     };
+    
+    const quantity = React.useMemo(() => {
+        const numericAmount = parseFloat(amount);
+        if (isNaN(numericAmount) || numericAmount <= 0 || fund.nav <=0) return 0;
+        return numericAmount / fund.nav;
+    }, [amount, fund.nav]);
+
 
     return (
         <>
@@ -261,6 +268,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                 <CollapsibleContent>
                     <AddToBasketForm
                         instrument={{ id: fund.id, name: fund.name, symbol: fund.symbol, assetType: 'Mutual Fund' }}
+                        orderState={{ price: fund.nav.toString(), quantity: quantity.toString(), orderType: 'one-time' }}
                         onClose={() => setIsAddingToBasket(false)}
                     />
                 </CollapsibleContent>
