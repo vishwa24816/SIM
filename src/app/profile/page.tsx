@@ -94,7 +94,6 @@ export default function ProfilePage() {
     { icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
     { icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us' },
     { icon: Palette, title: 'Platform Colour', description: 'Choose your preferred color theme', collapsible: true },
-    { icon: Mic, title: 'SIMBOT Voice', description: 'Choose your preferred voice for the assistant', collapsible: true },
     { icon: Languages, title: 'Platform Language', description: 'Select your display language', collapsible: true },
   ];
 
