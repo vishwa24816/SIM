@@ -84,10 +84,14 @@ export const usePortfolioStore = create<PortfolioState>()(
                     if (existingHoldingIndex > -1) {
                         newHoldings = [...state.portfolio.holdings];
                         const existingHolding = newHoldings[existingHoldingIndex];
+                        
+                        const newTotalAmount = existingHolding.amount + cryptoAmount;
+                        const newTotalMargin = (existingHolding.margin ?? 0) + usdAmount;
+
                         newHoldings[existingHoldingIndex] = {
                             ...existingHolding,
-                            amount: existingHolding.amount + cryptoAmount,
-                            margin: (existingHolding.margin ?? 0) + usdAmount,
+                            amount: newTotalAmount,
+                            margin: newTotalMargin,
                             stopLoss: options?.stopLoss ?? existingHolding.stopLoss,
                             takeProfit: options?.takeProfit ?? existingHolding.takeProfit,
                             trailingStopLoss: options?.trailingStopLoss ?? existingHolding.trailingStopLoss,
@@ -139,7 +143,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                     const newAmount = holding.amount - amountToSell;
                     
                     const proportionSold = holding.amount > 0 ? amountToSell / holding.amount : 1;
-                    const newMargin = (holding.margin ?? 0) * (1 - proportionSold);
+                    const marginToReturn = (holding.margin ?? 0) * proportionSold;
 
                     let newHoldings: Holding[];
 
@@ -147,7 +151,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                         newHoldings = state.portfolio.holdings.filter(h => h.cryptoId !== crypto.id);
                     } else {
                         newHoldings = [...state.portfolio.holdings];
-                        newHoldings[holdingIndex] = { ...holding, amount: newAmount, margin: newMargin };
+                        newHoldings[holdingIndex] = { ...holding, amount: newAmount, margin: (holding.margin ?? 0) - marginToReturn };
                     }
                     
                     toast({ title: 'Sale Successful', description: `Sold ${amountToSell.toFixed(6)} ${crypto.symbol}.` });
