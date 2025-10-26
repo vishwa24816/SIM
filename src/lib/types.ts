@@ -175,3 +175,21 @@ export interface Nominee {
   relationship: string;
   share: number;
 }
+
+export interface BankAccount {
+    id: string;
+    bankName: string;
+    accountHolderName: string;
+    accountNumber: string;
+    ifsc: string;
+    isPrimary: boolean;
+}
+
+export interface Wallet {
+  id: string;
+  name: string;
+  accountId: string;
+  type: 'Custodian' | 'Self';
+  recoveryPhrase: string;
+  isPrimary: boolean;
+}
