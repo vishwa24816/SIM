@@ -116,7 +116,6 @@ export default function TradePage({ params }: { params: { id: string } }) {
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4 space-y-3">
         <SwipeToConfirm onConfirm={handleBuy} text="Swipe to Buy" />
-        <SwipeToConfirm onConfirm={handleSell} text="Swipe to Sell" />
       </footer>
     </div>
   );
