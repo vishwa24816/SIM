@@ -7,7 +7,6 @@ import { Portfolio, CryptoCurrency, Holding } from '@/lib/types';
 import { useToast } from './use-toast';
 import * as React from 'react';
 
-
 const INITIAL_PORTFOLIO: Portfolio = {
   usdBalance: 10000,
   holdings: [],
@@ -27,32 +26,54 @@ export const usePortfolioStore = create<PortfolioState>()(
         (set, get) => ({
             portfolio: INITIAL_PORTFOLIO,
             addUsd: (amount) => {
+                const { toast } = useToast.getState();
+                if (amount <= 0) {
+                    toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
+                    return;
+                }
                 set(state => ({
                     portfolio: {
                         ...state.portfolio,
                         usdBalance: state.portfolio.usdBalance + amount
                     }
                 }));
+                toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
             },
             withdrawUsd: (amount) => {
-                set(state => {
-                    const currentBalance = state.portfolio.usdBalance;
-                    if (amount > currentBalance) return state;
-                    return {
-                        portfolio: {
-                            ...state.portfolio,
-                            usdBalance: currentBalance - amount
-                        }
+                const { toast } = useToast.getState();
+                const currentBalance = get().portfolio.usdBalance;
+                 if (amount <= 0) {
+                    toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
+                    return;
+                }
+                if (amount > currentBalance) {
+                    toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Withdrawal cannot exceed balance.' });
+                    return;
+                }
+                set(state => ({
+                    portfolio: {
+                        ...state.portfolio,
+                        usdBalance: currentBalance - amount
                     }
-                });
+                }));
+                toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
             },
             buy: (crypto, usdAmount, quantity) => {
+                const { toast } = useToast.getState();
+                const currentBalance = get().portfolio.usdBalance;
+
+                if (usdAmount <= 0) {
+                    toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
+                    return;
+                }
+                if (currentBalance < usdAmount) {
+                    toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Not enough USD to make this purchase.' });
+                    return;
+                }
+                
+                const cryptoAmount = quantity ?? usdAmount / crypto.price;
+                
                 set(state => {
-                    if (state.portfolio.usdBalance < usdAmount) {
-                        return state; // Not enough funds
-                    }
-                    
-                    const cryptoAmount = quantity ?? usdAmount / crypto.price;
                     const existingHoldingIndex = state.portfolio.holdings.findIndex(h => h.cryptoId === crypto.id);
                     let newHoldings: Holding[];
 
@@ -76,19 +97,28 @@ export const usePortfolioStore = create<PortfolioState>()(
                         }
                     };
                 });
+                toast({ title: 'Purchase Successful', description: `Bought ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
             },
             sell: (crypto, cryptoAmount) => {
+                const { toast } = useToast.getState();
+                 if (cryptoAmount <= 0) {
+                    toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
+                    return;
+                }
+                
                 set(state => {
                     const holding = state.portfolio.holdings.find(h => h.cryptoId === crypto.id);
                     if (!holding || holding.amount < cryptoAmount) {
+                         toast({ variant: 'destructive', title: 'Insufficient Holdings', description: `Not enough ${crypto.symbol} to sell.` });
                         return state; // Not enough holdings
                     }
                     
                     const usdAmount = cryptoAmount * crypto.price;
                     const newHoldings = state.portfolio.holdings.map(h =>
-                        h.cryptoId === crypto.id ? { ...h, amount: h.amount - cryptoAmount } : h
+                        h.cryptoId === crypto.id ? { ...h, amount: h.amount - cryptoAmount, margin: (h.margin ?? 0) * ((h.amount - cryptoAmount) / h.amount) } : h
                     ).filter(h => h.amount > 0.000001);
 
+                    toast({ title: 'Sale Successful', description: `Sold ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
                     return {
                         portfolio: {
                            ...state.portfolio,
@@ -122,61 +152,4 @@ export const usePortfolioStore = create<PortfolioState>()(
         }
     )
 );
-
-// Wrapper hook to add toast notifications
-export function usePortfolio() {
-  const { portfolio, addUsd, withdrawUsd, buy, sell, getPortfolioValue } = usePortfolioStore();
-  const { toast } = useToast();
-
-  const addUsdWithToast = (amount: number) => {
-    if (amount <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
-      return;
-    }
-    addUsd(amount);
-    toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
-  };
-
-  const withdrawUsdWithToast = (amount: number) => {
-    if (amount <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
-      return;
-    }
-    if (amount > portfolio.usdBalance) {
-      toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Withdrawal cannot exceed balance.' });
-      return;
-    }
-    withdrawUsd(amount);
-    toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
-  };
-
-  const buyWithToast = (crypto: CryptoCurrency, usdAmount: number, quantity?: number) => {
-     if (usdAmount <= 0) {
-        toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
-        return;
-    }
-    if (portfolio.usdBalance < usdAmount) {
-      toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Not enough USD to make this purchase.' });
-      return;
-    }
-    buy(crypto, usdAmount, quantity);
-    const cryptoAmount = quantity ?? usdAmount / crypto.price;
-    toast({ title: 'Purchase Successful', description: `Bought ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
-  };
-
-  const sellWithToast = (crypto: CryptoCurrency, cryptoAmount: number) => {
-     if (cryptoAmount <= 0) {
-        toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
-        return;
-    }
-    const holding = portfolio.holdings.find(h => h.cryptoId === crypto.id);
-    if (!holding || holding.amount < cryptoAmount) {
-      toast({ variant: 'destructive', title: 'Insufficient Holdings', description: `Not enough ${crypto.symbol} to sell.` });
-      return;
-    }
-    sell(crypto, cryptoAmount);
-    toast({ title: 'Sale Successful', description: `Sold ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
-  };
-
-  return { portfolio, addUsd: addUsdWithToast, withdrawUsd: withdrawUsdWithToast, buy: buyWithToast, sell: sellWithToast, getPortfolioValue };
-}
+    

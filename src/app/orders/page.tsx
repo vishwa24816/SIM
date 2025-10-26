@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { usePortfolioStore } from '@/hooks/use-portfolio';
 import { useToast } from '@/hooks/use-toast';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
@@ -290,7 +290,7 @@ export default function OrdersPage() {
   const { orders: hodlOrders, removeOrder: removeHodlOrder } = useHodlOrders();
   const { limitOrders, removeLimitOrder } = useLimitOrders();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
-  const { buy, sell } = usePortfolio(marketData);
+  const { buy, sell } = usePortfolioStore();
   const { toast } = useToast();
   const [hodlToCancel, setHodlToCancel] = React.useState<HodlOrder | null>(null);
 
@@ -328,7 +328,7 @@ export default function OrdersPage() {
 
   const executeOrder = (item: any, asset: any) => {
     const margin = (item.quantity || 0) * (item.price || 0);
-    buy(item.id, margin);
+    buy(asset, margin, item.quantity);
     toast({
         title: "Order Executed",
         description: `Your order for ${item.quantity} ${item.symbol} has been placed.`
@@ -349,7 +349,7 @@ export default function OrdersPage() {
         const amountToReturn = hodlToCancel.margin + profit - penalty;
         
         // This is a simplified simulation. A real implementation would be more complex.
-        buy(hodlToCancel.instrumentId, -amountToReturn); // Effectively returning funds to USD balance
+        buy(asset, -amountToReturn, -hodlToCancel.quantity);
       }
 
       removeHodlOrder(hodlToCancel.id);
@@ -562,3 +562,4 @@ export default function OrdersPage() {
 }
 
     
+
