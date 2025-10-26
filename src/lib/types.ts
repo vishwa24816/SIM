@@ -155,4 +155,6 @@ export interface LimitOrder {
     price: number;
     quantity: number;
     status: 'Open' | 'Executed' | 'Cancelled';
+    stopLoss?: number;
+    takeProfit?: number;
 }

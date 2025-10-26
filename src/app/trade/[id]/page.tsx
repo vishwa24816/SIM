@@ -90,6 +90,8 @@ export default function TradePage() {
             price: prc,
             quantity: qty,
             status: 'Open',
+            stopLoss: hodlConfig?.stopLoss ? parseFloat(hodlConfig.stopLoss) : undefined,
+            takeProfit: hodlConfig?.takeProfit ? parseFloat(hodlConfig.takeProfit) : undefined,
         });
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order

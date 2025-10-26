@@ -75,13 +75,26 @@ const LimitOrderCard = ({ order, onCancel }: { order: LimitOrder, onCancel: (id:
                 <p>${order.price.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                <p className="text-muted-foreground">Qty: {order.quantity.toFixed(6)}</p>
+                <p className="text-muted-foreground">Qty</p>
+                <p>{order.quantity.toFixed(6)}</p>
                 </div>
                 <div>
                 <p className="text-muted-foreground">Status</p>
                 <p className="text-blue-400">{order.status}</p>
                 </div>
             </div>
+             {(order.stopLoss || order.takeProfit) && (
+                    <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm">
+                        <div>
+                            <p className="text-muted-foreground">Stop Loss</p>
+                            <p className="font-semibold text-red-500">{order.stopLoss ? `$${order.stopLoss}` : 'Not Set'}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-muted-foreground">Take Profit</p>
+                            <p className="font-semibold text-green-500">{order.takeProfit ? `$${order.takeProfit}` : 'Not Set'}</p>
+                        </div>
+                    </div>
+                )}
             <div className="flex gap-2 mt-4">
                 <Button variant="outline" className="w-full" onClick={handleModify}>
                 Modify
@@ -562,4 +575,5 @@ export default function OrdersPage() {
 }
 
     
+
 
