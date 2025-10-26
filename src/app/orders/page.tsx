@@ -26,78 +26,74 @@ import { usePortfolio } from '@/hooks/use-portfolio';
 import { useToast } from '@/hooks/use-toast';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
-import { SystematicPlan, HodlOrder } from '@/lib/types';
+import { SystematicPlan, HodlOrder, LimitOrder } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { useHodlOrders } from '@/hooks/use-hodl-orders';
+import { useLimitOrders } from '@/hooks/use-limit-orders';
+import { useRouter } from 'next/navigation';
 
-const orders = [
-  {
-    id: '1',
-    name: 'Reliance Industries Ltd. (RELIANCE)',
-    type: 'NSE - CNC',
-    action: 'BUY',
-    price: '2405.00',
-    status: 'Open',
-    quantity: 10,
-    created: '01/12/2023',
-  },
-  {
-    id: '2',
-    name: 'NIFTY 25JAN24 21000 PE (NIFTY25JAN24P21000)',
-    type: 'NFO - NRML',
-    action: 'SELL',
-    price: '155.00',
-    status: 'Open',
-    quantity: 50,
-    created: '10/12/2023',
-  },
-];
 
-const OrderCard = ({ order }: { order: (typeof orders)[0] }) => (
-  <Card className="bg-card">
-    <CardContent className="p-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-bold">{order.name}</h3>
-          <p className="text-sm text-muted-foreground">{order.type}</p>
-        </div>
-        <span
-          className={`px-2 py-1 text-xs font-semibold rounded ${
-            order.action === 'BUY'
-              ? 'bg-green-500/20 text-green-500'
-              : 'bg-red-500/20 text-red-500'
-          }`}
-        >
-          {order.action}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-y-2 text-sm mt-4">
-        <div>
-          <p className="text-muted-foreground">Price</p>
-          <p>₹{order.price}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-muted-foreground">Qty: {order.quantity}</p>
-        </div>
-        <div>
-          <p className="text-muted-foreground">Status</p>
-          <p className="text-blue-400">{order.status}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-muted-foreground">Created: {order.created}</p>
-        </div>
-      </div>
-      <div className="flex gap-2 mt-4">
-        <Button variant="outline" className="w-full">
-          Modify
-        </Button>
-        <Button variant="destructive" className="w-full bg-red-600 hover:bg-red-700">
-          Cancel
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-);
+const LimitOrderCard = ({ order, onCancel }: { order: LimitOrder, onCancel: (id: string) => void }) => {
+    const router = useRouter();
+
+    const getAssetPath = (item: { assetType?: string, id: string }) => {
+        switch (item.assetType) {
+            case 'Crypto ETF': return `/trade/etf/${item.id}`;
+            case 'Mutual Fund': return `/trade/mutual-fund/${item.id}`;
+            case 'Web3': return `/trade/web3/${item.id}`;
+            case 'Futures': return `/trade/futures/${item.id}`;
+            case 'Spot': return `/trade/${item.id}`;
+            default: return `/crypto/${item.id}`;
+        }
+    }
+
+    const handleModify = () => {
+        router.push(getAssetPath({ id: order.instrumentId, assetType: order.assetType }) + '?modify=true');
+    }
+
+    return (
+        <Card className="bg-card">
+            <CardContent className="p-4">
+            <div className="flex justify-between items-start">
+                <div>
+                <h3 className="font-bold">{order.instrumentName} ({order.instrumentSymbol})</h3>
+                <p className="text-sm text-muted-foreground">{order.assetType} - {order.orderType}</p>
+                </div>
+                <span
+                className={`px-2 py-1 text-xs font-semibold rounded ${
+                    order.action === 'BUY'
+                    ? 'bg-green-500/20 text-green-500'
+                    : 'bg-red-500/20 text-red-500'
+                }`}
+                >
+                {order.action}
+                </span>
+            </div>
+            <div className="grid grid-cols-2 gap-y-2 text-sm mt-4">
+                <div>
+                <p className="text-muted-foreground">Price</p>
+                <p>${order.price.toLocaleString()}</p>
+                </div>
+                <div className="text-right">
+                <p className="text-muted-foreground">Qty: {order.quantity.toFixed(6)}</p>
+                </div>
+                <div>
+                <p className="text-muted-foreground">Status</p>
+                <p className="text-blue-400">{order.status}</p>
+                </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+                <Button variant="outline" className="w-full" onClick={handleModify}>
+                Modify
+                </Button>
+                <Button variant="destructive" className="w-full bg-red-600 hover:bg-red-700" onClick={() => onCancel(order.id)}>
+                Cancel
+                </Button>
+            </div>
+            </CardContent>
+        </Card>
+    );
+};
 
 const HodlOrderCard = ({ order, onCancelClick }: { order: HodlOrder, onCancelClick: (order: HodlOrder) => void }) => {
     
@@ -270,7 +266,7 @@ const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, on
                         </Button>
                     )}
                      {plan.status === 'cancelled' && (
-                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'paused')}>
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'active')}>
                             <RotateCcw className="mr-2 h-4 w-4" /> Revert
                         </Button>
                     )}
@@ -287,6 +283,7 @@ export default function OrdersPage() {
   const { baskets, removeBasket } = useBaskets();
   const { plans, updatePlanStatus } = useSystematicPlans();
   const { orders: hodlOrders, removeOrder: removeHodlOrder } = useHodlOrders();
+  const { limitOrders, removeLimitOrder } = useLimitOrders();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
   const { buy, sell } = usePortfolio(marketData);
   const { toast } = useToast();
@@ -360,6 +357,14 @@ export default function OrdersPage() {
     }
   };
 
+  const handleCancelLimitOrder = (id: string) => {
+      removeLimitOrder(id);
+      toast({
+          title: "Limit Order Cancelled",
+          description: "Your limit order has been successfully cancelled."
+      })
+  }
+
 
   const TABS = ['Limit', 'HODL', 'Baskets', 'SP', 'Alerts'];
 
@@ -389,9 +394,16 @@ export default function OrdersPage() {
           </div>
 
           <div className="p-4 space-y-4">
-              {activeTab === 'Limit' && orders.map(order => (
-                  <OrderCard key={order.id} order={order} />
-              ))}
+              {activeTab === 'Limit' && (
+                limitOrders.length > 0 ? limitOrders.map(order => (
+                  <LimitOrderCard key={order.id} order={order} onCancel={handleCancelLimitOrder} />
+                )) : (
+                    <div className="text-center text-muted-foreground py-10">
+                        <p>You have no active limit orders.</p>
+                        <p className="text-sm">Limit orders you place will appear here.</p>
+                    </div>
+                )
+              )}
               {activeTab === 'HODL' && (
                   hodlOrders.length > 0 ? hodlOrders.map(order => (
                     <HodlOrderCard key={order.id} order={order} onCancelClick={setHodlToCancel} />
@@ -543,3 +555,5 @@ export default function OrdersPage() {
     </>
   );
 }
+
+    

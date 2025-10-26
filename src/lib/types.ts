@@ -140,3 +140,18 @@ export interface HodlOrder {
   takeProfit?: number;
   createdAt: string;
 }
+
+export interface LimitOrder {
+    id: string;
+    instrumentId: string;
+    instrumentName: string;
+    instrumentSymbol: string;
+    assetType: CryptoCurrency['assetType'];
+    action: 'BUY' | 'SELL';
+    orderType: 'limit';
+    price: number;
+    quantity: number;
+    status: 'Open' | 'Executed' | 'Cancelled';
+}
+
+    

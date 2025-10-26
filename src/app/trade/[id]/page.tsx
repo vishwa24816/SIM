@@ -11,19 +11,22 @@ import { MarketDepth } from '@/components/trade/market-depth';
 import { SimbotAnalysis } from '@/components/trade/simbot-analysis';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { SwipeToConfirm } from '@/components/ui/swipe-to-confirm';
 import { useToast } from '@/hooks/use-toast';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
 import { SystematicPlan } from '@/lib/types';
 import { useHodlOrders } from '@/hooks/use-hodl-orders';
 import { Button } from '@/components/ui/button';
+import { useLimitOrders } from '@/hooks/use-limit-orders';
+import { useSearchParams } from 'next/navigation';
 
 export default function TradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
   const { portfolio, buy, sell } = usePortfolio(marketData);
   const { addPlan } = useSystematicPlans();
   const { addOrder: addHodlOrder } = useHodlOrders();
+  const { addLimitOrder } = useLimitOrders();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('limit');
@@ -37,6 +40,13 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const crypto = React.useMemo(() => {
     return marketData.find(c => c.id === params.id);
   }, [marketData, params.id]);
+  
+  React.useEffect(() => {
+      const modify = searchParams.get('modify');
+      if (modify === 'true') {
+          setIsModify(true);
+      }
+  }, [searchParams]);
 
   const handlePriceSelect = (selectedPrice: number) => {
     setPrice(selectedPrice.toFixed(crypto?.price && crypto.price < 1 ? 6 : 2));
@@ -60,8 +70,30 @@ export default function TradePage({ params }: { params: { id: string } }) {
         toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity.' });
         return;
     }
-    const margin = qty * (parseFloat(price) || crypto.price);
-    buy(crypto.id, margin);
+
+    if (orderType === 'limit') {
+        const prc = parseFloat(price);
+        if (!prc || prc <= 0) {
+            toast({ variant: 'destructive', title: 'Invalid price', description: 'Please enter a valid limit price.' });
+            return;
+        }
+        addLimitOrder({
+            id: `${crypto.id}-limit-${Date.now()}`,
+            instrumentId: crypto.id,
+            instrumentName: crypto.name,
+            instrumentSymbol: crypto.symbol,
+            assetType: crypto.assetType,
+            action: 'BUY',
+            orderType: 'limit',
+            price: prc,
+            quantity: qty,
+            status: 'Open',
+        });
+        toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
+    } else { // market order
+        const margin = qty * crypto.price;
+        buy(crypto.id, margin);
+    }
   };
   
   const handleSell = () => {
@@ -218,16 +250,13 @@ export default function TradePage({ params }: { params: { id: string } }) {
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4 space-y-3">
          {isComplexOrder ? (
-            <SwipeToConfirm 
-              onConfirm={handleConfirm}
-              text={
-                investmentType === 'sp' ? 'Swipe to Create Plan' : 
-                investmentType === 'hodl' ? 'Swipe to HODL' : 'Swipe to Confirm'
-              }
-            />
+             <Button size="lg" className="w-full font-bold text-lg" onClick={handleConfirm}>
+                {investmentType === 'sp' ? 'Create Plan' : 
+                investmentType === 'hodl' ? 'Place HODL Order' : 'Confirm'}
+             </Button>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg disabled:bg-red-600/50" onClick={handleSell} disabled={!isModify}>Sell</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg disabled:bg-red-600/50 disabled:cursor-not-allowed" onClick={handleSell} disabled={!isModify}>Sell</Button>
             <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy}>Buy</Button>
           </div>
         )}
@@ -235,3 +264,5 @@ export default function TradePage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+    
