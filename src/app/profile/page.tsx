@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -30,8 +29,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 
-const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, collapsible = false }: any) => {
+const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, collapsible = false, children }: any) => {
   const Icon = icon;
 
   const content = (
@@ -62,11 +62,18 @@ const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, c
             </CollapsibleTrigger>
             <CollapsibleContent>
                 <div className="p-4 pt-0">
-                    {/* Collapsible content goes here */}
-                    <p className="text-sm text-muted-foreground pl-10">Details for {title} will be shown here.</p>
+                    {children || <p className="text-sm text-muted-foreground pl-10">Details for {title} will be shown here.</p>}
                 </div>
             </CollapsibleContent>
         </Collapsible>
+    )
+  }
+
+  if (href) {
+    return (
+        <Link href={href} className="hover:bg-muted/50 rounded-lg block">
+            {content}
+        </Link>
     )
   }
 
@@ -79,7 +86,7 @@ const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, c
 
 export default function ProfilePage() {
   const profileItems = [
-    { icon: User, title: 'Profile', description: 'Add or change information about you' },
+    { icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' } },
     { icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details' },
     { icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds in case of your demise' },
