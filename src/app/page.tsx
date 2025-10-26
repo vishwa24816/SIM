@@ -13,7 +13,7 @@ import { CryptoPositions } from "@/components/dashboard/crypto-positions";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const { marketData, setSelectedCryptoId, loading } = useMarketData();
+  const { marketData, loading } = useMarketData();
   const { portfolio, totalPortfolioValue, addUsd, withdrawUsd } = usePortfolio(marketData);
   const router = useRouter();
 

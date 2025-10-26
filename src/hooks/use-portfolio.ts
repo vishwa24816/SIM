@@ -5,7 +5,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Portfolio, CryptoCurrency, Holding } from '@/lib/types';
 import { useToast } from './use-toast';
-import { useMarketData } from './use-market-data';
 
 const INITIAL_PORTFOLIO: Portfolio = {
   usdBalance: 10000,
@@ -19,7 +18,7 @@ interface PortfolioState {
   withdrawUsd: (amount: number) => void;
   buy: (cryptoId: string, margin: number, marketData: CryptoCurrency[], quantity?: number) => void;
   sell: (cryptoId: string, cryptoAmount: number, marketData: CryptoCurrency[]) => void;
-  totalPortfolioValue: (marketData: CryptoCurrency[]) => number;
+  calculateTotalPortfolioValue: (portfolio: Portfolio, marketData: CryptoCurrency[]) => number;
 }
 
 const usePortfolioStore = create<PortfolioState>()(
@@ -66,13 +65,17 @@ const usePortfolioStore = create<PortfolioState>()(
                     return;
                 }
                 
-                if (get().portfolio.usdBalance < margin) {
+                const currentPortfolio = get().portfolio;
+                if (currentPortfolio.usdBalance < margin) {
                     toast({ variant: "destructive", title: "Insufficient Funds", description: "You do not have enough USD to make this purchase." });
                     return;
                 }
                 
                 const crypto = marketData.find(c => c.id === cryptoId);
-                if (!crypto) return;
+                if (!crypto) {
+                     toast({ variant: "destructive", title: "Crypto not found" });
+                    return;
+                };
 
                 const cryptoAmount = quantity ?? margin / crypto.price;
 
@@ -111,7 +114,10 @@ const usePortfolioStore = create<PortfolioState>()(
                 }
                 
                 const crypto = marketData.find(c => c.id === cryptoId);
-                if (!crypto) return;
+                if (!crypto) {
+                    toast({ variant: "destructive", title: "Crypto not found" });
+                    return;
+                }
 
                 const usdAmount = cryptoAmount * crypto.price;
 
@@ -129,14 +135,10 @@ const usePortfolioStore = create<PortfolioState>()(
                 });
                 toast({ title: "Sale Successful", description: `You sold ${cryptoAmount.toFixed(6)} ${crypto.symbol} for $${usdAmount.toFixed(2)}.` });
             },
-            totalPortfolioValue: (marketData: CryptoCurrency[]) => {
-                const portfolio = get().portfolio;
+            calculateTotalPortfolioValue: (portfolio, marketData) => {
                 const holdingsValue = portfolio.holdings.reduce((total, holding) => {
                     const crypto = marketData.find(c => c.id === holding.cryptoId);
-                    if (!crypto) return total;
-                    if (crypto.assetType === 'Futures') {
-                        return total;
-                    }
+                    if (!crypto || crypto.assetType === 'Futures') return total;
                     return total + (holding.amount * crypto.price);
                 }, 0);
                 
@@ -160,11 +162,11 @@ const usePortfolioStore = create<PortfolioState>()(
 export function usePortfolio(marketData: CryptoCurrency[]) {
   const { 
     portfolio, 
-    addUsd: storeAddUsd, 
-    withdrawUsd: storeWithdrawUsd,
+    addUsd, 
+    withdrawUsd,
     buy: storeBuy,
     sell: storeSell,
-    totalPortfolioValue: storeTotalPortfolioValue
+    calculateTotalPortfolioValue
   } = usePortfolioStore();
 
   const buy = (cryptoId: string, margin: number, quantity?: number) => {
@@ -175,7 +177,7 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
     storeSell(cryptoId, cryptoAmount, marketData);
   }
   
-  const totalPortfolioValue = storeTotalPortfolioValue(marketData);
+  const totalPortfolioValue = calculateTotalPortfolioValue(portfolio, marketData);
 
-  return { portfolio, buy, sell, totalPortfolioValue, addUsd: storeAddUsd, withdrawUsd: storeWithdrawUsd };
+  return { portfolio, buy, sell, totalPortfolioValue, addUsd, withdrawUsd };
 }
