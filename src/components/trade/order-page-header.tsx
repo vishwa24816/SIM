@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Bell, Star, Briefcase } from 'lucide-react';
+import { ArrowLeft, Star } from 'lucide-react';
 import { CryptoCurrency } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -39,14 +39,8 @@ export function OrderPageHeader({ crypto, loading }: OrderPageHeaderProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-                <Bell className="h-6 w-6" />
-            </Button>
              <Button variant="ghost" size="icon">
                 <Star className="h-6 w-6" />
-            </Button>
-            <Button variant="ghost" size="icon">
-                <Briefcase className="h-6 w-6" />
             </Button>
           </div>
         </div>
