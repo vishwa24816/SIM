@@ -12,9 +12,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 export default function AccountManagementPage() {
   const router = useRouter();
   const [isFrozen, setIsFrozen] = React.useState(false);
-  const [tradingEnabled, setTradingEnabled] = React.useState(true);
-  const [dematEnabled, setDematEnabled] = React.useState(true);
-  const [cryptoEnabled, setCryptoEnabled] = React.useState(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
   return (
@@ -46,32 +43,6 @@ export default function AccountManagementPage() {
                 <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                     <span className="font-medium">Freeze My Account</span>
                     <Switch checked={isFrozen} onCheckedChange={setIsFrozen} />
-                </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-                <div className="flex items-center gap-3">
-                    <Power className="w-6 h-6 text-primary" />
-                    <div>
-                        <CardTitle>Feature Controls</CardTitle>
-                        <CardDescription>Enable or disable specific account features.</CardDescription>
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-2 divide-y">
-                <div className="flex items-center justify-between pt-2">
-                    <span className="font-medium">Trading Account</span>
-                    <Switch checked={tradingEnabled} onCheckedChange={setTradingEnabled} />
-                </div>
-                 <div className="flex items-center justify-between pt-2">
-                    <span className="font-medium">Demat Account</span>
-                    <Switch checked={dematEnabled} onCheckedChange={setDematEnabled} />
-                </div>
-                 <div className="flex items-center justify-between pt-2">
-                    <span className="font-medium">Crypto Account</span>
-                    <Switch checked={cryptoEnabled} onCheckedChange={setCryptoEnabled} />
                 </div>
             </CardContent>
           </Card>
