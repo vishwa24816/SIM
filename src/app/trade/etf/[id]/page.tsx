@@ -12,12 +12,20 @@ import { Separator } from '@/components/ui/separator';
 import { CRYPTO_ETFS_DATA } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAlerts } from '@/hooks/use-alerts';
+import { useToast } from '@/hooks/use-toast';
+import { BellRing } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export default function ETFTradePage({ params }: { params: { id: string } }) {
   const { loading: marketLoading } = useMarketData();
+  const { addAlert } = useAlerts();
+  const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('limit');
+  const [isSettingAlert, setIsSettingAlert] = React.useState(false);
+  const [alertPrice, setAlertPrice] = React.useState('');
 
   const etf = React.useMemo(() => {
     return CRYPTO_ETFS_DATA.find(e => e.id === params.id);
@@ -36,6 +44,42 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
         setPrice(etf.price.toFixed(2));
     }
   }, [etf, orderType]);
+  
+  const formatPrice = (price: number) => {
+    if (!etf) return '';
+    return price.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  const handleSetAlert = () => {
+    if (!etf) return;
+    const price = parseFloat(alertPrice);
+    if (isNaN(price) || price <= 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Price',
+            description: 'Please enter a valid price for the alert.'
+        });
+        return;
+    }
+    addAlert({
+        id: `${etf.id}-${price}-${Date.now()}`,
+        cryptoId: etf.id,
+        cryptoSymbol: etf.symbol,
+        price: price,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+    });
+    toast({
+        title: 'Alert Set!',
+        description: `You will be notified when ${etf.symbol} reaches $${price}.`
+    });
+    setIsSettingAlert(false);
+    setAlertPrice('');
+  };
+
 
   if (marketLoading) {
     return (
@@ -77,6 +121,31 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
           setOrderType={setOrderType}
         />
         <Separator className="bg-border/50" />
+        
+        <div className="p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+                <Button variant="outline">Add to Basket</Button>
+                <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                    <BellRing className="w-4 h-4 mr-2"/>
+                    Add Alert
+                </Button>
+            </div>
+             {isSettingAlert && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium">Set a price alert for {etf.symbol}</p>
+                    <div className="flex gap-2">
+                        <Input 
+                            type="number" 
+                            placeholder={`Current: ${formatPrice(etf.price)}`}
+                            value={alertPrice}
+                            onChange={(e) => setAlertPrice(e.target.value)}
+                        />
+                        <Button onClick={handleSetAlert}>Set Alert</Button>
+                    </div>
+                </div>
+            )}
+        </div>
+
         <Card>
             <CardHeader>
                 <CardTitle>About {etf.name}</CardTitle>
