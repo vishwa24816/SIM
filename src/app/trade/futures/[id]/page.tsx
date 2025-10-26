@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
-import { usePortfolioWithToast } from '@/hooks/use-portfolio';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { FuturesOrderForm } from '@/components/trade/futures-order-form';
@@ -15,10 +14,14 @@ import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useParams } from 'next/navigation';
+import { usePortfolioStore } from '@/hooks/use-portfolio';
 
-export default function FuturesTradePage({ params }: { params: { id: string } }) {
+export default function FuturesTradePage() {
+  const params = useParams();
+  const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell } = usePortfolioWithToast();
+  const { buy, sell } = usePortfolioStore();
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
@@ -43,8 +46,8 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
   })), [marketData]);
 
   const crypto = React.useMemo(() => {
-    return futuresData.find(c => c.id === params.id);
-  }, [futuresData, params.id]);
+    return futuresData.find(c => c.id === id);
+  }, [futuresData, id]);
 
   const handlePriceSelect = (selectedPrice: number) => {
     setPrice(selectedPrice.toFixed(crypto?.price && crypto.price < 1 ? 6 : 2));

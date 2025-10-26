@@ -9,13 +9,16 @@ import { Web3OrderForm } from '@/components/trade/web3-order-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Separator } from '@/components/ui/separator';
+import { useParams } from 'next/navigation';
 
-export default function Web3TradePage({ params }: { params: { id: string } }) {
+export default function Web3TradePage() {
+  const params = useParams();
+  const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
 
   const crypto = React.useMemo(() => {
-    return marketData.find(c => c.id === params.id);
-  }, [marketData, params.id]);
+    return marketData.find(c => c.id === id);
+  }, [marketData, id]);
 
   if (marketLoading) {
     return (

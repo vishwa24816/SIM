@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
-import { usePortfolioWithToast } from '@/hooks/use-portfolio';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { OrderForm, type SPConfig, type HodlConfig } from '@/components/trade/order-form';
@@ -17,11 +16,14 @@ import { SystematicPlan } from '@/lib/types';
 import { useHodlOrders } from '@/hooks/use-hodl-orders';
 import { Button } from '@/components/ui/button';
 import { useLimitOrders } from '@/hooks/use-limit-orders';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
+import { usePortfolioStore } from '@/hooks/use-portfolio';
 
-export default function TradePage({ params }: { params: { id: string } }) {
+export default function TradePage() {
+  const params = useParams();
+  const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell } = usePortfolioWithToast();
+  const { buy, sell } = usePortfolioStore();
   const { addPlan } = useSystematicPlans();
   const { addOrder: addHodlOrder } = useHodlOrders();
   const { addLimitOrder } = useLimitOrders();
@@ -38,8 +40,8 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const [isModify, setIsModify] = React.useState(false);
 
   const crypto = React.useMemo(() => {
-    return marketData.find(c => c.id === params.id);
-  }, [marketData, params.id]);
+    return marketData.find(c => c.id === id);
+  }, [marketData, id]);
   
   React.useEffect(() => {
       const modify = searchParams.get('modify');
@@ -92,7 +94,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order
         const margin = qty * crypto.price;
-        buy(crypto, margin);
+        buy(crypto, margin, qty);
     }
   };
   
@@ -118,7 +120,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
     }
 
     // Execute the buy order first
-    buy(crypto, margin);
+    buy(crypto, margin, qty);
 
     // Then create the HODL order record
     addHodlOrder({

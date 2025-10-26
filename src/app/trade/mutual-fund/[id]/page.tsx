@@ -3,25 +3,26 @@
 
 import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
-import { usePortfolio } from '@/hooks/use-portfolio';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { MutualFundPageHeader } from '@/components/trade/mutual-fund-page-header';
 import { MutualFundOrderForm } from '@/components/trade/mutual-fund-order-form';
 import { FundDetails } from '@/components/trade/fund-details';
-import { SimbotAnalysis } from '@/components/trade/simbot-analysis';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Separator } from '@/components/ui/separator';
 import { MUTUAL_FUNDS_DATA } from '@/lib/data';
+import { useParams } from 'next/navigation';
+import { usePortfolioStore } from '@/hooks/use-portfolio';
 
-export default function MutualFundTradePage({ params }: { params: { id: string } }) {
+export default function MutualFundTradePage() {
+  const params = useParams();
+  const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { portfolio, buy, sell } = usePortfolio(marketData);
+  const { portfolio } = usePortfolioStore();
 
   const fund = React.useMemo(() => {
-    return MUTUAL_FUNDS_DATA.find(f => f.id === params.id);
-  }, [params.id]);
+    return MUTUAL_FUNDS_DATA.find(f => f.id === id);
+  }, [id]);
 
   const cryptoEquivalent = React.useMemo(() => {
     if (!fund) return undefined;

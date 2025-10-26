@@ -18,8 +18,11 @@ import { Input } from '@/components/ui/input';
 import { AddToBasketForm } from '@/components/trade/add-to-basket-form';
 import { CryptoCurrency } from '@/lib/types';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useParams } from 'next/navigation';
 
-export default function ETFTradePage({ params }: { params: { id: string } }) {
+export default function ETFTradePage() {
+  const params = useParams();
+  const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
   const { addAlert } = useAlerts();
   const { toast } = useToast();
@@ -35,12 +38,12 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
 
 
   const etf = React.useMemo(() => {
-    return marketData.find(e => e.id === params.id && e.assetType === 'Crypto ETF') as CryptoCurrency | undefined;
-  }, [params.id, marketData]);
+    return marketData.find(e => e.id === id && e.assetType === 'Crypto ETF') as CryptoCurrency | undefined;
+  }, [id, marketData]);
 
   const staticEtfData = React.useMemo(() => {
-     return CRYPTO_ETFS_DATA.find(e => e.id === params.id)
-  }, [params.id]);
+     return CRYPTO_ETFS_DATA.find(e => e.id === id)
+  }, [id]);
 
 
   React.useEffect(() => {
@@ -130,6 +133,8 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
             setQuantity={setQuantity}
             investmentType={investmentType}
             setInvestmentType={setInvestmentType}
+            onSPConfigChange={() => {}}
+            onHodlConfigChange={() => {}}
           />
           <Separator className="bg-border/50" />
           

@@ -1,10 +1,12 @@
 
-"use client";
+'use client';
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Portfolio, CryptoCurrency, Holding } from '@/lib/types';
 import { useToast } from './use-toast';
+import * as React from 'react';
+
 
 const INITIAL_PORTFOLIO: Portfolio = {
   usdBalance: 10000,
@@ -20,7 +22,7 @@ interface PortfolioState {
   getPortfolioValue: (marketData: CryptoCurrency[]) => number;
 }
 
-export const usePortfolio = create<PortfolioState>()(
+export const usePortfolioStore = create<PortfolioState>()(
     persist(
         (set, get) => ({
             portfolio: INITIAL_PORTFOLIO,
@@ -45,21 +47,23 @@ export const usePortfolio = create<PortfolioState>()(
                 });
             },
             buy: (crypto, usdAmount, quantity) => {
-                const cryptoAmount = quantity ?? usdAmount / crypto.price;
-                 set(state => {
+                set(state => {
                     if (state.portfolio.usdBalance < usdAmount) {
                         return state; // Not enough funds
                     }
-
-                    const existingHolding = state.portfolio.holdings.find(h => h.cryptoId === crypto.id);
+                    
+                    const cryptoAmount = quantity ?? usdAmount / crypto.price;
+                    const existingHoldingIndex = state.portfolio.holdings.findIndex(h => h.cryptoId === crypto.id);
                     let newHoldings: Holding[];
 
-                    if (existingHolding) {
-                        newHoldings = state.portfolio.holdings.map(h =>
-                            h.cryptoId === crypto.id
-                                ? { ...h, amount: h.amount + cryptoAmount, margin: (h.margin ?? 0) + usdAmount }
-                                : h
-                        );
+                    if (existingHoldingIndex > -1) {
+                        newHoldings = [...state.portfolio.holdings];
+                        const existingHolding = newHoldings[existingHoldingIndex];
+                        newHoldings[existingHoldingIndex] = {
+                            ...existingHolding,
+                            amount: existingHolding.amount + cryptoAmount,
+                            margin: (existingHolding.margin ?? 0) + usdAmount,
+                        };
                     } else {
                         newHoldings = [...state.portfolio.holdings, { cryptoId: crypto.id, amount: cryptoAmount, margin: usdAmount }];
                     }
@@ -74,13 +78,13 @@ export const usePortfolio = create<PortfolioState>()(
                 });
             },
             sell: (crypto, cryptoAmount) => {
-                const usdAmount = cryptoAmount * crypto.price;
                 set(state => {
                     const holding = state.portfolio.holdings.find(h => h.cryptoId === crypto.id);
                     if (!holding || holding.amount < cryptoAmount) {
                         return state; // Not enough holdings
                     }
-
+                    
+                    const usdAmount = cryptoAmount * crypto.price;
                     const newHoldings = state.portfolio.holdings.map(h =>
                         h.cryptoId === crypto.id ? { ...h, amount: h.amount - cryptoAmount } : h
                     ).filter(h => h.amount > 0.000001);
@@ -120,8 +124,8 @@ export const usePortfolio = create<PortfolioState>()(
 );
 
 // Wrapper hook to add toast notifications
-export function usePortfolioWithToast() {
-  const { portfolio, addUsd, withdrawUsd, buy, sell, getPortfolioValue } = usePortfolio();
+export function usePortfolio() {
+  const { portfolio, addUsd, withdrawUsd, buy, sell, getPortfolioValue } = usePortfolioStore();
   const { toast } = useToast();
 
   const addUsdWithToast = (amount: number) => {

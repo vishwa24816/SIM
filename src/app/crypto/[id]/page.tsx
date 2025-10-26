@@ -16,14 +16,17 @@ import { NewsFeed } from '@/components/dashboard/news-feed';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
 import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
 import { CryptoStudy } from '@/components/trade/crypto-study';
+import { useParams } from 'next/navigation';
 
-export default function CryptoDetailPage({ params }: { params: { id: string } }) {
+export default function CryptoDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
   const [activeTab, setActiveTab] = React.useState('Market');
   
   const crypto = React.useMemo(() => {
-    return marketData.find(c => c.id === params.id);
-  }, [marketData, params.id]);
+    return marketData.find(c => c.id === id);
+  }, [marketData, id]);
 
   const TABS = ['Market', 'News', 'Analysis', 'Technicals', 'Study'];
 
