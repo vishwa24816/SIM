@@ -7,10 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { CryptoCurrency, SPFrequency, SystematicPlan, SystematicPlanType } from '@/lib/types';
+import { CryptoCurrency, SPFrequency, SystematicPlanType } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSystematicPlans } from '@/hooks/use-systematic-plans';
-import { useToast } from '@/hooks/use-toast';
+
+export interface SPConfig {
+  spPlanType: SystematicPlanType;
+  sipInvestmentType: 'amount' | 'qty';
+  swpWithdrawalType: 'amount' | 'qty';
+  spAmount: string;
+  swpLumpsum: string;
+  spFrequency: SPFrequency;
+}
 
 interface OrderFormProps {
     crypto: CryptoCurrency;
@@ -23,9 +30,13 @@ interface OrderFormProps {
     setQuantity: (qty: string) => void;
     investmentType: string;
     setInvestmentType: (type: string) => void;
+    onSPConfigChange: (config: SPConfig | null) => void;
 }
 
-export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, quantity, setQuantity, investmentType, setInvestmentType }: OrderFormProps) {
+export function OrderForm({ 
+  crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, 
+  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange 
+}: OrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
@@ -37,11 +48,7 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, on
   const [spAmount, setSpAmount] = React.useState('');
   const [swpLumpsum, setSwpLumpsum] = React.useState('');
   const [spFrequency, setSpFrequency] = React.useState<SPFrequency>('monthly');
-
-  const { addPlan } = useSystematicPlans();
-  const { toast } = useToast();
   
-
   const marginRequired = React.useMemo(() => {
     const qty = parseFloat(quantity);
     const prc = parseFloat(price) || (orderType === 'market' ? crypto.price : 0);
@@ -52,48 +59,21 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, on
   React.useEffect(() => {
     onCanAddToBasketChange(marginRequired > 0);
   }, [marginRequired, onCanAddToBasketChange]);
-
-  const handleCreateSP = () => {
-    const numericAmount = parseFloat(spAmount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid Amount', description: `Please enter a valid ${spPlanType === 'sip' ? 'investment' : 'withdrawal'} amount.`});
-      return;
+  
+  React.useEffect(() => {
+    if (investmentType === 'sp') {
+      onSPConfigChange({
+        spPlanType,
+        sipInvestmentType,
+        swpWithdrawalType,
+        spAmount,
+        swpLumpsum,
+        spFrequency,
+      });
+    } else {
+      onSPConfigChange(null);
     }
-
-    let plan: Omit<SystematicPlan, 'id' | 'createdAt' | 'status'> = {
-        instrumentId: crypto.id,
-        instrumentName: crypto.name,
-        instrumentSymbol: crypto.symbol,
-        planType: spPlanType,
-        amount: numericAmount,
-        frequency: spFrequency,
-        investmentType: 'amount'
-    };
-
-    if (spPlanType === 'sip') {
-        plan.investmentType = sipInvestmentType;
-    } else { // swp
-        const numericLumpsum = parseFloat(swpLumpsum);
-        if (isNaN(numericLumpsum) || numericLumpsum <= 0) {
-            toast({ variant: 'destructive', title: 'Invalid Lumpsum', description: 'Please enter a valid lumpsum amount for SWP.'});
-            return;
-        }
-        plan.lumpsumAmount = numericLumpsum;
-        plan.investmentType = swpWithdrawalType;
-    }
-    
-    addPlan({
-        ...plan,
-        id: `${crypto.id}-${spPlanType}-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        status: 'active'
-    } as SystematicPlan);
-
-    toast({ title: 'Systematic Plan Created', description: `Your ${spPlanType.toUpperCase()} for ${crypto.name} has been set up.`});
-    setSpAmount('');
-    setSwpLumpsum('');
-  }
-
+  }, [investmentType, spPlanType, sipInvestmentType, swpWithdrawalType, spAmount, swpLumpsum, spFrequency, onSPConfigChange]);
 
   return (
     <div>
@@ -216,7 +196,6 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, on
                             </div>
                          </div>
                     )}
-                    <Button onClick={handleCreateSP} className="w-full">Create Plan</Button>
                 </div>
             )}
 
