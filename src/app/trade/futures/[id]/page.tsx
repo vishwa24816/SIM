@@ -5,7 +5,6 @@
 import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
 import { PriceChart } from '@/components/dashboard/price-chart';
-import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { FuturesOrderForm } from '@/components/trade/futures-order-form';
 import { MarketDepth } from '@/components/trade/market-depth';
 import { Button } from '@/components/ui/button';
@@ -17,12 +16,14 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import { usePortfolioStore } from '@/hooks/use-portfolio';
+import { GeneralOrderConfig } from '@/components/trade/order-form';
+import { OrderPageHeader } from '@/components/trade/order-page-header';
 
 export default function FuturesTradePage() {
   const params = useParams();
   const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell, portfolio } = usePortfolioStore();
+  const { buy, sell } = usePortfolioStore();
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
@@ -32,6 +33,7 @@ export default function FuturesTradePage() {
   const [quantity, setQuantity] = React.useState('');
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
   const [leverage, setLeverage] = React.useState('5');
+  const [generalOrderConfig, setGeneralOrderConfig] = React.useState<GeneralOrderConfig | null>(null);
   
   const TABS = ['Technicals', 'Analysis'];
   
@@ -50,10 +52,6 @@ export default function FuturesTradePage() {
     return futuresData.find(c => c.id === id);
   }, [futuresData, id]);
 
-  const currentHolding = React.useMemo(() => {
-    if (!crypto) return undefined;
-    return portfolio.holdings.find(h => h.cryptoId === crypto.id);
-  }, [portfolio.holdings, crypto]);
 
   const handlePriceSelect = (selectedPrice: number) => {
     setPrice(selectedPrice.toFixed(crypto?.price && crypto.price < 1 ? 6 : 2));
@@ -66,11 +64,38 @@ export default function FuturesTradePage() {
       toast({ variant: 'destructive', title: 'Invalid Quantity', description: 'Please enter a valid quantity.' });
       return;
     }
-    const prc = parseFloat(price) || crypto.price;
-    const margin = (qty * prc) / parseInt(leverage, 10);
+    const executionPrice = parseFloat(price) || crypto.price;
+    const margin = (qty * executionPrice) / parseInt(leverage, 10);
     
+    let sl: number | undefined;
+    let tp: number | undefined;
+    let tsl: { percentage: number } | undefined;
+
+    if (generalOrderConfig?.stopLoss) {
+        const slValue = parseFloat(generalOrderConfig.stopLoss);
+        if (generalOrderConfig.stopLossType === 'percentage') {
+            sl = executionPrice * (1 - slValue / 100);
+        } else {
+            sl = slValue;
+        }
+    }
+     if (generalOrderConfig?.takeProfit) {
+        const tpValue = parseFloat(generalOrderConfig.takeProfit);
+        if (generalOrderConfig.takeProfitType === 'percentage') {
+            tp = executionPrice * (1 + tpValue / 100);
+        } else {
+            tp = tpValue;
+        }
+    }
+    if (generalOrderConfig?.trailingStopLoss) {
+      const tslValue = parseFloat(generalOrderConfig.trailingStopLoss);
+      if (tslValue > 0) {
+        tsl = { percentage: tslValue };
+      }
+    }
+
     if (action === 'buy') {
-      buy(crypto, margin, qty);
+      buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
     } else {
       sell(crypto, qty);
     }
@@ -128,6 +153,7 @@ export default function FuturesTradePage() {
           setQuantity={setQuantity}
           leverage={leverage}
           setLeverage={setLeverage}
+          onGeneralOrderConfigChange={setGeneralOrderConfig}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
@@ -162,7 +188,7 @@ export default function FuturesTradePage() {
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => handleTrade('sell')} disabled={!currentHolding || currentHolding.amount <= 0}>Sell / Short</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => handleTrade('sell')}>Sell / Short</Button>
             <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => handleTrade('buy')}>Buy / Long</Button>
         </div>
       </footer>
