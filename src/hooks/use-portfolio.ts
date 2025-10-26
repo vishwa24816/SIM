@@ -96,6 +96,11 @@ export const usePortfolioStore = create<PortfolioState>()(
                             takeProfit: options?.takeProfit ?? existingHolding.takeProfit,
                             trailingStopLoss: options?.trailingStopLoss ?? existingHolding.trailingStopLoss,
                         };
+                         // If the position is closed, remove it
+                        if (Math.abs(newTotalAmount) < 0.000001) {
+                            newHoldings.splice(existingHoldingIndex, 1);
+                        }
+
                     } else {
                         newHoldings = [...state.portfolio.holdings, { 
                             cryptoId: crypto.id, 
@@ -116,10 +121,10 @@ export const usePortfolioStore = create<PortfolioState>()(
                         }
                     };
                 });
-                toast({ title: 'Trade Successful', description: `Order for ${cryptoAmount.toFixed(6)} ${crypto.symbol} placed.` });
+                toast({ title: 'Trade Successful', description: `Order for ${Math.abs(cryptoAmount).toFixed(6)} ${crypto.symbol} placed.` });
             },
-            sell: (crypto, cryptoAmount) => {
-                 if (cryptoAmount <= 0) {
+            sell: (crypto, cryptoAmountToSell) => {
+                 if (cryptoAmountToSell <= 0) {
                     toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
                     return;
                 }
@@ -132,36 +137,49 @@ export const usePortfolioStore = create<PortfolioState>()(
                     }
                     
                     const holding = state.portfolio.holdings[holdingIndex];
-                    const amountToSell = cryptoAmount;
 
-                    if (holding.amount < amountToSell) {
+                    if (crypto.assetType !== 'Futures' && holding.amount < cryptoAmountToSell) {
                          toast({ variant: 'destructive', title: 'Insufficient Holdings', description: `Not enough ${crypto.symbol} to sell.` });
                         return state;
                     }
                     
-                    const usdGained = amountToSell * crypto.price;
-                    const newAmount = holding.amount - amountToSell;
-                    
-                    // Return the proportional margin to the cash balance
-                    const proportionSold = holding.amount > 0 ? amountToSell / holding.amount : 1;
-                    const marginToReturn = (holding.margin ?? 0) * proportionSold;
-                    const newMargin = (holding.margin ?? 0) - marginToReturn;
+                    let newHoldings = [...state.portfolio.holdings];
+                    let updatedUsdBalance = state.portfolio.usdBalance;
 
-                    let newHoldings: Holding[];
-
-                    if (newAmount < 0.000001) { // If selling all or almost all
+                    if (crypto.assetType === 'Futures') {
+                        // Squaring off a futures position
+                        const leverage = Math.abs((holding.amount * crypto.price) / (holding.margin || 1));
+                        const entryPrice = Math.abs(((holding.margin || 1) * leverage) / holding.amount);
+                        const pnl = (crypto.price - entryPrice) * holding.amount;
+                        
+                        updatedUsdBalance += (holding.margin || 0) + pnl;
                         newHoldings = state.portfolio.holdings.filter(h => h.cryptoId !== crypto.id);
+                        
+                        toast({ title: 'Position Squared Off', description: `Closed position for ${crypto.symbol}. P&L: $${pnl.toFixed(2)}` });
+
                     } else {
-                        newHoldings = [...state.portfolio.holdings];
-                        newHoldings[holdingIndex] = { ...holding, amount: newAmount, margin: newMargin };
+                        // Selling a spot asset
+                        const usdGained = cryptoAmountToSell * crypto.price;
+                        const newAmount = holding.amount - cryptoAmountToSell;
+                        
+                        const proportionSold = holding.amount > 0 ? cryptoAmountToSell / holding.amount : 1;
+                        const marginToReturn = (holding.margin ?? 0) * proportionSold;
+                        const newMargin = (holding.margin ?? 0) - marginToReturn;
+
+                        if (newAmount < 0.000001) {
+                            newHoldings = state.portfolio.holdings.filter(h => h.cryptoId !== crypto.id);
+                        } else {
+                            newHoldings[holdingIndex] = { ...holding, amount: newAmount, margin: newMargin };
+                        }
+                        
+                        updatedUsdBalance += usdGained;
+                        toast({ title: 'Sale Successful', description: `Sold ${cryptoAmountToSell.toFixed(6)} ${crypto.symbol}.` });
                     }
                     
-                    toast({ title: 'Sale Successful', description: `Sold ${amountToSell.toFixed(6)} ${crypto.symbol}.` });
                     return {
                         portfolio: {
                            ...state.portfolio,
-                           // For spot, we add the sale value. For futures, we just return the original margin.
-                           usdBalance: state.portfolio.usdBalance + (crypto.assetType === 'Futures' ? marginToReturn : usdGained),
+                           usdBalance: updatedUsdBalance,
                            holdings: newHoldings,
                         }
                     };
@@ -183,10 +201,10 @@ export const usePortfolioStore = create<PortfolioState>()(
                     .reduce((acc, h) => {
                         const crypto = marketData.find(c => c.id === h.cryptoId);
                         const baseAsset = marketData.find(c => c.id === h.cryptoId.replace('-fut',''));
-                        if (!crypto || !baseAsset || !h.margin) return acc;
+                        if (!crypto || !baseAsset || !h.margin || h.amount === 0) return acc;
                         
-                        // Recalculate entry price based on margin and amount (long or short)
-                        const entryPrice = Math.abs((h.margin * ( (h.amount * baseAsset.price) / h.margin )) / h.amount);
+                        const leverage = Math.round(Math.abs((h.amount * baseAsset.price) / h.margin));
+                        const entryPrice = Math.abs((h.margin * leverage) / h.amount);
 
                         const pnl = (baseAsset.price - entryPrice) * h.amount;
                         return acc + pnl;
@@ -209,3 +227,4 @@ export const usePortfolioStore = create<PortfolioState>()(
     )
 );
     
+
