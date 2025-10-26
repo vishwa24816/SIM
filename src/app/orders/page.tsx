@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
 import { SystematicPlan } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
 
 const orders = [
   {
