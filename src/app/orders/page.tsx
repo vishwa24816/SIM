@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useToast } from '@/hooks/use-toast';
+import { BottomNav } from '@/components/dashboard/bottom-nav';
 
 const orders = [
   {
@@ -312,6 +313,7 @@ export default function OrdersPage() {
               )}
           </div>
         </main>
+        <BottomNav />
       </div>
       <AlertDialog open={!!basketToDelete} onOpenChange={(open) => !open && setBasketToDelete(null)}>
         <AlertDialogContent>
