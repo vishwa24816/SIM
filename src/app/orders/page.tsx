@@ -215,7 +215,7 @@ const AlertCard = ({ alert, currentPrice, onRemove }: { alert: Alert, currentPri
     )
 }
 
-const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, onStatusChange: (id: string, status: 'active' | 'paused' | 'cancelled') => void }) => {
+const SystematicPlanCard = ({ plan, onStatusChange, onRemove }: { plan: SystematicPlan, onStatusChange: (id: string, status: 'active' | 'paused' | 'cancelled') => void, onRemove: (id: string) => void }) => {
     const isSIP = plan.planType === 'sip';
     return (
         <Card>
@@ -265,10 +265,15 @@ const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, on
                             <XCircle className="mr-2 h-4 w-4" /> Cancel
                         </Button>
                     )}
-                     {plan.status === 'cancelled' && (
+                    {plan.status === 'cancelled' && (
+                      <>
                         <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'active')}>
                             <RotateCcw className="mr-2 h-4 w-4" /> Revert
                         </Button>
+                        <Button variant="destructive" size="sm" className="w-full" onClick={() => onRemove(plan.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" /> Remove
+                        </Button>
+                      </>
                     )}
                 </div>
             </CardContent>
@@ -281,7 +286,7 @@ export default function OrdersPage() {
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
   const { marketData } = useMarketData();
   const { baskets, removeBasket } = useBaskets();
-  const { plans, updatePlanStatus } = useSystematicPlans();
+  const { plans, updatePlanStatus, removePlan } = useSystematicPlans();
   const { orders: hodlOrders, removeOrder: removeHodlOrder } = useHodlOrders();
   const { limitOrders, removeLimitOrder } = useLimitOrders();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
@@ -427,7 +432,7 @@ export default function OrdersPage() {
               )}
                {activeTab === 'SP' && (
                   plans.length > 0 ? plans.map(plan => (
-                    <SystematicPlanCard key={plan.id} plan={plan} onStatusChange={updatePlanStatus} />
+                    <SystematicPlanCard key={plan.id} plan={plan} onStatusChange={updatePlanStatus} onRemove={removePlan} />
                   )) : (
                       <div className="text-center text-muted-foreground py-10">
                           <p>You have no active systematic plans.</p>
