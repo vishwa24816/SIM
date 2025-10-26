@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/dashboard/header';
 import { Search, BarChart2, Trash2 } from 'lucide-react';
-import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
@@ -23,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { MUTUAL_FUNDS_DATA, CRYPTO_ETFS_DATA } from '@/lib/data';
 
 const orders = [
   {
@@ -144,12 +144,28 @@ export default function OrdersPage() {
   const { baskets, removeBasket } = useBaskets();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
   
+  const allTradableAssets = React.useMemo(() => [
+      ...allAssets,
+      ...MUTUAL_FUNDS_DATA.map(fund => ({
+          id: fund.id,
+          name: fund.name,
+          symbol: fund.symbol,
+          icon: fund.icon,
+          price: fund.nav,
+          change24h: fund.change1d,
+          volume24h: fund.fundSize,
+          priceHistory: fund.priceHistory,
+          assetType: 'Mutual Fund' as const,
+      })),
+      ...CRYPTO_ETFS_DATA.map(etf => ({...etf, assetType: 'Crypto ETF' as const})),
+  ], [allAssets]);
+
 
   // Check alerts against current market data
   React.useEffect(() => {
     alerts.forEach(alert => {
         if (alert.status === 'active') {
-            const asset = allAssets.find(c => c.id === alert.cryptoId);
+            const asset = allTradableAssets.find(c => c.id === alert.cryptoId);
             if (asset && asset.price >= alert.price) {
                 // In a real app, you'd trigger a notification here.
                 console.log(`Alert triggered for ${alert.cryptoSymbol}! Price reached $${alert.price}`);
@@ -157,7 +173,7 @@ export default function OrdersPage() {
             }
         }
     })
-  }, [allAssets, alerts, updateAlertStatus]);
+  }, [allTradableAssets, alerts, updateAlertStatus]);
   
   const getAssetPath = (item: { assetType?: string, id: string }) => {
     switch (item.assetType) {
@@ -211,7 +227,7 @@ export default function OrdersPage() {
               ))}
               {activeTab === 'Alerts' && (
                   alerts.length > 0 ? alerts.map(alert => {
-                    const asset = allAssets.find(c => c.id === alert.cryptoId);
+                    const asset = allTradableAssets.find(c => c.id === alert.cryptoId);
                     return asset ? <AlertCard key={alert.id} alert={alert} currentPrice={asset.price} onRemove={removeAlert} /> : null;
                   }) : (
                       <div className="text-center text-muted-foreground py-10">
@@ -240,7 +256,9 @@ export default function OrdersPage() {
                                       <div className="divide-y">
                                           {basket.items.map(item => {
                                               const asset = allAssets.find(a => a.id === item.id);
-                                              const margin = item.quantity * item.price;
+                                              const itemPrice = typeof item.price === 'number' ? item.price : 0;
+                                              const itemQuantity = typeof item.quantity === 'number' ? item.quantity : 0;
+                                              const margin = itemQuantity * itemPrice;
                                               return (
                                                   <Link href={getAssetPath(item)} key={item.id} className="block p-2 hover:bg-muted/50">
                                                       <div className="flex justify-between items-center">
@@ -264,7 +282,7 @@ export default function OrdersPage() {
                                                           </div>
                                                            <div>
                                                               <p>Price</p>
-                                                              <p className="font-medium text-foreground">${item.price.toLocaleString()}</p>
+                                                              <p className="font-medium text-foreground">${itemPrice.toLocaleString()}</p>
                                                           </div>
                                                            <div className="text-right">
                                                               <p>Margin</p>
@@ -293,7 +311,6 @@ export default function OrdersPage() {
               )}
           </div>
         </main>
-        <BottomNav />
       </div>
       <AlertDialog open={!!basketToDelete} onOpenChange={(open) => !open && setBasketToDelete(null)}>
         <AlertDialogContent>
