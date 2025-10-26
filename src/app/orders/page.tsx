@@ -133,7 +133,11 @@ export default function OrdersPage() {
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
   const { marketData } = useMarketData();
   const { baskets } = useBaskets();
-  const allAssets = React.useMemo(() => [...marketData, ...CRYPTO_ETFS_DATA, ...MUTUAL_FUNDS_DATA.map(f => ({...f, price: f.nav}))], [marketData]);
+  const allAssets = React.useMemo(() => {
+    const funds = MUTUAL_FUNDS_DATA.map(f => ({...f, price: f.nav, assetType: 'Mutual Fund' as const}));
+    const etfs = CRYPTO_ETFS_DATA.map(e => ({...e, assetType: 'Crypto ETF' as const}));
+    return [...marketData, ...etfs, ...funds];
+  }, [marketData]);
 
   // Check alerts against current market data
   React.useEffect(() => {
@@ -155,7 +159,8 @@ export default function OrdersPage() {
         case 'Mutual Fund': return `/trade/mutual-fund/${item.id}`;
         case 'Web3': return `/trade/web3/${item.id}`;
         case 'Futures': return `/trade/futures/${item.id}`;
-        default: return `/trade/${item.id}`;
+        case 'Spot': return `/trade/${item.id}`;
+        default: return `/crypto/${item.id}`;
     }
   }
 
