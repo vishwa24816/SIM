@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetFooter } from "@/c
 import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -70,10 +71,12 @@ export function Header() {
                         />
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" className="text-primary-foreground/70 hover:text-primary-foreground">
-                    <User className="h-6 w-6" />
-                    <span className="sr-only">Open profile</span>
-                </Button>
+                <Link href="/profile" passHref>
+                    <Button variant="ghost" size="icon" className="text-primary-foreground/70 hover:text-primary-foreground">
+                        <User className="h-6 w-6" />
+                        <span className="sr-only">Open profile</span>
+                    </Button>
+                </Link>
             </div>
         </div>
     </header>
