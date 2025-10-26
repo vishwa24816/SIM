@@ -16,14 +16,18 @@ interface PortfolioState {
   portfolio: Portfolio;
   addUsd: (amount: number) => void;
   withdrawUsd: (amount: number) => void;
-  buy: (cryptoId: string, margin: number, marketData: CryptoCurrency[], quantity?: number) => void;
-  sell: (cryptoId: string, cryptoAmount: number, marketData: CryptoCurrency[]) => void;
+  buy: (cryptoId: string, margin: number, quantity?: number) => void;
+  sell: (cryptoId: string, cryptoAmount: number) => void;
+  setMarketData: (marketData: CryptoCurrency[]) => void;
+  marketData: CryptoCurrency[];
 }
 
 const usePortfolioStore = create<PortfolioState>()(
     persist(
         (set, get) => ({
             portfolio: INITIAL_PORTFOLIO,
+            marketData: [],
+            setMarketData: (marketData) => set({ marketData }),
             addUsd: (amount) => {
                 const { toast } = useToast();
                 if (amount <= 0) {
@@ -56,8 +60,9 @@ const usePortfolioStore = create<PortfolioState>()(
                 }));
                 toast({ title: "Withdrawal Successful", description: `$${amount.toFixed(2)} has been withdrawn from your wallet.` });
             },
-            buy: (cryptoId, margin, marketData, quantity) => {
+            buy: (cryptoId, margin, quantity) => {
                 const { toast } = useToast();
+                const marketData = get().marketData;
                 if (margin <= 0) {
                     toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a positive amount." });
                     return;
@@ -98,8 +103,9 @@ const usePortfolioStore = create<PortfolioState>()(
                 });
                 toast({ title: "Purchase Successful", description: `You bought ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
             },
-            sell: (cryptoId, cryptoAmount, marketData) => {
+            sell: (cryptoId, cryptoAmount) => {
                 const { toast } = useToast();
+                const marketData = get().marketData;
                 if (cryptoAmount <= 0) {
                     toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a positive amount." });
                     return;
@@ -148,14 +154,19 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
     withdrawUsd,
     buy: storeBuy,
     sell: storeSell,
+    setMarketData
   } = usePortfolioStore();
 
+  React.useEffect(() => {
+    setMarketData(marketData);
+  }, [marketData, setMarketData]);
+
   const buy = (cryptoId: string, margin: number, quantity?: number) => {
-    storeBuy(cryptoId, margin, marketData, quantity);
+    storeBuy(cryptoId, margin, quantity);
   }
 
   const sell = (cryptoId: string, cryptoAmount: number) => {
-    storeSell(cryptoId, cryptoAmount, marketData);
+    storeSell(cryptoId, cryptoAmount);
   }
   
   const totalPortfolioValue = React.useMemo(() => {
