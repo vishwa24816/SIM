@@ -121,3 +121,22 @@ export interface SystematicPlan {
   status: 'active' | 'paused' | 'cancelled';
   createdAt: string;
 }
+
+export interface HodlOrder {
+  id: string;
+  instrumentId: string;
+  instrumentName: string;
+  instrumentSymbol: string;
+  assetType: CryptoCurrency['assetType'];
+  quantity: number;
+  price: number;
+  orderType: 'limit' | 'market';
+  period: {
+    months: number;
+    years: number;
+  };
+  margin: number;
+  stopLoss?: number;
+  takeProfit?: number;
+  createdAt: string;
+}

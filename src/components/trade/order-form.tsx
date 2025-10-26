@@ -20,6 +20,13 @@ export interface SPConfig {
   spFrequency: SPFrequency;
 }
 
+export interface HodlConfig {
+  months: string;
+  years: string;
+  stopLoss?: string;
+  takeProfit?: string;
+}
+
 interface OrderFormProps {
     crypto: CryptoCurrency;
     price: string;
@@ -32,14 +39,17 @@ interface OrderFormProps {
     investmentType: string;
     setInvestmentType: (type: string) => void;
     onSPConfigChange: (config: SPConfig | null) => void;
+    onHodlConfigChange: (config: HodlConfig | null) => void;
 }
 
 export function OrderForm({ 
   crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, 
-  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange 
+  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange, onHodlConfigChange
 }: OrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
+  const [stopLossValue, setStopLossValue] = React.useState('');
+  const [takeProfitValue, setTakeProfitValue] = React.useState('');
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
   const [takeProfitType, setTakeProfitType] = React.useState<'price' | 'percentage'>('price');
   const { toast } = useToast();
@@ -52,6 +62,7 @@ export function OrderForm({
   const [spFrequency, setSpFrequency] = React.useState<SPFrequency>('monthly');
 
   const [months, setMonths] = React.useState('');
+  const [years, setYears] = React.useState('');
 
   const handleMonthsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -92,6 +103,20 @@ export function OrderForm({
       onSPConfigChange(null);
     }
   }, [investmentType, spPlanType, sipInvestmentType, swpWithdrawalType, spAmount, swpLumpsum, spFrequency, onSPConfigChange]);
+
+  React.useEffect(() => {
+    if (investmentType === 'hodl') {
+        onHodlConfigChange({
+            months,
+            years,
+            stopLoss: stopLossEnabled ? stopLossValue : undefined,
+            takeProfit: takeProfitEnabled ? takeProfitValue : undefined,
+        });
+    } else {
+        onHodlConfigChange(null);
+    }
+  }, [investmentType, months, years, stopLossEnabled, takeProfitEnabled, stopLossValue, takeProfitValue, onHodlConfigChange]);
+
 
   return (
     <div>
@@ -134,7 +159,7 @@ export function OrderForm({
                         </div>
                         <div>
                             <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>
-                            <Input id="years" placeholder="0" type="number" />
+                            <Input id="years" placeholder="0" type="number" value={years} onChange={e => setYears(e.target.value)} />
                         </div>
                     </div>
                 </div>
@@ -226,7 +251,7 @@ export function OrderForm({
                         </div>
                         {stopLossEnabled && (
                             <div className="flex gap-2">
-                                <Input id="stop-loss-value" placeholder="0.00" type="number" />
+                                <Input id="stop-loss-value" placeholder="0.00" type="number" value={stopLossValue} onChange={e => setStopLossValue(e.target.value)} />
                                 <div className="flex rounded-md bg-muted p-1">
                                     <Button variant={stopLossType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setStopLossType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">$</Button>
                                     <Button variant={stopLossType === 'percentage' ? 'default' : 'ghost'} size="sm" onClick={() => setStopLossType('percentage')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">%</Button>
@@ -239,7 +264,7 @@ export function OrderForm({
                         </div>
                          {takeProfitEnabled && (
                             <div className="flex gap-2">
-                                <Input id="take-profit-value" placeholder="0.00" type="number" />
+                                <Input id="take-profit-value" placeholder="0.00" type="number" value={takeProfitValue} onChange={e => setTakeProfitValue(e.target.value)} />
                                 <div className="flex rounded-md bg-muted p-1">
                                      <Button variant={takeProfitType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">$</Button>
                                     <Button variant={takeProfitType === 'percentage' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('percentage')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">%</Button>

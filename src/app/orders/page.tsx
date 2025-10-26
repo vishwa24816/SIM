@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/dashboard/header';
-import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle, RotateCcw } from 'lucide-react';
+import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle, RotateCcw, Clock } from 'lucide-react';
 import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
@@ -26,8 +26,9 @@ import { usePortfolio } from '@/hooks/use-portfolio';
 import { useToast } from '@/hooks/use-toast';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
-import { SystematicPlan } from '@/lib/types';
+import { SystematicPlan, HodlOrder } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
+import { useHodlOrders } from '@/hooks/use-hodl-orders';
 
 const orders = [
   {
@@ -96,6 +97,58 @@ const OrderCard = ({ order }: { order: (typeof orders)[0] }) => (
       </div>
     </CardContent>
   </Card>
+);
+
+const HodlOrderCard = ({ order }: { order: HodlOrder }) => (
+    <Card>
+        <CardHeader>
+            <div className="flex justify-between items-start">
+                <div>
+                    <CardTitle className="text-lg">{order.instrumentName} <span className="text-sm text-muted-foreground">({order.instrumentSymbol})</span></CardTitle>
+                    <p className="text-xs text-muted-foreground uppercase">{order.assetType} - {order.orderType}</p>
+                </div>
+                <Badge variant="outline" className="border-blue-500 text-blue-500">HODL</Badge>
+            </div>
+        </CardHeader>
+        <CardContent className="space-y-4 text-sm">
+             <div className="grid grid-cols-3 gap-4">
+                <div>
+                    <p className="text-muted-foreground">Qty.</p>
+                    <p className="font-semibold">{order.quantity.toFixed(6)}</p>
+                </div>
+                <div>
+                    <p className="text-muted-foreground">Price</p>
+                    <p className="font-semibold">${order.price.toLocaleString()}</p>
+                </div>
+                <div className="text-right">
+                    <p className="text-muted-foreground">Margin</p>
+                    <p className="font-semibold">${order.margin.toLocaleString()}</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                 <div>
+                    <p className="text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3"/> Lock-in Period</p>
+                    <p className="font-semibold">{order.period.years > 0 && `${order.period.years}y `}{order.period.months > 0 && `${order.period.months}m`}</p>
+                </div>
+                 <div className="text-right">
+                    <p className="text-muted-foreground">Created At</p>
+                    <p className="font-semibold">{new Date(order.createdAt).toLocaleDateString()}</p>
+                </div>
+            </div>
+             {(order.stopLoss || order.takeProfit) && (
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div>
+                        <p className="text-muted-foreground">Stop Loss</p>
+                        <p className="font-semibold text-red-500">{order.stopLoss ? `$${order.stopLoss}` : 'Not Set'}</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-muted-foreground">Take Profit</p>
+                        <p className="font-semibold text-green-500">{order.takeProfit ? `$${order.takeProfit}` : 'Not Set'}</p>
+                    </div>
+                </div>
+            )}
+        </CardContent>
+    </Card>
 );
 
 const AlertCard = ({ alert, currentPrice, onRemove }: { alert: Alert, currentPrice: number, onRemove: (id: string) => void }) => {
@@ -193,7 +246,7 @@ const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, on
                         </Button>
                     )}
                      {plan.status === 'cancelled' && (
-                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'paused')}>
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => updatePlanStatus(plan.id, 'paused')}>
                             <RotateCcw className="mr-2 h-4 w-4" /> Revert
                         </Button>
                     )}
@@ -209,6 +262,7 @@ export default function OrdersPage() {
   const { marketData } = useMarketData();
   const { baskets, removeBasket } = useBaskets();
   const { plans, updatePlanStatus } = useSystematicPlans();
+  const { orders: hodlOrders } = useHodlOrders();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
   const { buy, sell } = usePortfolio(marketData);
   const { toast } = useToast();
@@ -286,6 +340,16 @@ export default function OrdersPage() {
               {activeTab === 'Limit' && orders.map(order => (
                   <OrderCard key={order.id} order={order} />
               ))}
+              {activeTab === 'HODL' && (
+                  hodlOrders.length > 0 ? hodlOrders.map(order => (
+                    <HodlOrderCard key={order.id} order={order} />
+                  )) : (
+                      <div className="text-center text-muted-foreground py-10">
+                          <p>You have no active HODL orders.</p>
+                          <p className="text-sm">You can create HODL orders from the trade screen.</p>
+                      </div>
+                  )
+              )}
               {activeTab === 'Alerts' && (
                   alerts.length > 0 ? alerts.map(alert => {
                     const asset = marketData.find(c => c.id === alert.cryptoId);
@@ -381,7 +445,7 @@ export default function OrdersPage() {
                       </div>
                   )
               )}
-              {(activeTab !== 'Limit' && activeTab !== 'Alerts' && activeTab !== 'Baskets' && activeTab !== 'SP') && (
+              {(activeTab !== 'Limit' && activeTab !== 'HODL' && activeTab !== 'Alerts' && activeTab !== 'Baskets' && activeTab !== 'SP') && (
                   <div className="text-center text-muted-foreground py-10">
                       <p>No {activeTab.toLowerCase()} orders found.</p>
                   </div>

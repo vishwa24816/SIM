@@ -6,7 +6,7 @@ import { useMarketData } from '@/hooks/use-market-data';
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
-import { OrderForm, type SPConfig } from '@/components/trade/order-form';
+import { OrderForm, type SPConfig, type HodlConfig } from '@/components/trade/order-form';
 import { MarketDepth } from '@/components/trade/market-depth';
 import { SimbotAnalysis } from '@/components/trade/simbot-analysis';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,11 +15,13 @@ import { SwipeToConfirm } from '@/components/ui/swipe-to-confirm';
 import { useToast } from '@/hooks/use-toast';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
 import { SystematicPlan } from '@/lib/types';
+import { useHodlOrders } from '@/hooks/use-hodl-orders';
 
 export default function TradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
   const { portfolio, buy, sell } = usePortfolio(marketData);
   const { addPlan } = useSystematicPlans();
+  const { addOrder: addHodlOrder } = useHodlOrders();
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
@@ -28,6 +30,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const [quantity, setQuantity] = React.useState('');
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [spConfig, setSpConfig] = React.useState<SPConfig | null>(null);
+  const [hodlConfig, setHodlConfig] = React.useState<HodlConfig | null>(null);
 
   const crypto = React.useMemo(() => {
     return marketData.find(c => c.id === params.id);
@@ -41,7 +44,10 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const handleConfirm = () => {
     if (investmentType === 'sp') {
       handleCreateSP();
-    } else {
+    } else if (investmentType === 'hodl') {
+      handleCreateHodl();
+    }
+    else {
       handleBuy();
     }
   }
@@ -63,6 +69,41 @@ export default function TradePage({ params }: { params: { id: string } }) {
           return;
       }
       sell(crypto.id, qty);
+  }
+  
+  const handleCreateHodl = () => {
+    if (!hodlConfig || !crypto) return;
+    const { months, years, stopLoss, takeProfit } = hodlConfig;
+    const qty = parseFloat(quantity);
+    const prc = parseFloat(price) || crypto.price;
+    const margin = qty * prc;
+
+    if (!qty || qty <= 0) {
+        toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity for your HODL order.' });
+        return;
+    }
+
+    // Execute the buy order first
+    buy(crypto.id, margin);
+
+    // Then create the HODL order record
+    addHodlOrder({
+      id: `${crypto.id}-hodl-${Date.now()}`,
+      instrumentId: crypto.id,
+      instrumentName: crypto.name,
+      instrumentSymbol: crypto.symbol,
+      assetType: crypto.assetType,
+      quantity: qty,
+      price: prc,
+      orderType: orderType as 'limit' | 'market',
+      period: { months: parseInt(months) || 0, years: parseInt(years) || 0 },
+      margin,
+      stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
+      takeProfit: takeProfit ? parseFloat(takeProfit) : undefined,
+      createdAt: new Date().toISOString(),
+    });
+
+    toast({ title: 'HODL Order Placed', description: `Your HODL order for ${crypto.name} has been set.`});
   }
 
   const handleCreateSP = () => {
@@ -159,6 +200,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
           investmentType={investmentType}
           setInvestmentType={setInvestmentType}
           onSPConfigChange={setSpConfig}
+          onHodlConfigChange={setHodlConfig}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
@@ -173,7 +215,10 @@ export default function TradePage({ params }: { params: { id: string } }) {
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4 space-y-3">
         <SwipeToConfirm 
           onConfirm={handleConfirm}
-          text={investmentType === 'sp' ? 'Swipe to Create Plan' : 'Swipe to Buy'}
+          text={
+            investmentType === 'sp' ? 'Swipe to Create Plan' : 
+            investmentType === 'hodl' ? 'Swipe to HODL' : 'Swipe to Buy'
+          }
         />
       </footer>
     </div>
