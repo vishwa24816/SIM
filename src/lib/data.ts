@@ -26,6 +26,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 2.5,
     volume24h: 34500000000,
     priceHistory: generatePriceHistory(68134.32),
+    assetType: 'Spot',
   },
   {
     id: "ethereum",
@@ -36,6 +37,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: -1.2,
     volume24h: 18200000000,
     priceHistory: generatePriceHistory(3567.89),
+    assetType: 'Spot',
   },
   {
     id: "dogecoin",
@@ -46,6 +48,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 5.8,
     volume24h: 2100000000,
     priceHistory: generatePriceHistory(0.16),
+    assetType: 'Spot',
   },
   {
     id: "shiba-inu",
@@ -56,6 +59,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 3.7,
     volume24h: 300000000,
     priceHistory: generatePriceHistory(0.000017),
+    assetType: 'Spot',
   },
   {
     id: "ripple",
@@ -66,6 +70,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 2.13,
     volume24h: 1200000000,
     priceHistory: generatePriceHistory(0.47),
+    assetType: 'Spot',
   },
   {
     id: "tron",
@@ -76,6 +81,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 2.56,
     volume24h: 400000000,
     priceHistory: generatePriceHistory(0.11),
+    assetType: 'Spot',
   },
   {
     id: "usd-coin",
@@ -86,6 +92,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 0.00,
     volume24h: 5000000000,
     priceHistory: generatePriceHistory(1.00),
+    assetType: 'Spot',
   },
   {
     id: "tether",
@@ -96,6 +103,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 0.00,
     volume24h: 50000000000,
     priceHistory: generatePriceHistory(1.00),
+    assetType: 'Spot',
   },
   {
     id: "binancecoin",
@@ -106,6 +114,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 0.89,
     volume24h: 1500000000,
     priceHistory: generatePriceHistory(570.00),
+    assetType: 'Spot',
   },
   {
     id: "cardano",
@@ -116,6 +125,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: -2.17,
     volume24h: 350000000,
     priceHistory: generatePriceHistory(0.38),
+    assetType: 'Spot',
   },
     {
     id: "notcoin",
@@ -126,6 +136,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 25.00,
     volume24h: 1000000000,
     priceHistory: generatePriceHistory(0.015),
+    assetType: 'Spot',
   },
   {
     id: "pepe",
@@ -136,6 +147,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 18.87,
     volume24h: 800000000,
     priceHistory: generatePriceHistory(0.000011),
+    assetType: 'Spot',
   },
   {
     id: "dogwifhat",
@@ -146,6 +158,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 14.75,
     volume24h: 500000000,
     priceHistory: generatePriceHistory(2.50),
+    assetType: 'Spot',
   },
   {
     id: "floki",
@@ -156,6 +169,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 12.00,
     volume24h: 200000000,
     priceHistory: generatePriceHistory(0.00017),
+    assetType: 'Spot',
   },
   {
     id: "singularitynet",
@@ -166,6 +180,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 9.20,
     volume24h: 150000000,
     priceHistory: generatePriceHistory(0.68),
+    assetType: 'Web3',
   },
   {
     id: "apecoin",
@@ -176,6 +191,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 4.2,
     volume24h: 50000000,
     priceHistory: generatePriceHistory(1.0),
+    assetType: 'Web3',
   },
   {
     id: "the-sandbox",
@@ -186,6 +202,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 3.1,
     volume24h: 60000000,
     priceHistory: generatePriceHistory(0.33),
+    assetType: 'Web3',
   },
   {
     id: "decentraland",
@@ -196,6 +213,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 2.5,
     volume24h: 45000000,
     priceHistory: generatePriceHistory(0.33),
+    assetType: 'Web3',
   },
   {
     id: "solana",
@@ -206,6 +224,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 5.5,
     volume24h: 2000000000,
     priceHistory: generatePriceHistory(150.0),
+    assetType: 'Spot',
   },
   {
     id: "uniswap",
@@ -216,6 +235,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 6.2,
     volume24h: 250000000,
     priceHistory: generatePriceHistory(10.0),
+    assetType: 'Web3',
   },
   {
     id: 'pancakeswap-token',
@@ -226,6 +246,7 @@ export const INITIAL_CRYPTO_DATA: CryptoCurrency[] = [
     change24h: 1.8,
     volume24h: 40000000,
     priceHistory: generatePriceHistory(2.2),
+    assetType: 'Web3',
   }
 ];
 

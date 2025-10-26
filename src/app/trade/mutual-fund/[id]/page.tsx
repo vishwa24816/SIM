@@ -25,17 +25,19 @@ export default function MutualFundTradePage({ params }: { params: { id: string }
 
   const cryptoEquivalent = React.useMemo(() => {
     if (!fund) return undefined;
+    const liveData = marketData.find(m => m.id === fund.id);
     return {
       id: fund.id,
       name: fund.name,
       symbol: fund.symbol,
       icon: fund.icon,
-      price: fund.nav,
-      change24h: fund.change1d,
-      volume24h: fund.fundSize,
-      priceHistory: fund.priceHistory,
+      price: liveData?.price || fund.nav,
+      change24h: liveData?.change24h || fund.change1d,
+      volume24h: liveData?.volume24h || fund.fundSize,
+      priceHistory: liveData?.priceHistory || fund.priceHistory,
+      assetType: 'Mutual Fund' as const,
     };
-  }, [fund]);
+  }, [fund, marketData]);
 
   if (marketLoading) {
     return (

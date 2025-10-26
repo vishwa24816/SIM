@@ -3,13 +3,30 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { CryptoCurrency } from '@/lib/types';
-import { INITIAL_CRYPTO_DATA } from '@/lib/data';
+import { INITIAL_CRYPTO_DATA, CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/data';
 
 const defaultCrypto = INITIAL_CRYPTO_DATA[0];
 
+// Combine all initial data into one array
+const ALL_INITIAL_ASSETS: CryptoCurrency[] = [
+  ...INITIAL_CRYPTO_DATA,
+  ...CRYPTO_ETFS_DATA.map(etf => ({ ...etf, assetType: 'Crypto ETF' as const })),
+  ...MUTUAL_FUNDS_DATA.map(fund => ({
+    id: fund.id,
+    name: fund.name,
+    symbol: fund.symbol,
+    icon: fund.icon,
+    price: fund.nav,
+    change24h: fund.change1d,
+    volume24h: fund.fundSize,
+    priceHistory: fund.priceHistory,
+    assetType: 'Mutual Fund' as const,
+  })),
+];
+
 export function useMarketData() {
   const [loading, setLoading] = useState(true);
-  const [marketData, setMarketData] = useState<CryptoCurrency[]>(INITIAL_CRYPTO_DATA);
+  const [marketData, setMarketData] = useState<CryptoCurrency[]>(ALL_INITIAL_ASSETS);
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
 
   const fetchMarketData = async (isInitialLoad = false) => {
@@ -17,41 +34,41 @@ export function useMarketData() {
         setLoading(true);
     }
     try {
-      const response = await fetch('/api/market-data');
+      // We are only fetching live data for the base cryptocurrencies
+      const cryptoIds = INITIAL_CRYPTO_DATA.map(c => c.id);
+      const response = await fetch(`/api/market-data?ids=${cryptoIds.join(',')}`);
+      
       if (!response.ok) {
-        // Don't throw an error, just log it and the app will use the existing (or initial) data.
         console.error('Failed to fetch market data:', response.statusText);
-        // If the initial load fails, we should stop the loading state.
         if (isInitialLoad) {
-          setLoading(false);
-          // And ensure we have some data to show
-          setMarketData(INITIAL_CRYPTO_DATA);
+          setMarketData(ALL_INITIAL_ASSETS);
         }
         return;
       }
+      
       const liveData = await response.json();
       
-      // Merge live data with initial static data to preserve icon components
-      const updatedData = INITIAL_CRYPTO_DATA.map(initialCrypto => {
-        const liveCrypto = liveData.find((d: any) => d.id === initialCrypto.id);
-        if (liveCrypto) {
+      // Merge live data with our comprehensive initial data list
+      const updatedData = ALL_INITIAL_ASSETS.map(initialAsset => {
+        const liveCrypto = liveData.find((d: any) => d.id === initialAsset.id);
+        if (liveCrypto && initialAsset.assetType === 'Spot') {
           return {
-            ...initialCrypto, // This keeps the original icon and other static properties
+            ...initialAsset,
             price: liveCrypto.price,
             change24h: liveCrypto.change24h,
             volume24h: liveCrypto.volume24h,
             priceHistory: liveCrypto.priceHistory,
           };
         }
-        return initialCrypto; // Fallback to initial data if no live data is found
+        // For ETFs and Mutual Funds, or if no live data, return the initial static data
+        return initialAsset;
       });
 
       setMarketData(updatedData);
     } catch (error) {
       console.error(error);
-      // Keep using existing or initial data if fetch fails
       if (isInitialLoad) {
-        setMarketData(INITIAL_CRYPTO_DATA);
+        setMarketData(ALL_INITIAL_ASSETS);
       }
     } finally {
         if (isInitialLoad) {

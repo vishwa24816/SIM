@@ -17,9 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { BellRing, Briefcase } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { AddToBasketDialog } from '@/components/trade/add-to-basket-dialog';
+import { CryptoETF, CryptoCurrency } from '@/lib/types';
 
 export default function ETFTradePage({ params }: { params: { id: string } }) {
-  const { loading: marketLoading } = useMarketData();
+  const { marketData, loading: marketLoading } = useMarketData();
   const { addAlert } = useAlerts();
   const { toast } = useToast();
   
@@ -30,13 +31,15 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
 
   const etf = React.useMemo(() => {
-    return CRYPTO_ETFS_DATA.find(e => e.id === params.id);
+    // We now get the live data from the unified marketData hook
+    return marketData.find(e => e.id === params.id && e.assetType === 'Crypto ETF') as CryptoCurrency | undefined;
+  }, [params.id, marketData]);
+
+  // Find original static data for description, etc.
+  const staticEtfData = React.useMemo(() => {
+     return CRYPTO_ETFS_DATA.find(e => e.id === params.id)
   }, [params.id]);
 
-  const cryptoEquivalent = React.useMemo(() => {
-    if (!etf) return undefined;
-    return { ...etf };
-  }, [etf]);
 
   React.useEffect(() => {
     if (etf) {
@@ -97,7 +100,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
     );
   }
 
-  if (!etf || !cryptoEquivalent) {
+  if (!etf || !staticEtfData) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
          <OrderPageHeader crypto={undefined} />
@@ -112,12 +115,12 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   return (
     <>
       <div className="flex flex-col min-h-screen bg-background text-foreground">
-        <OrderPageHeader crypto={cryptoEquivalent} />
+        <OrderPageHeader crypto={etf} />
         <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
-          <PriceChart crypto={cryptoEquivalent} loading={marketLoading} />
+          <PriceChart crypto={etf} loading={marketLoading} />
           <Separator className="bg-border/50" />
           <OrderForm
-            crypto={cryptoEquivalent}
+            crypto={etf}
             price={price}
             setPrice={setPrice}
             orderType={orderType}
@@ -157,29 +160,29 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
                   <CardTitle>About {etf.name}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
-                  <p className="text-muted-foreground">{etf.description}</p>
+                  <p className="text-muted-foreground">{staticEtfData.description}</p>
                   <div className="grid grid-cols-2 gap-4">
                       <div>
                           <p className="font-semibold">Issuer</p>
-                          <p className="text-muted-foreground">{etf.issuer}</p>
+                          <p className="text-muted-foreground">{staticEtfData.issuer}</p>
                       </div>
                       <div>
                           <p className="font-semibold">Inception Date</p>
-                          <p className="text-muted-foreground">{etf.inceptionDate}</p>
+                          <p className="text-muted-foreground">{staticEtfData.inceptionDate}</p>
                       </div>
                       <div>
                           <p className="font-semibold">Expense Ratio</p>
-                          <p className="text-muted-foreground">{etf.expenseRatio}%</p>
+                          <p className="text-muted-foreground">{staticEtfData.expenseRatio}%</p>
                       </div>
                       <div>
                           <p className="font-semibold">Assets Under Management</p>
-                          <p className="text-muted-foreground">${(etf.aum / 1_000_000_000).toFixed(2)}B</p>
+                          <p className="text-muted-foreground">${(staticEtfData.aum / 1_000_000_000).toFixed(2)}B</p>
                       </div>
                   </div>
                   <div>
                       <h4 className="font-semibold mb-2">Underlying Assets</h4>
                       <div className="space-y-2">
-                          {etf.underlyingAssets.map(asset => (
+                          {staticEtfData.underlyingAssets.map(asset => (
                               <div key={asset.symbol} className="flex justify-between items-center p-2 bg-muted/50 rounded-md">
                                   <span>{asset.name} ({asset.symbol})</span>
                                   <span className="font-medium">{asset.weight.toFixed(2)}%</span>

@@ -7,7 +7,7 @@ export interface CryptoCurrency {
   change24h: number;
   volume24h: number;
   priceHistory: { time: string; value: number }[];
-  assetType?: 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETF' | 'Web3';
+  assetType: 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETF' | 'Web3';
 }
 
 export interface Holding {
@@ -88,7 +88,7 @@ export interface Alert {
     createdAt: string;
 }
 
-export type BasketItem = Pick<CryptoCurrency, 'id' | 'name' | 'symbol'> & { assetType: CryptoCurrency['assetType'] };
+export type BasketItem = Pick<CryptoCurrency, 'id' | 'name' | 'symbol' | 'assetType'>;
 
 export interface Basket {
   name: string;

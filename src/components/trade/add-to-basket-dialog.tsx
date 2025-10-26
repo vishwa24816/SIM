@@ -22,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 interface AddToBasketDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  instrument: Omit<CryptoCurrency, 'price' | 'change24h' | 'volume24h' | 'priceHistory' | 'icon'>;
+  instrument: BasketItem;
 }
 
 export function AddToBasketDialog({ isOpen, onClose, instrument }: AddToBasketDialogProps) {
@@ -41,7 +41,7 @@ export function AddToBasketDialog({ isOpen, onClose, instrument }: AddToBasketDi
       setBasketType('existing');
       setSelectedBasket(baskets[0].name);
     }
-  }, [baskets]);
+  }, [baskets, isOpen]);
 
 
   const handleConfirm = () => {

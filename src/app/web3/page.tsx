@@ -45,9 +45,11 @@ export default function Web3Page() {
     const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
     const [searchTerm, setSearchTerm] = React.useState('');
     
-    const aiData = React.useMemo(() => marketData.filter(c => ['singularitynet'].includes(c.id)), [marketData]);
-    const nftData = React.useMemo(() => marketData.filter(c => ['apecoin', 'the-sandbox', 'decentraland'].includes(c.id)), [marketData]);
-    const dexData = React.useMemo(() => marketData.filter(c => ['uniswap', 'pancakeswap-token'].includes(c.id)), [marketData]);
+    const web3Data = React.useMemo(() => marketData.filter(c => c.assetType === 'Web3'), [marketData]);
+    
+    const aiData = React.useMemo(() => web3Data.filter(c => ['singularitynet'].includes(c.id)), [web3Data]);
+    const nftData = React.useMemo(() => web3Data.filter(c => ['apecoin', 'the-sandbox', 'decentraland'].includes(c.id)), [web3Data]);
+    const dexData = React.useMemo(() => web3Data.filter(c => ['uniswap', 'pancakeswap-token'].includes(c.id)), [web3Data]);
     
     const viewMap: {[key: string]: CryptoCurrency[]} = {
         'AI': aiData,
@@ -55,7 +57,7 @@ export default function Web3Page() {
         'DEX': dexData,
     }
 
-    const displayData = viewMap[viewType];
+    const displayData = viewMap[viewType] || [];
 
     const trendingCrypto = [...displayData]
       .sort((a, b) => b.volume24h - a.volume24h)

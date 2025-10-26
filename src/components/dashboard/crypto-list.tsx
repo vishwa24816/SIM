@@ -6,9 +6,7 @@ import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-type ExtendedCryptoCurrency = CryptoCurrency & { assetType?: 'Mutual Fund' | 'Crypto ETF' | 'Web3' };
-
-const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency, tradeType?: 'Spot' | 'Futures' | 'Funds & ETFs' | 'Web3' }) => {
+const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
     const Icon = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
@@ -38,29 +36,26 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency,
     
     let path = `/crypto/${crypto.id}`; // Default path
     
-    if (tradeType) {
-        if (tradeType === 'Futures') {
+    switch (crypto.assetType) {
+        case 'Futures':
             path = `/trade/futures/${crypto.id}`;
-        } else if (tradeType === 'Funds & ETFs') {
-            if (crypto.assetType === 'Mutual Fund') {
-                path = `/trade/mutual-fund/${crypto.id}`;
-            } else if (crypto.assetType === 'Crypto ETF') {
-                path = `/trade/etf/${crypto.id}`;
-            }
-        } else if (tradeType === 'Web3') {
+            break;
+        case 'Crypto ETF':
+            path = `/trade/etf/${crypto.id}`;
+            break;
+        case 'Mutual Fund':
+            path = `/trade/mutual-fund/${crypto.id}`;
+            break;
+        case 'Web3':
              path = `/trade/web3/${crypto.id}`;
-        } else if (tradeType === 'Spot') {
+             break;
+        case 'Spot':
             path = `/trade/${crypto.id}`;
-        }
-    } else {
-        // Fallback for when tradeType is not provided (e.g. on web3 page before changes)
-        // This is a simple heuristic. A more robust solution might involve checking the crypto's category/id.
-        const web3Ids = ['singularitynet', 'apecoin', 'the-sandbox', 'decentraland', 'uniswap', 'pancakeswap-token'];
-        if (web3Ids.includes(crypto.id)) {
-            path = `/trade/web3/${crypto.id}`;
-        }
+            break;
+        default:
+            path = `/crypto/${crypto.id}`;
     }
-
+    
     return (
         <Link href={path}>
             {content}
@@ -69,14 +64,13 @@ const CryptoListItem = ({ crypto, tradeType }: { crypto: ExtendedCryptoCurrency,
 };
 
 interface CryptoListProps {
-    cryptos: ExtendedCryptoCurrency[];
-    tradeType?: 'Spot' | 'Futures' | 'Funds & ETFs' | 'Web3';
+    cryptos: CryptoCurrency[];
 }
 
-export function CryptoList({ cryptos, tradeType }: CryptoListProps) {
+export function CryptoList({ cryptos }: CryptoListProps) {
     return (
         <>
-            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} tradeType={tradeType} />)}
+            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
         </>
     );
 }
