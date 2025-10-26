@@ -91,7 +91,6 @@ export default function ProfilePage() {
     { id: 'profile', icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { id: 'kyc', icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' }, href: '#' },
     { id: 'banks', icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details', href: '/profile/banks' },
-    { id: 'nominee', icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds in case of your demise', href: '/profile/nominee' },
     { id: 'accountMgmt', icon: UserCog, title: 'Account Management', description: 'Delete or disable your account', href: '#' },
     { id: 'security', icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings', href: '#' },
     { id: 'wallet', icon: Wallet, title: 'Wallet Management', description: 'Add, remove, or view your wallets', href: '#' },
@@ -130,24 +129,23 @@ export default function ProfilePage() {
       <div className="px-4 pb-24">
         <div className="divide-y divide-border/50">
           {profileItems.map((item) => {
-            if (item.collapsible) {
+            const isLink = !!item.href;
+            const isCollapsible = !!item.collapsible;
+
+            if (isCollapsible) {
               return (
                  <CollapsibleProfileItem key={item.id} icon={item.icon} title={item.title} description={item.description} badge={item.badge}>
                   {/* Children for collapsible items can be added here */}
                  </CollapsibleProfileItem>
               )
             }
-             if (item.href) {
-              return (
-                <Link href={item.href} key={item.id}>
-                    <ProfileItem {...item} />
-                </Link>
-              )
-            }
+            
+            const ItemWrapper = isLink ? ({children}: {children: React.ReactNode}) => <Link href={item.href!} key={item.id}>{children}</Link> : ({children}: {children: React.ReactNode}) => <div key={item.id}>{children}</div>;
+            
             return (
-              <div key={item.id} className="cursor-not-allowed opacity-50">
+              <ItemWrapper key={item.id}>
                 <ProfileItem {...item} />
-              </div>
+              </ItemWrapper>
             )
           })}
         </div>

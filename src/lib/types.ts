@@ -167,11 +167,3 @@ export interface LimitOrder {
       percentage: number;
     };
 }
-
-export interface Nominee {
-  id: string;
-  fullName: string;
-  dob: Date;
-  relationship: string;
-  share: number;
-}
