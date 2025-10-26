@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -19,6 +20,7 @@ import { AddToBasketForm } from '@/components/trade/add-to-basket-form';
 import { CryptoCurrency } from '@/lib/types';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useParams } from 'next/navigation';
+import { usePortfolioStore } from '@/hooks/use-portfolio';
 
 export default function ETFTradePage() {
   const params = useParams();
@@ -26,6 +28,7 @@ export default function ETFTradePage() {
   const { marketData, loading: marketLoading } = useMarketData();
   const { addAlert } = useAlerts();
   const { toast } = useToast();
+  const { portfolio } = usePortfolioStore();
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('market');
@@ -44,6 +47,11 @@ export default function ETFTradePage() {
   const staticEtfData = React.useMemo(() => {
      return CRYPTO_ETFS_DATA.find(e => e.id === id)
   }, [id]);
+
+  const currentHolding = React.useMemo(() => {
+    if (!etf) return undefined;
+    return portfolio.holdings.find(h => h.cryptoId === etf.id);
+  }, [portfolio.holdings, etf]);
 
 
   React.useEffect(() => {
@@ -135,6 +143,7 @@ export default function ETFTradePage() {
             setInvestmentType={setInvestmentType}
             onSPConfigChange={() => {}}
             onHodlConfigChange={() => {}}
+            onGeneralOrderConfigChange={() => {}}
           />
           <Separator className="bg-border/50" />
           
@@ -217,7 +226,7 @@ export default function ETFTradePage() {
         </main>
         <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
           <div className="grid grid-cols-2 gap-4">
-              <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => { /* Implement sell logic */ }}>Sell</Button>
+              <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => { /* Implement sell logic */ }} disabled={!currentHolding || currentHolding.amount <= 0}>Sell</Button>
               <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => { /* Implement buy logic */ }}>Buy</Button>
           </div>
         </footer>

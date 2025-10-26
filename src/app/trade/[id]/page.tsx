@@ -24,7 +24,7 @@ export default function TradePage() {
   const params = useParams();
   const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell } = usePortfolioStore();
+  const { buy, sell, portfolio } = usePortfolioStore();
   const { addPlan } = useSystematicPlans();
   const { addOrder: addHodlOrder } = useHodlOrders();
   const { addLimitOrder } = useLimitOrders();
@@ -45,6 +45,11 @@ export default function TradePage() {
     return marketData.find(c => c.id === id);
   }, [marketData, id]);
   
+  const currentHolding = React.useMemo(() => {
+    if (!crypto) return undefined;
+    return portfolio.holdings.find(h => h.cryptoId === crypto.id);
+  }, [portfolio.holdings, crypto]);
+
   React.useEffect(() => {
       const modify = searchParams.get('modify');
       if (modify === 'true') {
@@ -314,7 +319,7 @@ export default function TradePage() {
              </Button>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell}>Sell</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell} disabled={!currentHolding || currentHolding.amount <= 0}>Sell</Button>
             <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy}>Buy</Button>
           </div>
         )}

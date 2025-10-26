@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -21,7 +22,7 @@ export default function FuturesTradePage() {
   const params = useParams();
   const id = params.id as string;
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell } = usePortfolioStore();
+  const { buy, sell, portfolio } = usePortfolioStore();
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
@@ -48,6 +49,11 @@ export default function FuturesTradePage() {
   const crypto = React.useMemo(() => {
     return futuresData.find(c => c.id === id);
   }, [futuresData, id]);
+
+  const currentHolding = React.useMemo(() => {
+    if (!crypto) return undefined;
+    return portfolio.holdings.find(h => h.cryptoId === crypto.id);
+  }, [portfolio.holdings, crypto]);
 
   const handlePriceSelect = (selectedPrice: number) => {
     setPrice(selectedPrice.toFixed(crypto?.price && crypto.price < 1 ? 6 : 2));
@@ -156,7 +162,7 @@ export default function FuturesTradePage() {
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
         <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => handleTrade('sell')}>Sell / Short</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={() => handleTrade('sell')} disabled={!currentHolding || currentHolding.amount <= 0}>Sell / Short</Button>
             <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={() => handleTrade('buy')}>Buy / Long</Button>
         </div>
       </footer>
