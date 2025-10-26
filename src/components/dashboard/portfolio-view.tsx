@@ -201,10 +201,14 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
       setOpenSection(prev => prev === section ? null : section);
   }
   
-  const totalInvestment = portfolio.holdings.reduce((sum, h) => sum + (h.margin ?? 0), 0) + portfolio.usdBalance;
+  const totalInvestment = portfolio.holdings.reduce((sum, h) => sum + (h.margin ?? 0), 0);
+  const totalCapital = totalInvestment + portfolio.usdBalance;
+  
+  const pnl = totalPortfolioValue - totalCapital;
+  const pnlPercent = totalCapital > 0 ? (pnl / totalCapital) * 100 : 0;
   
   const holdingsValue = totalPortfolioValue - portfolio.usdBalance;
-  const ratio = totalInvestment > 0 ? (holdingsValue / totalInvestment) * 100 : 0;
+  const holdingsRatio = totalPortfolioValue > 0 ? (holdingsValue / totalPortfolioValue) * 100 : 0;
 
 
   return (
@@ -221,10 +225,10 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
       <div className="p-6 pt-0">
         <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-                <p className={cn("text-2xl font-bold", totalPortfolioValue >= totalInvestment ? "text-green-500" : "text-red-500")}>
-                    {(totalPortfolioValue - totalInvestment).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
+                <p className={cn("text-2xl font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}>
+                    {pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
                 </p>
-                <p className="text-sm text-muted-foreground">Overall P&L ({ (totalInvestment > 0 ? ((totalPortfolioValue - totalInvestment) / totalInvestment) * 100 : 0).toFixed(2)}%)</p>
+                <p className="text-sm text-muted-foreground">Overall P&L ({pnlPercent.toFixed(2)}%)</p>
             </div>
             <div className="text-right">
                  <p className={cn("text-2xl font-bold", marketData.reduce((acc, c) => acc + c.change24h, 0) >= 0 ? "text-green-500" : "text-red-500")}>
@@ -243,7 +247,7 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
             <div>
                 <p className="text-muted-foreground">Total Investment</p>
-                <p className="font-semibold">${(totalInvestment).toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
+                <p className="font-semibold">${totalInvestment.toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
             </div>
             <div className="text-right">
                 <p className="text-muted-foreground">Current Value</p>
@@ -258,7 +262,7 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
             </div>
             <div className="text-right">
                 <p className="text-muted-foreground">Holdings/Position Ratio</p>
-                <p className="font-semibold">{ratio.toFixed(2)}%</p>
+                <p className="font-semibold">{holdingsRatio.toFixed(2)}%</p>
             </div>
         </div>
       </div>

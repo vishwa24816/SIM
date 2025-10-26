@@ -148,11 +148,14 @@ export const usePortfolioStore = create<PortfolioState>()(
 
                     if (crypto.assetType === 'Futures') {
                         // Squaring off a futures position
-                        const leverage = Math.abs((holding.amount * crypto.price) / (holding.margin || 1));
-                        const entryPrice = Math.abs(((holding.margin || 1) * leverage) / holding.amount);
+                        const baseAsset = get().portfolio.holdings.find(c => c.cryptoId === crypto.id.replace('-fut',''));
+                        const margin = holding.margin || 0;
+                        const leverage = margin > 0 ? Math.abs((holding.amount * crypto.price) / margin) : 1;
+                        const entryPrice = margin > 0 && holding.amount !== 0 ? Math.abs((margin * leverage) / holding.amount) : crypto.price;
+                        
                         const pnl = (crypto.price - entryPrice) * holding.amount;
                         
-                        updatedUsdBalance += (holding.margin || 0) + pnl;
+                        updatedUsdBalance += margin + pnl;
                         newHoldings = state.portfolio.holdings.filter(h => h.cryptoId !== crypto.id);
                         
                         toast({ title: 'Position Squared Off', description: `Closed position for ${crypto.symbol}. P&L: $${pnl.toFixed(2)}` });
@@ -193,11 +196,8 @@ export const usePortfolioStore = create<PortfolioState>()(
                     return total + (holding.amount * crypto.price);
                 }, 0);
                 
-                const futuresPnL = portfolio.holdings
-                    .filter(h => {
-                        const crypto = marketData.find(c => c.id === h.cryptoId);
-                        return crypto?.assetType === 'Futures';
-                    })
+                const futuresValue = portfolio.holdings
+                    .filter(h => h.assetType === 'Futures')
                     .reduce((acc, h) => {
                         const crypto = marketData.find(c => c.id === h.cryptoId);
                         const baseAsset = marketData.find(c => c.id === h.cryptoId.replace('-fut',''));
@@ -207,17 +207,10 @@ export const usePortfolioStore = create<PortfolioState>()(
                         const entryPrice = Math.abs((h.margin * leverage) / h.amount);
 
                         const pnl = (baseAsset.price - entryPrice) * h.amount;
-                        return acc + pnl;
+                        return acc + h.margin + pnl;
                     }, 0);
-
-                const futuresMargin = portfolio.holdings
-                    .filter(h => {
-                        const crypto = marketData.find(c => c.id === h.cryptoId);
-                        return crypto?.assetType === 'Futures';
-                    })
-                    .reduce((acc, h) => acc + (h.margin ?? 0), 0);
                     
-                return portfolio.usdBalance + holdingsValue + futuresMargin + futuresPnL;
+                return portfolio.usdBalance + holdingsValue + futuresValue;
             }
         }),
         {
@@ -227,4 +220,3 @@ export const usePortfolioStore = create<PortfolioState>()(
     )
 );
     
-
