@@ -22,7 +22,8 @@ import {
   Mic,
   Languages,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  LogOut,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -114,10 +115,12 @@ export default function ProfilePage() {
             <ProfileItem key={index} {...item} />
           ))}
         </div>
-      </div>
-      
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-        <Button variant="outline" className="w-full">Logout</Button>
+        <div className="p-4 mt-4">
+            <Button variant="outline" className="w-full">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+            </Button>
+        </div>
       </div>
     </div>
   );
