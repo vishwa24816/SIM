@@ -36,7 +36,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
       <div className="flex flex-row items-center justify-between p-6">
         <div className="flex items-center gap-3">
           <PieChart className="w-6 h-6 text-primary" />
-          <h3 className="text-2xl font-semibold leading-none tracking-tight">Crypto Positions</h3>
+          <h3 className="text-2xl font-semibold leading-none tracking-tight">Holdings</h3>
         </div>
       </div>
       <div className="p-6 pt-0">
@@ -46,7 +46,8 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
               <TableRow>
                 <TableHead>Asset</TableHead>
                 <TableHead>Qty.</TableHead>
-                <TableHead className="text-right">Value</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead className="text-right">Value (Margin)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -58,13 +59,16 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
                       <div>
                         <div className="font-medium">{holding.crypto.name}</div>
                         <div className="text-sm text-muted-foreground">
-                          Avg. price: ${holding.crypto.price.toLocaleString()}
+                          {holding.crypto.symbol}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     {holding.amount.toFixed(6)}
+                  </TableCell>
+                   <TableCell>
+                    ${holding.crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: holding.crypto.price < 1 ? 6 : 2 })}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="font-mono font-semibold">
@@ -77,7 +81,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
           </Table>
         ) : (
           <div className="flex items-center justify-center h-24 rounded-lg bg-secondary/50">
-            <p className="text-muted-foreground">You have no crypto positions.</p>
+            <p className="text-muted-foreground">You have no holdings.</p>
           </div>
         )}
       </div>
