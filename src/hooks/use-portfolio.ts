@@ -1,11 +1,11 @@
 
 'use client';
 
+import * as React from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Portfolio, CryptoCurrency, Holding } from '@/lib/types';
-import { useToast } from './use-toast';
-import * as React from 'react';
+import { toast } from './use-toast';
 
 const INITIAL_PORTFOLIO: Portfolio = {
   usdBalance: 10000,
@@ -26,7 +26,6 @@ export const usePortfolioStore = create<PortfolioState>()(
         (set, get) => ({
             portfolio: INITIAL_PORTFOLIO,
             addUsd: (amount) => {
-                const { toast } = useToast.getState();
                 if (amount <= 0) {
                     toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
                     return;
@@ -40,7 +39,6 @@ export const usePortfolioStore = create<PortfolioState>()(
                 toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
             },
             withdrawUsd: (amount) => {
-                const { toast } = useToast.getState();
                 const currentBalance = get().portfolio.usdBalance;
                  if (amount <= 0) {
                     toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
@@ -59,7 +57,6 @@ export const usePortfolioStore = create<PortfolioState>()(
                 toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
             },
             buy: (crypto, usdAmount, quantity) => {
-                const { toast } = useToast.getState();
                 const currentBalance = get().portfolio.usdBalance;
 
                 if (usdAmount <= 0) {
@@ -86,7 +83,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                             margin: (existingHolding.margin ?? 0) + usdAmount,
                         };
                     } else {
-                        newHoldings = [...state.portfolio.holdings, { cryptoId: crypto.id, amount: cryptoAmount, margin: usdAmount }];
+                        newHoldings = [...state.portfolio.holdings, { cryptoId: crypto.id, amount: cryptoAmount, margin: usdAmount, assetType: crypto.assetType }];
                     }
 
                     return {
@@ -100,24 +97,40 @@ export const usePortfolioStore = create<PortfolioState>()(
                 toast({ title: 'Purchase Successful', description: `Bought ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
             },
             sell: (crypto, cryptoAmount) => {
-                const { toast } = useToast.getState();
                  if (cryptoAmount <= 0) {
                     toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
                     return;
                 }
                 
                 set(state => {
-                    const holding = state.portfolio.holdings.find(h => h.cryptoId === crypto.id);
-                    if (!holding || holding.amount < cryptoAmount) {
+                    const holdingIndex = state.portfolio.holdings.findIndex(h => h.cryptoId === crypto.id);
+                    if (holdingIndex === -1) {
+                        toast({ variant: 'destructive', title: 'No Holdings', description: `You do not have any ${crypto.symbol} to sell.` });
+                        return state;
+                    }
+                    
+                    const holding = state.portfolio.holdings[holdingIndex];
+
+                    if (holding.amount < cryptoAmount) {
                          toast({ variant: 'destructive', title: 'Insufficient Holdings', description: `Not enough ${crypto.symbol} to sell.` });
                         return state; // Not enough holdings
                     }
                     
                     const usdAmount = cryptoAmount * crypto.price;
-                    const newHoldings = state.portfolio.holdings.map(h =>
-                        h.cryptoId === crypto.id ? { ...h, amount: h.amount - cryptoAmount, margin: (h.margin ?? 0) * ((h.amount - cryptoAmount) / h.amount) } : h
-                    ).filter(h => h.amount > 0.000001);
+                    const newAmount = holding.amount - cryptoAmount;
+                    const proportionSold = cryptoAmount / holding.amount;
+                    const marginToReturn = (holding.margin ?? 0) * proportionSold;
+                    const newMargin = (holding.margin ?? 0) - marginToReturn;
 
+                    let newHoldings: Holding[];
+
+                    if (newAmount < 0.000001) { // If selling all or almost all
+                        newHoldings = state.portfolio.holdings.filter(h => h.cryptoId !== crypto.id);
+                    } else {
+                        newHoldings = [...state.portfolio.holdings];
+                        newHoldings[holdingIndex] = { ...holding, amount: newAmount, margin: newMargin };
+                    }
+                    
                     toast({ title: 'Sale Successful', description: `Sold ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
                     return {
                         portfolio: {
@@ -136,6 +149,21 @@ export const usePortfolioStore = create<PortfolioState>()(
                     return total + (holding.amount * crypto.price);
                 }, 0);
                 
+                const futuresPnL = portfolio.holdings
+                    .filter(h => {
+                        const crypto = marketData.find(c => c.id === h.cryptoId);
+                        return crypto?.assetType === 'Futures';
+                    })
+                    .reduce((acc, h) => {
+                        const crypto = marketData.find(c => c.id === h.cryptoId);
+                        const baseAsset = marketData.find(c => c.id === h.cryptoId.replace('-fut',''));
+                        if (!crypto || !baseAsset || !h.margin) return acc;
+                        
+                        const entryPrice = (h.margin * crypto.price) / (h.amount * baseAsset.price);
+                        const pnl = (baseAsset.price - entryPrice) * h.amount;
+                        return acc + pnl;
+                    }, 0);
+
                 const futuresMargin = portfolio.holdings
                     .filter(h => {
                         const crypto = marketData.find(c => c.id === h.cryptoId);
@@ -143,7 +171,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                     })
                     .reduce((acc, h) => acc + (h.margin ?? 0), 0);
                     
-                return portfolio.usdBalance + holdingsValue + futuresMargin;
+                return portfolio.usdBalance + holdingsValue + futuresMargin + futuresPnL;
             }
         }),
         {

@@ -14,7 +14,8 @@ export interface CryptoCurrency {
 export interface Holding {
   cryptoId: string;
   amount: number;
-  margin?: number; // Margin used for futures
+  margin?: number; // Margin used for futures or total cost for spot
+  assetType: CryptoCurrency['assetType'];
 }
 
 export interface Portfolio {
