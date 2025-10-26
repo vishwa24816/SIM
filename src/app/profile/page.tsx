@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -52,6 +53,17 @@ const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, c
         </div>
       </div>
   );
+  
+  const Wrapper = href ? Link : 'div';
+  const wrapperProps: any = href ? { href } : {};
+  
+  if (href) {
+    return (
+      <Link href={href} className="hover:bg-muted/50 rounded-lg block">
+          {content}
+      </Link>
+    )
+  }
 
   if (collapsible) {
     return (
@@ -67,14 +79,6 @@ const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, c
                 </div>
             </CollapsibleContent>
         </Collapsible>
-    )
-  }
-
-  if (href) {
-    return (
-        <Link href={href} className="hover:bg-muted/50 rounded-lg block">
-            {content}
-        </Link>
     )
   }
 
