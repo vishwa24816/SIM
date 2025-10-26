@@ -22,7 +22,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { MUTUAL_FUNDS_DATA, CRYPTO_ETFS_DATA } from '@/lib/data';
+import { usePortfolio } from '@/hooks/use-portfolio';
+import { useToast } from '@/hooks/use-toast';
 
 const orders = [
   {
@@ -140,32 +141,17 @@ const AlertCard = ({ alert, currentPrice, onRemove }: { alert: Alert, currentPri
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = React.useState('Limit');
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
-  const { marketData: allAssets } = useMarketData();
+  const { marketData } = useMarketData();
   const { baskets, removeBasket } = useBaskets();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
-  
-  const allTradableAssets = React.useMemo(() => [
-      ...allAssets,
-      ...MUTUAL_FUNDS_DATA.map(fund => ({
-          id: fund.id,
-          name: fund.name,
-          symbol: fund.symbol,
-          icon: fund.icon,
-          price: fund.nav,
-          change24h: fund.change1d,
-          volume24h: fund.fundSize,
-          priceHistory: fund.priceHistory,
-          assetType: 'Mutual Fund' as const,
-      })),
-      ...CRYPTO_ETFS_DATA.map(etf => ({...etf, assetType: 'Crypto ETF' as const})),
-  ], [allAssets]);
-
+  const { buy, sell } = usePortfolio(marketData);
+  const { toast } = useToast();
 
   // Check alerts against current market data
   React.useEffect(() => {
     alerts.forEach(alert => {
         if (alert.status === 'active') {
-            const asset = allTradableAssets.find(c => c.id === alert.cryptoId);
+            const asset = marketData.find(c => c.id === alert.cryptoId);
             if (asset && asset.price >= alert.price) {
                 // In a real app, you'd trigger a notification here.
                 console.log(`Alert triggered for ${alert.cryptoSymbol}! Price reached $${alert.price}`);
@@ -173,7 +159,7 @@ export default function OrdersPage() {
             }
         }
     })
-  }, [allTradableAssets, alerts, updateAlertStatus]);
+  }, [marketData, alerts, updateAlertStatus]);
   
   const getAssetPath = (item: { assetType?: string, id: string }) => {
     switch (item.assetType) {
@@ -192,6 +178,15 @@ export default function OrdersPage() {
         setBasketToDelete(null);
     }
   };
+
+  const executeOrder = (item: any, asset: any) => {
+    const margin = (item.quantity || 0) * (item.price || 0);
+    buy(item.id, margin);
+    toast({
+        title: "Order Executed",
+        description: `Your order for ${item.quantity} ${item.symbol} has been placed.`
+    });
+  }
 
 
   const TABS = ['Limit', 'HODL', 'Baskets', 'SP', 'Alerts'];
@@ -227,7 +222,7 @@ export default function OrdersPage() {
               ))}
               {activeTab === 'Alerts' && (
                   alerts.length > 0 ? alerts.map(alert => {
-                    const asset = allTradableAssets.find(c => c.id === alert.cryptoId);
+                    const asset = marketData.find(c => c.id === alert.cryptoId);
                     return asset ? <AlertCard key={alert.id} alert={alert} currentPrice={asset.price} onRemove={removeAlert} /> : null;
                   }) : (
                       <div className="text-center text-muted-foreground py-10">
@@ -255,12 +250,12 @@ export default function OrdersPage() {
                                   <AccordionContent>
                                       <div className="divide-y">
                                           {basket.items.map(item => {
-                                              const asset = allAssets.find(a => a.id === item.id);
+                                              const asset = marketData.find(a => a.id === item.id);
                                               const itemPrice = typeof item.price === 'number' ? item.price : 0;
                                               const itemQuantity = typeof item.quantity === 'number' ? item.quantity : 0;
                                               const margin = itemQuantity * itemPrice;
                                               return (
-                                                  <Link href={getAssetPath(item)} key={item.id} className="block p-2 hover:bg-muted/50">
+                                                  <div key={item.id} className="p-2">
                                                       <div className="flex justify-between items-center">
                                                           <div>
                                                               <p className="font-semibold">{item.name} <span className="text-xs text-muted-foreground">({item.assetType})</span></p>
@@ -278,7 +273,7 @@ export default function OrdersPage() {
                                                       <div className="grid grid-cols-3 gap-2 mt-2 text-xs text-muted-foreground">
                                                           <div>
                                                               <p>Qty</p>
-                                                              <p className="font-medium text-foreground">{item.quantity}</p>
+                                                              <p className="font-medium text-foreground">{itemQuantity.toFixed(4)}</p>
                                                           </div>
                                                            <div>
                                                               <p>Price</p>
@@ -289,7 +284,13 @@ export default function OrdersPage() {
                                                               <p className="font-medium text-foreground">${margin.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                                           </div>
                                                       </div>
-                                                  </Link>
+                                                      <div className="flex gap-2 mt-4">
+                                                          <Link href={getAssetPath(item)} className="w-full">
+                                                              <Button variant="outline" size="sm" className="w-full">Modify</Button>
+                                                          </Link>
+                                                          <Button size="sm" className="w-full" onClick={() => executeOrder(item, asset)}>Execute</Button>
+                                                      </div>
+                                                  </div>
                                               )
                                           })}
                                       </div>
