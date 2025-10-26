@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/dashboard/header';
-import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle } from 'lucide-react';
+import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle, RotateCcw } from 'lucide-react';
 import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
@@ -187,9 +187,16 @@ const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, on
                             <PlayCircle className="mr-2 h-4 w-4" /> Resume
                         </Button>
                     )}
-                     <Button variant="destructive" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'cancelled')}>
-                        <XCircle className="mr-2 h-4 w-4" /> Cancel
-                    </Button>
+                    {plan.status !== 'cancelled' && (
+                        <Button variant="destructive" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'cancelled')}>
+                            <XCircle className="mr-2 h-4 w-4" /> Cancel
+                        </Button>
+                    )}
+                     {plan.status === 'cancelled' && (
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'paused')}>
+                            <RotateCcw className="mr-2 h-4 w-4" /> Revert
+                        </Button>
+                    )}
                 </div>
             </CardContent>
         </Card>
