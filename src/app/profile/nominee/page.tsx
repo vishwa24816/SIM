@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -23,7 +22,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
   dob: z.date({ required_error: "A date of birth is required." }),
-  relationship: z.string({ required_error: "Please select a relationship." }),
+  relationship: z.string({ required_error: "Please select a relationship." }).min(1, { message: "Please select a relationship." }),
 });
 
 const relationshipOptions = ["Spouse", "Son", "Daughter", "Father", "Mother", "Brother", "Sister", "Other"];
@@ -38,7 +37,7 @@ export default function NomineePage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      relationship: "",
+      relationship: undefined,
     },
   });
 
@@ -176,7 +175,7 @@ export default function NomineePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nominee relationship</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select relationship" />
