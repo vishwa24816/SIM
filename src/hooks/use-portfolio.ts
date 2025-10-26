@@ -1,6 +1,7 @@
 
 "use client";
 
+import * as React from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Portfolio, CryptoCurrency, Holding } from '@/lib/types';
@@ -13,19 +14,16 @@ const INITIAL_PORTFOLIO: Portfolio = {
 
 interface PortfolioState {
   portfolio: Portfolio;
-  setPortfolio: (portfolio: Portfolio) => void;
   addUsd: (amount: number) => void;
   withdrawUsd: (amount: number) => void;
   buy: (cryptoId: string, margin: number, marketData: CryptoCurrency[], quantity?: number) => void;
   sell: (cryptoId: string, cryptoAmount: number, marketData: CryptoCurrency[]) => void;
-  calculateTotalPortfolioValue: (portfolio: Portfolio, marketData: CryptoCurrency[]) => number;
 }
 
 const usePortfolioStore = create<PortfolioState>()(
     persist(
         (set, get) => ({
             portfolio: INITIAL_PORTFOLIO,
-            setPortfolio: (portfolio) => set({ portfolio }),
             addUsd: (amount) => {
                 const { toast } = useToast();
                 if (amount <= 0) {
@@ -135,22 +133,6 @@ const usePortfolioStore = create<PortfolioState>()(
                 });
                 toast({ title: "Sale Successful", description: `You sold ${cryptoAmount.toFixed(6)} ${crypto.symbol} for $${usdAmount.toFixed(2)}.` });
             },
-            calculateTotalPortfolioValue: (portfolio, marketData) => {
-                const holdingsValue = portfolio.holdings.reduce((total, holding) => {
-                    const crypto = marketData.find(c => c.id === holding.cryptoId);
-                    if (!crypto || crypto.assetType === 'Futures') return total;
-                    return total + (holding.amount * crypto.price);
-                }, 0);
-                
-                const futuresMargin = portfolio.holdings
-                    .filter(h => {
-                        const crypto = marketData.find(c => c.id === h.cryptoId);
-                        return crypto?.assetType === 'Futures';
-                    })
-                    .reduce((acc, h) => acc + (h.margin ?? 0), 0);
-                    
-                return portfolio.usdBalance + holdingsValue + futuresMargin;
-            },
         }),
         {
             name: 'crypto-portfolio-storage',
@@ -166,7 +148,6 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
     withdrawUsd,
     buy: storeBuy,
     sell: storeSell,
-    calculateTotalPortfolioValue
   } = usePortfolioStore();
 
   const buy = (cryptoId: string, margin: number, quantity?: number) => {
@@ -177,7 +158,22 @@ export function usePortfolio(marketData: CryptoCurrency[]) {
     storeSell(cryptoId, cryptoAmount, marketData);
   }
   
-  const totalPortfolioValue = calculateTotalPortfolioValue(portfolio, marketData);
+  const totalPortfolioValue = React.useMemo(() => {
+    const holdingsValue = portfolio.holdings.reduce((total, holding) => {
+        const crypto = marketData.find(c => c.id === holding.cryptoId);
+        if (!crypto || crypto.assetType === 'Futures') return total;
+        return total + (holding.amount * crypto.price);
+    }, 0);
+    
+    const futuresMargin = portfolio.holdings
+        .filter(h => {
+            const crypto = marketData.find(c => c.id === h.cryptoId);
+            return crypto?.assetType === 'Futures';
+        })
+        .reduce((acc, h) => acc + (h.margin ?? 0), 0);
+        
+    return portfolio.usdBalance + holdingsValue + futuresMargin;
+  }, [portfolio, marketData]);
 
   return { portfolio, buy, sell, totalPortfolioValue, addUsd, withdrawUsd };
 }
