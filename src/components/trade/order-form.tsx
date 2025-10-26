@@ -140,6 +140,20 @@ export function OrderForm({
   }, [investmentType, stopLossEnabled, takeProfitEnabled, trailingStopLossEnabled, stopLossValue, takeProfitValue, trailingStopLossValue, stopLossType, takeProfitType, onGeneralOrderConfigChange]);
 
 
+  const handleStopLossToggle = (checked: boolean) => {
+    setStopLossEnabled(checked);
+    if (checked && trailingStopLossEnabled) {
+      setTrailingStopLossEnabled(false);
+    }
+  };
+
+  const handleTrailingStopLossToggle = (checked: boolean) => {
+    setTrailingStopLossEnabled(checked);
+    if (checked && stopLossEnabled) {
+      setStopLossEnabled(false);
+    }
+  };
+
   return (
     <div>
         <div className="pt-6 p-6">
@@ -268,8 +282,8 @@ export function OrderForm({
                 <>
                     <div className="space-y-4 mb-6">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="stop-loss">Set Stop Loss</Label>
-                            <Switch id="stop-loss" checked={stopLossEnabled} onCheckedChange={setStopLossEnabled} />
+                            <Label htmlFor="stop-loss" className={trailingStopLossEnabled ? 'text-muted-foreground' : ''}>Set Stop Loss</Label>
+                            <Switch id="stop-loss" checked={stopLossEnabled} onCheckedChange={handleStopLossToggle} disabled={trailingStopLossEnabled} />
                         </div>
                         {stopLossEnabled && (
                             <div className="flex gap-2">
@@ -294,8 +308,8 @@ export function OrderForm({
                             </div>
                         )}
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="trailing-stop-loss">Trailing Stop Loss</Label>
-                            <Switch id="trailing-stop-loss" checked={trailingStopLossEnabled} onCheckedChange={setTrailingStopLossEnabled} />
+                            <Label htmlFor="trailing-stop-loss" className={stopLossEnabled ? 'text-muted-foreground' : ''}>Trailing Stop Loss</Label>
+                            <Switch id="trailing-stop-loss" checked={trailingStopLossEnabled} onCheckedChange={handleTrailingStopLossToggle} disabled={stopLossEnabled} />
                         </div>
                         {trailingStopLossEnabled && (
                             <div className="flex gap-2">
