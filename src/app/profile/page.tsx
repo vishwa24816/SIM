@@ -24,90 +24,86 @@ import {
   ChevronDown,
   LogOut,
   ArrowLeft,
+  Volume2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, collapsible = false, children }: any) => {
+const ProfileItem = ({ icon, title, description, badge, hasArrow = true }: { icon: React.ElementType, title: string, description: string, badge?: { text: string, type: string }, hasArrow?: boolean }) => {
   const Icon = icon;
-
-  const content = (
-      <div className="flex items-center w-full p-4">
-        <div className="flex items-center gap-4">
-          <Icon className="w-6 h-6 text-primary" />
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">{title}</span>
-              {badge && <Badge className={badge.type === 'active' ? 'bg-green-500/20 text-green-500' : ''}>{badge.text}</Badge>}
-            </div>
-            <p className="text-sm text-muted-foreground">{description}</p>
+  return (
+    <div className="flex items-center w-full p-4 hover:bg-muted/50 rounded-lg">
+      <div className="flex items-center gap-4">
+        <Icon className="w-6 h-6 text-primary" />
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{title}</span>
+            {badge && <Badge className={badge.type === 'active' ? 'bg-green-500/20 text-green-500' : ''}>{badge.text}</Badge>}
           </div>
-        </div>
-        <div className="ml-auto">
-          {hasArrow && (collapsible ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />)}
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
-  );
-  
-  const Wrapper = href ? Link : 'div';
-  const wrapperProps: any = href ? { href } : {};
-  
-  if (href) {
-    return (
-      <Link href={href} className="hover:bg-muted/50 rounded-lg block">
-          {content}
-      </Link>
-    )
-  }
-
-  if (collapsible) {
-    return (
-        <Collapsible>
-            <CollapsibleTrigger asChild>
-                <div className="cursor-pointer hover:bg-muted/50 rounded-lg">
-                    {content}
-                </div>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-                <div className="p-4 pt-0">
-                    {children || <p className="text-sm text-muted-foreground pl-10">Details for {title} will be shown here.</p>}
-                </div>
-            </CollapsibleContent>
-        </Collapsible>
-    )
-  }
-
-  return (
-    <div className="hover:bg-muted/50 rounded-lg cursor-pointer">
-      {content}
+      <div className="ml-auto">
+        {hasArrow && <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+      </div>
     </div>
   );
 };
 
+const CollapsibleProfileItem = ({ icon, title, description, children, badge }: { icon: React.ElementType, title: string, description: string, children: React.ReactNode, badge?: { text: string, type: string } }) => {
+  const Icon = icon;
+  return (
+    <Collapsible>
+      <CollapsibleTrigger asChild>
+        <div className="flex items-center w-full p-4 cursor-pointer hover:bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-4">
+            <Icon className="w-6 h-6 text-primary" />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{title}</span>
+                {badge && <Badge>{badge.text}</Badge>}
+              </div>
+              <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+          </div>
+          <div className="ml-auto">
+            <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform [&[data-state=open]]:-rotate-180" />
+          </div>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="p-4 pt-0">
+            {children || <p className="text-sm text-muted-foreground pl-10">Details for {title} will be shown here.</p>}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+
 export default function ProfilePage() {
     const router = useRouter();
-  const profileItems = [
-    { icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
-    { icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' } },
-    { icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details', href: '/profile/banks' },
-    { icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds in case of your demise', href: '/profile/nominee' },
-    { icon: UserCog, title: 'Account Management', description: 'Delete or disable your account' },
-    { icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings' },
-    { icon: Wallet, title: 'Wallet Management', description: 'Add, remove, or view your wallets' },
-    { icon: LifeBuoy, title: 'Support', description: 'Get help and support from our team' },
-    { icon: FileText, title: 'Fee Structure', description: 'View the fee structure for all services' },
-    { icon: Star, title: 'Feedback', description: 'Share your feedback and suggestions with us' },
-    { icon: Gift, title: 'Refer and Earn', description: 'Refer your friends and earn rewards' },
-    { icon: Info, title: 'About SIM', description: 'Know more about our company and mission' },
-    { icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
-    { icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us' },
-    { icon: Palette, title: 'Platform Colour', description: 'Choose your preferred color theme', collapsible: true },
-    { icon: Languages, title: 'Platform Language', description: 'Select your display language', collapsible: true },
+    const profileItems = [
+    { id: 'profile', icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
+    { id: 'kyc', icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' }, href: '#' },
+    { id: 'banks', icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details', href: '/profile/banks' },
+    { id: 'nominee', icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds in case of your demise', href: '/profile/nominee' },
+    { id: 'accountMgmt', icon: UserCog, title: 'Account Management', description: 'Delete or disable your account', href: '#' },
+    { id: 'security', icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings', href: '#' },
+    { id: 'wallet', icon: Wallet, title: 'Wallet Management', description: 'Add, remove, or view your wallets', href: '#' },
+    { id: 'support', icon: LifeBuoy, title: 'Support', description: 'Get help and support from our team', href: '#' },
+    { id: 'fees', icon: FileText, title: 'Fee Structure', description: 'View the fee structure for all services', href: '#' },
+    { id: 'feedback', icon: Star, title: 'Feedback', description: 'Share your feedback and suggestions with us', href: '#' },
+    { id: 'refer', icon: Gift, title: 'Refer and Earn', description: 'Refer your friends and earn rewards', href: '#' },
+    { id: 'about', icon: Info, title: 'About SIM', description: 'Know more about our company and mission', href: '#' },
+    { id: 'api', icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
+    { id: 'join', icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us', href: '#' },
+    { id: 'theme', icon: Palette, title: 'Platform Colour', description: 'Choose your preferred color theme', collapsible: true },
+    { id: 'language', icon: Languages, title: 'Platform Language', description: 'Select your display language', collapsible: true },
   ];
 
   return (
@@ -133,9 +129,27 @@ export default function ProfilePage() {
 
       <div className="px-4 pb-24">
         <div className="divide-y divide-border/50">
-          {profileItems.map((item, index) => (
-            <ProfileItem key={index} {...item} />
-          ))}
+          {profileItems.map((item) => {
+            if (item.collapsible) {
+              return (
+                 <CollapsibleProfileItem key={item.id} icon={item.icon} title={item.title} description={item.description} badge={item.badge}>
+                  {/* Children for collapsible items can be added here */}
+                 </CollapsibleProfileItem>
+              )
+            }
+             if (item.href) {
+              return (
+                <Link href={item.href} key={item.id}>
+                    <ProfileItem {...item} />
+                </Link>
+              )
+            }
+            return (
+              <div key={item.id} className="cursor-not-allowed opacity-50">
+                <ProfileItem {...item} />
+              </div>
+            )
+          })}
         </div>
         <div className="p-4 mt-4">
             <Button variant="outline" className="w-full">
