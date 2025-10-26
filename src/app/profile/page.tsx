@@ -18,11 +18,11 @@ import {
   Briefcase,
   Award,
   Palette,
-  Mic,
   Languages,
   ChevronRight,
   ChevronDown,
   LogOut,
+  ArrowLeft,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, collapsible = false, children }: any) => {
   const Icon = icon;
@@ -85,6 +86,7 @@ const ProfileItem = ({ icon, title, description, href, hasArrow = true, badge, c
 };
 
 export default function ProfilePage() {
+    const router = useRouter();
   const profileItems = [
     { icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' } },
@@ -106,6 +108,17 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-background min-h-screen">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center h-16 gap-4">
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+              <ArrowLeft className="h-6 w-6" />
+            </Button>
+            <h1 className="text-lg font-semibold">Profile</h1>
+          </div>
+        </div>
+      </header>
+
       <div className="p-6 flex flex-col items-center">
         <Avatar className="w-24 h-24 mb-4">
           <AvatarFallback className="text-4xl">D</AvatarFallback>
