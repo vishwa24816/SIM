@@ -20,11 +20,14 @@ export interface SPConfig {
   spFrequency: SPFrequency;
 }
 
+export interface GeneralOrderConfig {
+  stopLoss?: string;
+  takeProfit?: string;
+}
+
 export interface HodlConfig {
   months: string;
   years: string;
-  stopLoss?: string;
-  takeProfit?: string;
 }
 
 interface OrderFormProps {
@@ -40,11 +43,12 @@ interface OrderFormProps {
     setInvestmentType: (type: string) => void;
     onSPConfigChange: (config: SPConfig | null) => void;
     onHodlConfigChange: (config: HodlConfig | null) => void;
+    onGeneralOrderConfigChange: (config: GeneralOrderConfig | null) => void;
 }
 
 export function OrderForm({ 
   crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, 
-  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange, onHodlConfigChange
+  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange, onHodlConfigChange, onGeneralOrderConfigChange
 }: OrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
@@ -109,13 +113,22 @@ export function OrderForm({
         onHodlConfigChange({
             months,
             years,
-            stopLoss: stopLossEnabled ? stopLossValue : undefined,
-            takeProfit: takeProfitEnabled ? takeProfitValue : undefined,
         });
     } else {
         onHodlConfigChange(null);
     }
-  }, [investmentType, months, years, stopLossEnabled, takeProfitEnabled, stopLossValue, takeProfitValue, onHodlConfigChange]);
+  }, [investmentType, months, years, onHodlConfigChange]);
+
+   React.useEffect(() => {
+    if (investmentType !== 'sp') {
+        onGeneralOrderConfigChange({
+            stopLoss: stopLossEnabled ? stopLossValue : undefined,
+            takeProfit: takeProfitEnabled ? takeProfitValue : undefined,
+        });
+    } else {
+        onGeneralOrderConfigChange(null);
+    }
+  }, [investmentType, stopLossEnabled, takeProfitEnabled, stopLossValue, takeProfitValue, onGeneralOrderConfigChange]);
 
 
   return (

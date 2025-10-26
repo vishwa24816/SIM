@@ -100,7 +100,7 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                             <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
                         </div>
                     </div>
-                )}
+                  )}
                   <div className="flex gap-2 mt-4">
                       <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
                           <Button size="sm" variant="outline" className="w-full">Modify</Button>

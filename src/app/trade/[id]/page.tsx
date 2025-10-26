@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
-import { OrderForm, type SPConfig, type HodlConfig } from '@/components/trade/order-form';
+import { OrderForm, type SPConfig, type HodlConfig, type GeneralOrderConfig } from '@/components/trade/order-form';
 import { MarketDepth } from '@/components/trade/market-depth';
 import { SimbotAnalysis } from '@/components/trade/simbot-analysis';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -37,6 +37,7 @@ export default function TradePage() {
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [spConfig, setSpConfig] = React.useState<SPConfig | null>(null);
   const [hodlConfig, setHodlConfig] = React.useState<HodlConfig | null>(null);
+  const [generalOrderConfig, setGeneralOrderConfig] = React.useState<GeneralOrderConfig | null>(null);
   const [isModify, setIsModify] = React.useState(false);
 
   const crypto = React.useMemo(() => {
@@ -73,8 +74,8 @@ export default function TradePage() {
         return;
     }
 
-    const sl = hodlConfig?.stopLoss ? parseFloat(hodlConfig.stopLoss) : undefined;
-    const tp = hodlConfig?.takeProfit ? parseFloat(hodlConfig.takeProfit) : undefined;
+    const sl = generalOrderConfig?.stopLoss ? parseFloat(generalOrderConfig.stopLoss) : undefined;
+    const tp = generalOrderConfig?.takeProfit ? parseFloat(generalOrderConfig.takeProfit) : undefined;
 
     if (orderType === 'limit') {
         const prc = parseFloat(price);
@@ -114,7 +115,7 @@ export default function TradePage() {
   
   const handleCreateHodl = () => {
     if (!hodlConfig || !crypto) return;
-    const { months, years, stopLoss, takeProfit } = hodlConfig;
+    const { months, years } = hodlConfig;
     const qty = parseFloat(quantity);
     const prc = parseFloat(price) || crypto.price;
     const margin = qty * prc;
@@ -123,9 +124,10 @@ export default function TradePage() {
         toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity for your HODL order.' });
         return;
     }
+    
+    const sl = generalOrderConfig?.stopLoss ? parseFloat(generalOrderConfig.stopLoss) : undefined;
+    const tp = generalOrderConfig?.takeProfit ? parseFloat(generalOrderConfig.takeProfit) : undefined;
 
-    const sl = stopLoss ? parseFloat(stopLoss) : undefined;
-    const tp = takeProfit ? parseFloat(takeProfit) : undefined;
 
     // Execute the buy order first
     buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
@@ -247,6 +249,7 @@ export default function TradePage() {
           setInvestmentType={setInvestmentType}
           onSPConfigChange={setSpConfig}
           onHodlConfigChange={setHodlConfig}
+          onGeneralOrderConfigChange={setGeneralOrderConfig}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
