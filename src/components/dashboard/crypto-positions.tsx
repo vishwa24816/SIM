@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import * as React from "react";
@@ -89,7 +90,7 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                           <p className="font-semibold">${holding.margin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       </div>
                   </div>
-                  {(holding.stopLoss || holding.takeProfit) && (
+                  {(holding.stopLoss || holding.takeProfit || holding.trailingStopLoss) && (
                     <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm mb-4">
                         <div>
                             <p className="text-muted-foreground">Stop Loss</p>
@@ -99,6 +100,12 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                             <p className="text-muted-foreground">Take Profit</p>
                             <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
                         </div>
+                        {holding.trailingStopLoss && (
+                           <div>
+                              <p className="text-muted-foreground">Trailing SL</p>
+                              <p className="font-semibold text-orange-500">{holding.trailingStopLoss.percentage}%</p>
+                          </div>
+                        )}
                     </div>
                   )}
                   <div className="flex gap-2 mt-4">
@@ -176,7 +183,7 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
                                         <p className="font-semibold">${holding.baseAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                     </div>
                                 </div>
-                                {(holding.stopLoss || holding.takeProfit) && (
+                                {(holding.stopLoss || holding.takeProfit || holding.trailingStopLoss) && (
                                     <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm mb-4">
                                         <div>
                                             <p className="text-muted-foreground">Stop Loss</p>
@@ -186,6 +193,12 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
                                             <p className="text-muted-foreground">Take Profit</p>
                                             <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
                                         </div>
+                                        {holding.trailingStopLoss && (
+                                          <div>
+                                              <p className="text-muted-foreground">Trailing SL</p>
+                                              <p className="font-semibold text-orange-500">{holding.trailingStopLoss.percentage}%</p>
+                                          </div>
+                                        )}
                                     </div>
                                 )}
                                 <div className="flex gap-2 mt-4">

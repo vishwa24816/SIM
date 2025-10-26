@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -82,6 +83,7 @@ export default function TradePage() {
 
     let sl: number | undefined;
     let tp: number | undefined;
+    let tsl: { percentage: number } | undefined;
 
     if (generalOrderConfig?.stopLoss) {
         const slValue = parseFloat(generalOrderConfig.stopLoss);
@@ -99,6 +101,12 @@ export default function TradePage() {
             tp = tpValue;
         }
     }
+    if (generalOrderConfig?.trailingStopLoss) {
+      const tslValue = parseFloat(generalOrderConfig.trailingStopLoss);
+      if (tslValue > 0) {
+        tsl = { percentage: tslValue };
+      }
+    }
 
 
     if (orderType === 'limit') {
@@ -115,11 +123,12 @@ export default function TradePage() {
             status: 'Open',
             stopLoss: sl,
             takeProfit: tp,
+            trailingStopLoss: tsl,
         });
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order
         const margin = qty * crypto.price;
-        buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
+        buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
     }
   };
   

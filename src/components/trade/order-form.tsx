@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -25,6 +26,7 @@ export interface GeneralOrderConfig {
   takeProfit?: string;
   stopLossType: 'price' | 'percentage';
   takeProfitType: 'price' | 'percentage';
+  trailingStopLoss?: string;
 }
 
 export interface HodlConfig {
@@ -54,8 +56,10 @@ export function OrderForm({
 }: OrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
+  const [trailingStopLossEnabled, setTrailingStopLossEnabled] = React.useState(false);
   const [stopLossValue, setStopLossValue] = React.useState('');
   const [takeProfitValue, setTakeProfitValue] = React.useState('');
+  const [trailingStopLossValue, setTrailingStopLossValue] = React.useState('');
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
   const [takeProfitType, setTakeProfitType] = React.useState<'price' | 'percentage'>('price');
   const { toast } = useToast();
@@ -126,13 +130,14 @@ export function OrderForm({
         onGeneralOrderConfigChange({
             stopLoss: stopLossEnabled ? stopLossValue : undefined,
             takeProfit: takeProfitEnabled ? takeProfitValue : undefined,
+            trailingStopLoss: trailingStopLossEnabled ? trailingStopLossValue : undefined,
             stopLossType,
             takeProfitType
         });
     } else {
         onGeneralOrderConfigChange(null);
     }
-  }, [investmentType, stopLossEnabled, takeProfitEnabled, stopLossValue, takeProfitValue, stopLossType, takeProfitType, onGeneralOrderConfigChange]);
+  }, [investmentType, stopLossEnabled, takeProfitEnabled, trailingStopLossEnabled, stopLossValue, takeProfitValue, trailingStopLossValue, stopLossType, takeProfitType, onGeneralOrderConfigChange]);
 
 
   return (
@@ -275,17 +280,27 @@ export function OrderForm({
                                 </div>
                             </div>
                         )}
-                         <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
                             <Label htmlFor="take-profit">Set Take Profit</Label>
                             <Switch id="take-profit" checked={takeProfitEnabled} onCheckedChange={setTakeProfitEnabled} />
                         </div>
-                         {takeProfitEnabled && (
+                        {takeProfitEnabled && (
                             <div className="flex gap-2">
                                 <Input id="take-profit-value" placeholder="0.00" type="number" value={takeProfitValue} onChange={e => setTakeProfitValue(e.target.value)} />
                                 <div className="flex rounded-md bg-muted p-1">
                                      <Button variant={takeProfitType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">$</Button>
                                     <Button variant={takeProfitType === 'percentage' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('percentage')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">%</Button>
                                 </div>
+                            </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="trailing-stop-loss">Trailing Stop Loss</Label>
+                            <Switch id="trailing-stop-loss" checked={trailingStopLossEnabled} onCheckedChange={setTrailingStopLossEnabled} />
+                        </div>
+                        {trailingStopLossEnabled && (
+                            <div className="flex gap-2">
+                                <Input id="trailing-stop-loss-value" placeholder="e.g., 2" type="number" value={trailingStopLossValue} onChange={e => setTrailingStopLossValue(e.target.value)} />
+                                <div className="flex items-center px-3 rounded-md bg-muted text-sm">%</div>
                             </div>
                         )}
                     </div>

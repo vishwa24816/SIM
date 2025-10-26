@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -15,6 +16,7 @@ const INITIAL_PORTFOLIO: Portfolio = {
 interface BuyOptions {
     stopLoss?: number;
     takeProfit?: number;
+    trailingStopLoss?: { percentage: number };
 }
 
 interface PortfolioState {
@@ -88,6 +90,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                             margin: (existingHolding.margin ?? 0) + usdAmount,
                             stopLoss: options?.stopLoss ?? existingHolding.stopLoss,
                             takeProfit: options?.takeProfit ?? existingHolding.takeProfit,
+                            trailingStopLoss: options?.trailingStopLoss ?? existingHolding.trailingStopLoss,
                         };
                     } else {
                         newHoldings = [...state.portfolio.holdings, { 
@@ -97,6 +100,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                             assetType: crypto.assetType,
                             stopLoss: options?.stopLoss,
                             takeProfit: options?.takeProfit,
+                            trailingStopLoss: options?.trailingStopLoss,
                         }];
                     }
 
@@ -124,18 +128,18 @@ export const usePortfolioStore = create<PortfolioState>()(
                     }
                     
                     const holding = state.portfolio.holdings[holdingIndex];
+                    const amountToSell = cryptoAmount;
 
-                    if (holding.amount < cryptoAmount) {
+                    if (holding.amount < amountToSell) {
                          toast({ variant: 'destructive', title: 'Insufficient Holdings', description: `Not enough ${crypto.symbol} to sell.` });
                         return state; // Not enough holdings
                     }
                     
-                    const usdAmount = cryptoAmount * crypto.price;
-                    const newAmount = holding.amount - cryptoAmount;
+                    const usdGained = amountToSell * crypto.price;
+                    const newAmount = holding.amount - amountToSell;
                     
-                    const proportionSold = holding.amount > 0 ? cryptoAmount / holding.amount : 1;
-                    const marginToReturn = (holding.margin ?? 0) * proportionSold;
-                    const newMargin = (holding.margin ?? 0) - marginToReturn;
+                    const proportionSold = holding.amount > 0 ? amountToSell / holding.amount : 1;
+                    const newMargin = (holding.margin ?? 0) * (1 - proportionSold);
 
                     let newHoldings: Holding[];
 
@@ -146,11 +150,11 @@ export const usePortfolioStore = create<PortfolioState>()(
                         newHoldings[holdingIndex] = { ...holding, amount: newAmount, margin: newMargin };
                     }
                     
-                    toast({ title: 'Sale Successful', description: `Sold ${cryptoAmount.toFixed(6)} ${crypto.symbol}.` });
+                    toast({ title: 'Sale Successful', description: `Sold ${amountToSell.toFixed(6)} ${crypto.symbol}.` });
                     return {
                         portfolio: {
                            ...state.portfolio,
-                           usdBalance: state.portfolio.usdBalance + usdAmount,
+                           usdBalance: state.portfolio.usdBalance + usdGained,
                            holdings: newHoldings,
                         }
                     };

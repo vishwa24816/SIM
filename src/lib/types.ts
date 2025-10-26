@@ -1,4 +1,5 @@
 
+
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -18,6 +19,9 @@ export interface Holding {
   assetType: CryptoCurrency['assetType'];
   stopLoss?: number;
   takeProfit?: number;
+  trailingStopLoss?: {
+    percentage: number;
+  };
 }
 
 export interface Portfolio {
@@ -159,4 +163,7 @@ export interface LimitOrder {
     status: 'Open' | 'Executed' | 'Cancelled';
     stopLoss?: number;
     takeProfit?: number;
+    trailingStopLoss?: {
+      percentage: number;
+    };
 }
