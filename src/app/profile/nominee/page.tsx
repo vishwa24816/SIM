@@ -110,7 +110,7 @@ export default function NomineePage() {
 
         {nominees.length < 2 && (
           <div>
-            <h2 className="text-xl font-bold mb-4">Add Nominee {nominees.length + 1}</h2>
+            <h2 className="text-xl font-bold my-4">Add Nominee {nominees.length + 1}</h2>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -197,9 +197,7 @@ export default function NomineePage() {
                     After adding first nominee, you can optionally add another nominee & specify share of funds for them.
                 </div>
 
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-                    <Button type="submit" size="lg" className="w-full">Save Nominee Details</Button>
-                </div>
+                <Button type="submit" size="lg" className="w-full">Save Nominee Details</Button>
               </form>
             </Form>
           </div>
