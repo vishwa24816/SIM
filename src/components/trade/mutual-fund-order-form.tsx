@@ -12,7 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { BellRing, Briefcase } from 'lucide-react';
 import { useAlerts } from '@/hooks/use-alerts';
-import { AddToBasketDialog } from './add-to-basket-dialog';
+import { AddToBasketForm } from './add-to-basket-form';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 
 interface MutualFundOrderFormProps {
     fund: MutualFund;
@@ -25,11 +26,16 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
     const { addAlert } = useAlerts();
     const [isSettingAlert, setIsSettingAlert] = React.useState(false);
     const [alertPrice, setAlertPrice] = React.useState('');
-    const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
+    const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
 
     const [spPlanType, setSpPlanType] = React.useState('sip');
     const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
     const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
+
+    const canAddToBasket = React.useMemo(() => {
+        const numericAmount = parseFloat(amount);
+        return !isNaN(numericAmount) && numericAmount > 0;
+    }, [amount]);
 
 
     const handleSwipeConfirm = () => {
@@ -77,7 +83,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
 
     return (
         <>
-            <div>
+            <Collapsible open={isAddingToBasket} onOpenChange={setIsAddingToBasket}>
                 <div className="p-6">
                     <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-6">
                         <div className="flex items-center space-x-2">
@@ -206,10 +212,12 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
 
 
                     <div className="grid grid-cols-2 gap-4 mt-6">
-                        <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
-                            <Briefcase className="w-4 h-4 mr-2" />
-                            Add to Basket
-                        </Button>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="outline" disabled={!canAddToBasket}>
+                                <Briefcase className="w-4 h-4 mr-2" />
+                                Add to Basket
+                            </Button>
+                        </CollapsibleTrigger>
                         <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
                             <BellRing className="w-4 h-4 mr-2"/>
                             Add Alert
@@ -250,12 +258,13 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     </div>
 
                 </div>
-            </div>
-            <AddToBasketDialog
-                isOpen={isBasketDialogOpen}
-                onClose={() => setIsBasketDialogOpen(false)}
-                instrument={{ id: fund.id, name: fund.name, symbol: fund.symbol, assetType: 'Mutual Fund' }}
-            />
+                <CollapsibleContent>
+                    <AddToBasketForm
+                        instrument={{ id: fund.id, name: fund.name, symbol: fund.symbol, assetType: 'Mutual Fund' }}
+                        onClose={() => setIsAddingToBasket(false)}
+                    />
+                </CollapsibleContent>
+            </Collapsible>
         </>
     );
 }

@@ -7,7 +7,6 @@ import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { OrderForm } from '@/components/trade/order-form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Separator } from '@/components/ui/separator';
 import { CRYPTO_ETFS_DATA } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -16,8 +15,9 @@ import { useAlerts } from '@/hooks/use-alerts';
 import { useToast } from '@/hooks/use-toast';
 import { BellRing, Briefcase } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { AddToBasketDialog } from '@/components/trade/add-to-basket-dialog';
-import { CryptoETF, CryptoCurrency } from '@/lib/types';
+import { AddToBasketForm } from '@/components/trade/add-to-basket-form';
+import { CryptoCurrency } from '@/lib/types';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export default function ETFTradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -28,14 +28,13 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   const [orderType, setOrderType] = React.useState('limit');
   const [isSettingAlert, setIsSettingAlert] = React.useState(false);
   const [alertPrice, setAlertPrice] = React.useState('');
-  const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
+  const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
+  const [canAddToBasket, setCanAddToBasket] = React.useState(false);
 
   const etf = React.useMemo(() => {
-    // We now get the live data from the unified marketData hook
     return marketData.find(e => e.id === params.id && e.assetType === 'Crypto ETF') as CryptoCurrency | undefined;
   }, [params.id, marketData]);
 
-  // Find original static data for description, etc.
   const staticEtfData = React.useMemo(() => {
      return CRYPTO_ETFS_DATA.find(e => e.id === params.id)
   }, [params.id]);
@@ -114,7 +113,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
     <>
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={etf} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
+        <main className="flex-1 overflow-y-auto p-4 space-y-6">
           <PriceChart crypto={etf} loading={marketLoading} />
           <Separator className="bg-border/50" />
           <OrderForm
@@ -123,35 +122,47 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
             setPrice={setPrice}
             orderType={orderType}
             setOrderType={setOrderType}
+            onCanAddToBasketChange={setCanAddToBasket}
           />
           <Separator className="bg-border/50" />
           
-          <div className="p-4 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
-                      <Briefcase className="w-4 h-4 mr-2" />
-                      Add to Basket
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
-                      <BellRing className="w-4 h-4 mr-2"/>
-                      Add Alert
-                  </Button>
-              </div>
-              {isSettingAlert && (
-                  <div className="mt-4 space-y-2">
-                      <p className="text-sm font-medium">Set a price alert for {etf.symbol}</p>
-                      <div className="flex gap-2">
-                          <Input 
-                              type="number" 
-                              placeholder={`Current: ${formatPrice(etf.price)}`}
-                              value={alertPrice}
-                              onChange={(e) => setAlertPrice(e.target.value)}
-                          />
-                          <Button onClick={handleSetAlert}>Set Alert</Button>
-                      </div>
-                  </div>
-              )}
-          </div>
+          <Collapsible open={isAddingToBasket} onOpenChange={setIsAddingToBasket}>
+            <div className="p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <CollapsibleTrigger asChild>
+                        <Button variant="outline" disabled={!canAddToBasket}>
+                            <Briefcase className="w-4 h-4 mr-2" />
+                            Add to Basket
+                        </Button>
+                    </CollapsibleTrigger>
+                    <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                        <BellRing className="w-4 h-4 mr-2"/>
+                        Add Alert
+                    </Button>
+                </div>
+                {isSettingAlert && (
+                    <div className="mt-4 space-y-2">
+                        <p className="text-sm font-medium">Set a price alert for {etf.symbol}</p>
+                        <div className="flex gap-2">
+                            <Input 
+                                type="number" 
+                                placeholder={`Current: ${formatPrice(etf.price)}`}
+                                value={alertPrice}
+                                onChange={(e) => setAlertPrice(e.target.value)}
+                            />
+                            <Button onClick={handleSetAlert}>Set Alert</Button>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <CollapsibleContent>
+                <AddToBasketForm
+                    instrument={{ id: etf.id, name: etf.name, symbol: etf.symbol, assetType: 'Crypto ETF' }}
+                    onClose={() => setIsAddingToBasket(false)}
+                />
+            </CollapsibleContent>
+          </Collapsible>
+
 
           <Card>
               <CardHeader>
@@ -198,11 +209,6 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
           </div>
         </footer>
       </div>
-      <AddToBasketDialog
-        isOpen={isBasketDialogOpen}
-        onClose={() => setIsBasketDialogOpen(false)}
-        instrument={{ id: etf.id, name: etf.name, symbol: etf.symbol, assetType: 'Crypto ETF' }}
-      />
     </>
   );
 }

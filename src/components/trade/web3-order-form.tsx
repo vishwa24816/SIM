@@ -12,7 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { BellRing, Briefcase } from 'lucide-react';
 import { useAlerts } from '@/hooks/use-alerts';
-import { AddToBasketDialog } from './add-to-basket-dialog';
+import { AddToBasketForm } from './add-to-basket-form';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 
 interface Web3OrderFormProps {
     crypto: CryptoCurrency;
@@ -25,7 +26,13 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
     const { addAlert } = useAlerts();
     const [isSettingAlert, setIsSettingAlert] = React.useState(false);
     const [alertPrice, setAlertPrice] = React.useState('');
-    const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
+    const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
+
+    const canAddToBasket = React.useMemo(() => {
+        const numericAmount = parseFloat(amount);
+        return !isNaN(numericAmount) && numericAmount > 0;
+    }, [amount]);
+
 
     const handleSwipeConfirm = () => {
         if (!amount || parseFloat(amount) <= 0) {
@@ -78,7 +85,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
 
     return (
         <>
-            <div>
+            <Collapsible open={isAddingToBasket} onOpenChange={setIsAddingToBasket}>
                 <div className="p-6">
                     <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-6">
                         <div className="flex items-center space-x-2">
@@ -123,10 +130,12 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 mt-6">
-                        <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
-                            <Briefcase className="w-4 h-4 mr-2" />
-                            Add to Basket
-                        </Button>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="outline" disabled={!canAddToBasket}>
+                                <Briefcase className="w-4 h-4 mr-2" />
+                                Add to Basket
+                            </Button>
+                        </CollapsibleTrigger>
                         <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
                             <BellRing className="w-4 h-4 mr-2"/>
                             Add Alert
@@ -161,12 +170,13 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
                     </div>
 
                 </div>
-            </div>
-            <AddToBasketDialog
-                isOpen={isBasketDialogOpen}
-                onClose={() => setIsBasketDialogOpen(false)}
-                instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Web3' }}
-            />
+                 <CollapsibleContent>
+                     <AddToBasketForm
+                        instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Web3' }}
+                        onClose={() => setIsAddingToBasket(false)}
+                    />
+                </CollapsibleContent>
+            </Collapsible>
         </>
     );
 }

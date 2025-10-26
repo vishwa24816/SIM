@@ -184,7 +184,7 @@ export default function OrdersPage() {
     <>
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 overflow-y-auto pb-20">
+        <main className="flex-1 overflow-y-auto pb-20 p-4 space-y-4">
           <div className="border-b border-border">
             <div className="px-4 overflow-x-auto">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">

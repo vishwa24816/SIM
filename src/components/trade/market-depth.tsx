@@ -8,11 +8,13 @@ import { CryptoCurrency } from '@/lib/types';
 import { useAlerts } from '@/hooks/use-alerts';
 import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { AddToBasketDialog } from './add-to-basket-dialog';
+import { AddToBasketForm } from './add-to-basket-form';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 
 interface MarketDepthProps {
     crypto: CryptoCurrency;
     onPriceSelect: (price: number) => void;
+    canAddToBasket: boolean;
 }
 
 const generateOrders = (basePrice: number) => {
@@ -39,12 +41,12 @@ const generateOrders = (basePrice: number) => {
 };
 
 
-export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
+export function MarketDepth({ crypto, onPriceSelect, canAddToBasket }: MarketDepthProps) {
   const { addAlert } = useAlerts();
   const { toast } = useToast();
   const [isSettingAlert, setIsSettingAlert] = React.useState(false);
   const [alertPrice, setAlertPrice] = React.useState('');
-  const [isBasketDialogOpen, setIsBasketDialogOpen] = React.useState(false);
+  const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
 
   const { buyOrders, sellOrders } = React.useMemo(() => generateOrders(crypto.price), [crypto.price]);
   const totalBuy = buyOrders.reduce((acc, order) => acc + order.total, 0);
@@ -86,7 +88,7 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
 
   return (
     <>
-    <div>
+    <Collapsible open={isAddingToBasket} onOpenChange={setIsAddingToBasket}>
         <div className="flex flex-col space-y-1.5 p-6">
             <div className="flex items-center gap-2">
                 <List className="h-5 w-5" />
@@ -100,19 +102,19 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
                     <p className="text-xs text-muted-foreground mb-2">Total: {totalBuy}</p>
                     <div className="space-y-1">
                         {buyOrders.map((order, i) => (
-                             <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
+                              <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
                                 <span>{order.total}</span>
                                 <span className="text-green-500">{formatPrice(order.price)}</span>
                             </div>
                         ))}
                     </div>
                 </div>
-                 <div>
+                  <div>
                     <h4 className="font-semibold mb-1">Sell Orders</h4>
                     <p className="text-xs text-muted-foreground mb-2">Total: {totalSell}</p>
                     <div className="space-y-1">
                         {sellOrders.map((order, i) => (
-                             <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
+                              <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
                                 <span className="text-red-500">{formatPrice(order.price)}</span>
                                 <span>{order.total}</span>
                             </div>
@@ -121,16 +123,18 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-6">
-                <Button variant="outline" onClick={() => setIsBasketDialogOpen(true)}>
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    Add to Basket
-                </Button>
+                <CollapsibleTrigger asChild>
+                    <Button variant="outline" disabled={!canAddToBasket}>
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Add to Basket
+                    </Button>
+                </CollapsibleTrigger>
                 <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
                     <BellRing className="w-4 h-4 mr-2"/>
                     Add Alert
                 </Button>
             </div>
-             {isSettingAlert && (
+              {isSettingAlert && (
                 <div className="mt-4 space-y-2">
                     <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
                     <div className="flex gap-2">
@@ -145,12 +149,13 @@ export function MarketDepth({ crypto, onPriceSelect }: MarketDepthProps) {
                 </div>
             )}
         </div>
-    </div>
-    <AddToBasketDialog
-        isOpen={isBasketDialogOpen}
-        onClose={() => setIsBasketDialogOpen(false)}
-        instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
-    />
+        <CollapsibleContent>
+            <AddToBasketForm 
+                instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
+                onClose={() => setIsAddingToBasket(false)}
+            />
+        </CollapsibleContent>
+    </Collapsible>
     </>
   );
 }

@@ -16,9 +16,10 @@ interface OrderFormProps {
     setPrice: (price: string) => void;
     orderType: string;
     setOrderType: (type: string) => void;
+    onCanAddToBasketChange: (canAdd: boolean) => void;
 }
 
-export function OrderForm({ crypto, price, setPrice, orderType, setOrderType }: OrderFormProps) {
+export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange }: OrderFormProps) {
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
@@ -35,6 +36,10 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType }: 
     if (!qty || !prc || investmentType === 'sp') return 0;
     return qty * prc;
   }, [quantity, price, orderType, crypto.price, investmentType]);
+
+  React.useEffect(() => {
+    onCanAddToBasketChange(marginRequired > 0);
+  }, [marginRequired, onCanAddToBasketChange]);
 
 
   return (
@@ -209,7 +214,3 @@ export function OrderForm({ crypto, price, setPrice, orderType, setOrderType }: 
     </div>
   );
 }
-
-    
-
-    
