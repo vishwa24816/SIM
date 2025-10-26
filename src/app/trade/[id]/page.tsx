@@ -73,16 +73,35 @@ export default function TradePage() {
         toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity.' });
         return;
     }
+    
+    const executionPrice = orderType === 'market' ? crypto.price : parseFloat(price);
+    if (!executionPrice || (orderType === 'limit' && executionPrice <= 0)) {
+       toast({ variant: 'destructive', title: 'Invalid price', description: 'Please enter a valid limit price.' });
+       return;
+    }
 
-    const sl = generalOrderConfig?.stopLoss ? parseFloat(generalOrderConfig.stopLoss) : undefined;
-    const tp = generalOrderConfig?.takeProfit ? parseFloat(generalOrderConfig.takeProfit) : undefined;
+    let sl: number | undefined;
+    let tp: number | undefined;
+
+    if (generalOrderConfig?.stopLoss) {
+        const slValue = parseFloat(generalOrderConfig.stopLoss);
+        if (generalOrderConfig.stopLossType === 'percentage') {
+            sl = executionPrice * (1 - slValue / 100);
+        } else {
+            sl = slValue;
+        }
+    }
+     if (generalOrderConfig?.takeProfit) {
+        const tpValue = parseFloat(generalOrderConfig.takeProfit);
+        if (generalOrderConfig.takeProfitType === 'percentage') {
+            tp = executionPrice * (1 + tpValue / 100);
+        } else {
+            tp = tpValue;
+        }
+    }
+
 
     if (orderType === 'limit') {
-        const prc = parseFloat(price);
-        if (!prc || prc <= 0) {
-            toast({ variant: 'destructive', title: 'Invalid price', description: 'Please enter a valid limit price.' });
-            return;
-        }
         addLimitOrder({
             id: `${crypto.id}-limit-${Date.now()}`,
             instrumentId: crypto.id,
@@ -91,7 +110,7 @@ export default function TradePage() {
             assetType: crypto.assetType,
             action: 'BUY',
             orderType: 'limit',
-            price: prc,
+            price: executionPrice,
             quantity: qty,
             status: 'Open',
             stopLoss: sl,
@@ -125,8 +144,25 @@ export default function TradePage() {
         return;
     }
     
-    const sl = generalOrderConfig?.stopLoss ? parseFloat(generalOrderConfig.stopLoss) : undefined;
-    const tp = generalOrderConfig?.takeProfit ? parseFloat(generalOrderConfig.takeProfit) : undefined;
+    let sl: number | undefined;
+    let tp: number | undefined;
+
+    if (generalOrderConfig?.stopLoss) {
+        const slValue = parseFloat(generalOrderConfig.stopLoss);
+        if (generalOrderConfig.stopLossType === 'percentage') {
+            sl = prc * (1 - slValue / 100);
+        } else {
+            sl = slValue;
+        }
+    }
+    if (generalOrderConfig?.takeProfit) {
+        const tpValue = parseFloat(generalOrderConfig.takeProfit);
+        if (generalOrderConfig.takeProfitType === 'percentage') {
+            tp = prc * (1 + tpValue / 100);
+        } else {
+            tp = tpValue;
+        }
+    }
 
 
     // Execute the buy order first
@@ -269,7 +305,7 @@ export default function TradePage() {
              </Button>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg disabled:bg-red-600/50 disabled:cursor-not-allowed" onClick={handleSell} disabled={!isModify}>Sell</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell}>Sell</Button>
             <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy}>Buy</Button>
           </div>
         )}
@@ -277,3 +313,5 @@ export default function TradePage() {
     </div>
   );
 }
+
+    

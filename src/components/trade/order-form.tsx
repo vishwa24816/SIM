@@ -23,6 +23,8 @@ export interface SPConfig {
 export interface GeneralOrderConfig {
   stopLoss?: string;
   takeProfit?: string;
+  stopLossType: 'price' | 'percentage';
+  takeProfitType: 'price' | 'percentage';
 }
 
 export interface HodlConfig {
@@ -124,11 +126,13 @@ export function OrderForm({
         onGeneralOrderConfigChange({
             stopLoss: stopLossEnabled ? stopLossValue : undefined,
             takeProfit: takeProfitEnabled ? takeProfitValue : undefined,
+            stopLossType,
+            takeProfitType
         });
     } else {
         onGeneralOrderConfigChange(null);
     }
-  }, [investmentType, stopLossEnabled, takeProfitEnabled, stopLossValue, takeProfitValue, onGeneralOrderConfigChange]);
+  }, [investmentType, stopLossEnabled, takeProfitEnabled, stopLossValue, takeProfitValue, stopLossType, takeProfitType, onGeneralOrderConfigChange]);
 
 
   return (
@@ -307,3 +311,5 @@ export function OrderForm({
     </div>
   );
 }
+
+    
