@@ -35,6 +35,21 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
     const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
     const [spAmount, setSpAmount] = React.useState('');
     const [spFrequency, setSpFrequency] = React.useState<SPFrequency>('monthly');
+    const [months, setMonths] = React.useState('');
+
+    const handleMonthsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (parseInt(value, 10) > 12) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid Month',
+          description: 'The lock-in period for months cannot exceed 12.',
+        });
+        setMonths('');
+      } else {
+        setMonths(value);
+      }
+    };
 
     const canAddToBasket = React.useMemo(() => {
         if (investmentType === 'sp') return false;
@@ -158,7 +173,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
-                                    <Input id="months" placeholder="0" type="number" max="12" />
+                                    <Input id="months" placeholder="0" type="number" value={months} onChange={handleMonthsChange} max="12" />
                                 </div>
                                 <div>
                                     <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>

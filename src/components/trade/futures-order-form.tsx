@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { CryptoCurrency } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 interface FuturesOrderFormProps {
     crypto: CryptoCurrency;
@@ -29,6 +30,23 @@ export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderT
   const [takeProfitType, setTakeProfitType] = React.useState<'price' | 'percentage'>('price');
   const [quantity, setQuantity] = React.useState('');
   const [leverage, setLeverage] = React.useState('5');
+  const { toast } = useToast();
+
+  const [months, setMonths] = React.useState('');
+
+  const handleMonthsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (parseInt(value, 10) > 12) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Month',
+        description: 'The lock-in period for months cannot exceed 12.',
+      });
+      setMonths('');
+    } else {
+      setMonths(value);
+    }
+  };
   
   const selectedLeverage = parseInt(leverage, 10);
 
@@ -41,7 +59,6 @@ export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderT
 
 
   React.useEffect(() => {
-    // If HODL is selected and leverage is > 5x, switch back to Delivery
     if (investmentType === 'hodl' && selectedLeverage > 5) {
         setInvestmentType('delivery');
     }
@@ -95,7 +112,7 @@ export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderT
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
-                            <Input id="months" placeholder="0" type="number" max="12" />
+                            <Input id="months" placeholder="0" type="number" value={months} onChange={handleMonthsChange} max="12" />
                         </div>
                         <div>
                             <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>

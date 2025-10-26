@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { CryptoCurrency, SPFrequency, SystematicPlanType } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 export interface SPConfig {
   spPlanType: SystematicPlanType;
@@ -41,6 +42,7 @@ export function OrderForm({
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
   const [takeProfitType, setTakeProfitType] = React.useState<'price' | 'percentage'>('price');
+  const { toast } = useToast();
   
   const [spPlanType, setSpPlanType] = React.useState<SystematicPlanType>('sip');
   const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
@@ -48,6 +50,22 @@ export function OrderForm({
   const [spAmount, setSpAmount] = React.useState('');
   const [swpLumpsum, setSwpLumpsum] = React.useState('');
   const [spFrequency, setSpFrequency] = React.useState<SPFrequency>('monthly');
+
+  const [months, setMonths] = React.useState('');
+
+  const handleMonthsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (parseInt(value, 10) > 12) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Month',
+        description: 'The lock-in period for months cannot exceed 12.',
+      });
+      setMonths('');
+    } else {
+      setMonths(value);
+    }
+  };
   
   const marginRequired = React.useMemo(() => {
     const qty = parseFloat(quantity);
@@ -112,7 +130,7 @@ export function OrderForm({
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label htmlFor="months" className="text-xs text-muted-foreground">Months</Label>
-                            <Input id="months" placeholder="0" type="number" max="12" />
+                            <Input id="months" placeholder="0" type="number" value={months} onChange={handleMonthsChange} max="12" />
                         </div>
                         <div>
                             <Label htmlFor="years" className="text-xs text-muted-foreground">Years</Label>
