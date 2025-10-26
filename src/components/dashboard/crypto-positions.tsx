@@ -14,16 +14,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 
 interface CryptoPositionsProps {
   portfolio: Portfolio;
