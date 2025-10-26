@@ -32,6 +32,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [spConfig, setSpConfig] = React.useState<SPConfig | null>(null);
   const [hodlConfig, setHodlConfig] = React.useState<HodlConfig | null>(null);
+  const [isModify, setIsModify] = React.useState(false);
 
   const crypto = React.useMemo(() => {
     return marketData.find(c => c.id === params.id);
@@ -226,7 +227,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
             />
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell}>Sell</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg disabled:bg-red-600/50" onClick={handleSell} disabled={!isModify}>Sell</Button>
             <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy}>Buy</Button>
           </div>
         )}
