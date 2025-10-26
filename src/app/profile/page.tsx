@@ -91,7 +91,7 @@ export default function ProfilePage() {
     { icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' } },
     { icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details', href: '/profile/banks' },
-    { icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds in case of your demise' },
+    { icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds in case of your demise', href: '/profile/nominee' },
     { icon: UserCog, title: 'Account Management', description: 'Delete or disable your account' },
     { icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings' },
     { icon: Wallet, title: 'Wallet Management', description: 'Add, remove, or view your wallets' },
