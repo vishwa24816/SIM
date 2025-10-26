@@ -43,7 +43,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={undefined} loading={true} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-4">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
           <Skeleton className="h-[300px] w-full" />
           <Skeleton className="h-[400px] w-full" />
           <Skeleton className="h-[200px] w-full" />
@@ -57,7 +57,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
          <OrderPageHeader crypto={undefined} />
-        <main className="flex-1 flex items-center justify-center">
+        <main className="flex-1 flex items-center justify-center pb-20">
           <p>Cryptocurrency not found.</p>
         </main>
         <BottomNav />
@@ -68,7 +68,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <OrderPageHeader crypto={crypto} />
-      <main className="flex-1 overflow-y-auto p-4 space-y-6">
+      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
         <PriceChart crypto={crypto} loading={marketLoading} />
         <Separator className="bg-border/50" />
         <OrderForm

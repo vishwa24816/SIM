@@ -41,7 +41,7 @@ export default function MutualFundTradePage({ params }: { params: { id: string }
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <MutualFundPageHeader fund={undefined} loading={true} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-4">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
           <Skeleton className="h-[300px] w-full" />
           <Skeleton className="h-[400px] w-full" />
           <Skeleton className="h-[200px] w-full" />
@@ -55,7 +55,7 @@ export default function MutualFundTradePage({ params }: { params: { id: string }
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
          <MutualFundPageHeader fund={undefined} />
-        <main className="flex-1 flex items-center justify-center">
+        <main className="flex-1 flex items-center justify-center pb-20">
           <p>Mutual fund not found.</p>
         </main>
         <BottomNav />
@@ -66,7 +66,7 @@ export default function MutualFundTradePage({ params }: { params: { id: string }
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <MutualFundPageHeader fund={fund} />
-      <main className="flex-1 overflow-y-auto p-4 space-y-6">
+      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
         <PriceChart crypto={cryptoEquivalent} loading={marketLoading} />
         <Separator className="bg-border/50" />
         <MutualFundOrderForm fund={fund} />
