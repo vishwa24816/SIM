@@ -9,16 +9,29 @@ interface SwipeToConfirmProps {
   onConfirm: () => void;
   text?: string;
   confirmedText?: string;
+  className?: string;
 }
 
 export function SwipeToConfirm({
   onConfirm,
   text = 'Swipe to Invest',
   confirmedText = 'Confirmed',
+  className
 }: SwipeToConfirmProps) {
   const [isConfirmed, setIsConfirmed] = React.useState(false);
   const x = useMotionValue(0);
   const swipeButtonRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (isConfirmed) {
+      const timer = setTimeout(() => {
+        setIsConfirmed(false);
+        x.set(0);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isConfirmed, x]);
+
 
   const onDragEnd = () => {
     if (swipeButtonRef.current) {
@@ -37,7 +50,7 @@ export function SwipeToConfirm({
   const color = useTransform(x, [0, 150], ["#9ca3af", "#ffffff"]);
 
   return (
-    <div className="relative w-full h-14 bg-muted rounded-full p-2 flex items-center overflow-hidden">
+    <div className={`relative w-full h-14 bg-muted rounded-full p-2 flex items-center overflow-hidden ${className}`}>
       <AnimatePresence>
         {!isConfirmed && (
           <motion.span
