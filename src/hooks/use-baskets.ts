@@ -10,6 +10,7 @@ interface BasketsState {
     addToBasket: (basketName: string, item: BasketItem) => void;
     createAndAddToBasket: (basketName: string, item: BasketItem) => void;
     getBasketByName: (name: string) => Basket | undefined;
+    removeBasket: (basketName: string) => void;
 }
 
 export const useBaskets = create<BasketsState>()(
@@ -53,6 +54,9 @@ export const useBaskets = create<BasketsState>()(
                 return { baskets: [...state.baskets, newBasket] };
             }),
             getBasketByName: (name: string) => get().baskets.find(b => b.name === name),
+            removeBasket: (basketName) => set((state) => ({
+                baskets: state.baskets.filter(basket => basket.name !== basketName)
+            })),
         }),
         {
             name: 'crypto-baskets-storage',

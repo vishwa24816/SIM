@@ -13,6 +13,16 @@ import { useMarketData } from '@/hooks/use-market-data';
 import { useBaskets } from '@/hooks/use-baskets';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const orders = [
   {
@@ -131,7 +141,8 @@ export default function OrdersPage() {
   const [activeTab, setActiveTab] = React.useState('Limit');
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
   const { marketData: allAssets } = useMarketData();
-  const { baskets } = useBaskets();
+  const { baskets, removeBasket } = useBaskets();
+  const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
   
 
   // Check alerts against current market data
@@ -159,100 +170,130 @@ export default function OrdersPage() {
     }
   }
 
+  const handleDeleteBasket = () => {
+    if (basketToDelete) {
+        removeBasket(basketToDelete);
+        setBasketToDelete(null);
+    }
+  };
+
 
   const TABS = ['Limit', 'HODL', 'Baskets', 'SP', 'Alerts'];
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header />
-      <main className="flex-1 overflow-y-auto pb-20">
-        <div className="border-b border-border">
-          <div className="px-4 overflow-x-auto">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
-              {TABS.map(tab => (
-                <Button key={tab} variant="ghost" className={cn("px-3", activeTab === tab && "text-primary")} onClick={() => setActiveTab(tab)}>
-                  {tab}
-                </Button>
-              ))}
+    <>
+      <div className="flex flex-col min-h-screen bg-background text-foreground">
+        <Header />
+        <main className="flex-1 overflow-y-auto pb-20">
+          <div className="border-b border-border">
+            <div className="px-4 overflow-x-auto">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                {TABS.map(tab => (
+                  <Button key={tab} variant="ghost" className={cn("px-3", activeTab === tab && "text-primary")} onClick={() => setActiveTab(tab)}>
+                    {tab}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-            <Search className="h-5 w-5 text-muted-foreground" />
-            <Button variant="link" className="text-primary">
-                <BarChart2 className="h-4 w-4 mr-2" />
-                Analytics
-            </Button>
-        </div>
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+              <Search className="h-5 w-5 text-muted-foreground" />
+              <Button variant="link" className="text-primary">
+                  <BarChart2 className="h-4 w-4 mr-2" />
+                  Analytics
+              </Button>
+          </div>
 
-        <div className="p-4 space-y-4">
-            {activeTab === 'Limit' && orders.map(order => (
-                <OrderCard key={order.id} order={order} />
-            ))}
-            {activeTab === 'Alerts' && (
-                alerts.length > 0 ? alerts.map(alert => {
-                   const asset = allAssets.find(c => c.id === alert.cryptoId);
-                   return asset ? <AlertCard key={alert.id} alert={alert} currentPrice={asset.price} onRemove={removeAlert} /> : null;
-                }) : (
-                    <div className="text-center text-muted-foreground py-10">
-                        <p>You have no active alerts.</p>
-                        <p className="text-sm">You can set price alerts from the trade screen.</p>
-                    </div>
-                )
-            )}
-            {activeTab === 'Baskets' && (
-                 baskets.length > 0 ? (
-                    <Accordion type="single" collapsible className="w-full">
-                        {baskets.map(basket => (
-                            <AccordionItem value={basket.name} key={basket.name}>
-                                <AccordionTrigger>
-                                    <div className='flex justify-between w-full pr-4'>
-                                        <span>{basket.name}</span>
-                                        <span className='text-muted-foreground text-sm'>{basket.items.length} items</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                    <div className="divide-y">
-                                        {basket.items.map(item => {
-                                            const asset = allAssets.find(a => a.id === item.id);
-                                            return (
-                                                <Link href={getAssetPath(item)} key={item.id} className="flex justify-between items-center p-2 hover:bg-muted/50">
-                                                    <div>
-                                                        <p className="font-semibold">{item.name}</p>
-                                                        <p className="text-xs text-muted-foreground">{item.symbol}</p>
-                                                    </div>
-                                                    {asset && (
-                                                        <div className="text-right">
-                                                            <p className='font-semibold'>${asset.price.toLocaleString()}</p>
-                                                            <p className={cn('text-sm', asset.change24h >= 0 ? 'text-green-500' : 'text-red-500')}>
-                                                                {asset.change24h.toFixed(2)}%
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                </Link>
-                                            )
-                                        })}
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                ) : (
-                    <div className="text-center text-muted-foreground py-10">
-                        <p>You have no baskets.</p>
-                        <p className="text-sm">Create a basket from any trade screen.</p>
-                    </div>
-                )
-            )}
-             {(activeTab !== 'Limit' && activeTab !== 'Alerts' && activeTab !== 'Baskets') && (
-                <div className="text-center text-muted-foreground py-10">
-                    <p>No {activeTab.toLowerCase()} orders found.</p>
-                </div>
-            )}
-        </div>
-      </main>
-      <BottomNav />
-    </div>
+          <div className="p-4 space-y-4">
+              {activeTab === 'Limit' && orders.map(order => (
+                  <OrderCard key={order.id} order={order} />
+              ))}
+              {activeTab === 'Alerts' && (
+                  alerts.length > 0 ? alerts.map(alert => {
+                    const asset = allAssets.find(c => c.id === alert.cryptoId);
+                    return asset ? <AlertCard key={alert.id} alert={alert} currentPrice={asset.price} onRemove={removeAlert} /> : null;
+                  }) : (
+                      <div className="text-center text-muted-foreground py-10">
+                          <p>You have no active alerts.</p>
+                          <p className="text-sm">You can set price alerts from the trade screen.</p>
+                      </div>
+                  )
+              )}
+              {activeTab === 'Baskets' && (
+                  baskets.length > 0 ? (
+                      <Accordion type="single" collapsible className="w-full">
+                          {baskets.map(basket => (
+                              <AccordionItem value={basket.name} key={basket.name}>
+                                  <AccordionTrigger>
+                                      <div className='flex justify-between items-center w-full pr-4'>
+                                          <span>{basket.name}</span>
+                                          <div className="flex items-center gap-2">
+                                            <span className='text-muted-foreground text-sm'>{basket.items.length} items</span>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setBasketToDelete(basket.name); }}>
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                          </div>
+                                      </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                      <div className="divide-y">
+                                          {basket.items.map(item => {
+                                              const asset = allAssets.find(a => a.id === item.id);
+                                              return (
+                                                  <Link href={getAssetPath(item)} key={item.id} className="flex justify-between items-center p-2 hover:bg-muted/50">
+                                                      <div>
+                                                          <p className="font-semibold">{item.name}</p>
+                                                          <p className="text-xs text-muted-foreground">{item.symbol}</p>
+                                                      </div>
+                                                      {asset && (
+                                                          <div className="text-right">
+                                                              <p className='font-semibold'>${asset.price.toLocaleString()}</p>
+                                                              <p className={cn('text-sm', asset.change24h >= 0 ? 'text-green-500' : 'text-red-500')}>
+                                                                  {asset.change24h.toFixed(2)}%
+                                                              </p>
+                                                          </div>
+                                                      )}
+                                                  </Link>
+                                              )
+                                          })}
+                                      </div>
+                                  </AccordionContent>
+                              </AccordionItem>
+                          ))}
+                      </Accordion>
+                  ) : (
+                      <div className="text-center text-muted-foreground py-10">
+                          <p>You have no baskets.</p>
+                          <p className="text-sm">Create a basket from any trade screen.</p>
+                      </div>
+                  )
+              )}
+              {(activeTab !== 'Limit' && activeTab !== 'Alerts' && activeTab !== 'Baskets') && (
+                  <div className="text-center text-muted-foreground py-10">
+                      <p>No {activeTab.toLowerCase()} orders found.</p>
+                  </div>
+              )}
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+      <AlertDialog open={!!basketToDelete} onOpenChange={(open) => !open && setBasketToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action will permanently delete the basket "{basketToDelete}". You cannot undo this action.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBasketToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteBasket} className="bg-destructive hover:bg-destructive/90">
+                Delete
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
