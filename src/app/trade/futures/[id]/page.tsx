@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { usePortfolioWithToast } from '@/hooks/use-portfolio';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { FuturesOrderForm } from '@/components/trade/futures-order-form';
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function FuturesTradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
-  const { buy, sell } = usePortfolio(marketData);
+  const { buy, sell } = usePortfolioWithToast();
   const { toast } = useToast();
   
   const [price, setPrice] = React.useState('');
@@ -61,9 +61,9 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     const margin = (qty * prc) / parseInt(leverage, 10);
     
     if (action === 'buy') {
-      buy(crypto.id, margin, qty);
+      buy(crypto, margin, qty);
     } else {
-      sell(crypto.id, qty);
+      sell(crypto, qty);
     }
   }
 

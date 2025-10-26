@@ -6,7 +6,7 @@ import { Header } from "@/components/dashboard/header";
 import { NewsFeed } from "@/components/dashboard/news-feed";
 import { PortfolioView } from "@/components/dashboard/portfolio-view";
 import { useMarketData } from "@/hooks/use-market-data";
-import { usePortfolio } from "@/hooks/use-portfolio";
+import { usePortfolioWithToast } from "@/hooks/use-portfolio";
 import { CryptoCurrency } from "@/lib/types";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { CryptoPositions } from "@/components/dashboard/crypto-positions";
@@ -14,12 +14,14 @@ import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const { marketData, loading } = useMarketData();
-  const { portfolio, totalPortfolioValue, addUsd, withdrawUsd } = usePortfolio(marketData);
+  const { portfolio, addUsd, withdrawUsd, getPortfolioValue } = usePortfolioWithToast();
   const router = useRouter();
 
   const handleCryptoSelect = (crypto: CryptoCurrency) => {
     router.push(`/crypto/${crypto.id}`);
   };
+
+  const totalPortfolioValue = getPortfolioValue(marketData);
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">

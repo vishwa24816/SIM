@@ -16,6 +16,15 @@ import { useToast } from "@/hooks/use-toast";
 import QRCode from 'qrcode.react';
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
+interface PortfolioViewProps {
+    portfolio: Portfolio;
+    marketData: CryptoCurrency[];
+    totalPortfolioValue: number;
+    addUsd: (amount: number) => void;
+    withdrawUsd: (amount: number) => void;
+}
+
+
 const SendCryptoForm = ({ portfolio, marketData, onConfirm, onCancel }: { portfolio: Portfolio, marketData: CryptoCurrency[], onConfirm: (assetId: string, recipient: string, amount: number) => void, onCancel: () => void }) => {
     const [assetId, setAssetId] = React.useState<string>(portfolio.holdings[0]?.cryptoId || '');
     const [recipient, setRecipient] = React.useState('');
@@ -84,7 +93,7 @@ const SendCryptoForm = ({ portfolio, marketData, onConfirm, onCancel }: { portfo
                             value={recipient}
                             onChange={(e) => setRecipient(e.target.value)}
                             placeholder="0x..."
-                            className="pr-10 bg-background"
+                            className="bg-background"
                         />
                         <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
                             <QrCode className="h-5 w-5 text-muted-foreground"/>

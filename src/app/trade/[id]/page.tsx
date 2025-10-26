@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useMarketData } from '@/hooks/use-market-data';
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { usePortfolioWithToast } from '@/hooks/use-portfolio';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { OrderForm, type SPConfig, type HodlConfig } from '@/components/trade/order-form';
@@ -21,7 +21,7 @@ import { useSearchParams } from 'next/navigation';
 
 export default function TradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
-  const { portfolio, buy, sell } = usePortfolio(marketData);
+  const { buy, sell } = usePortfolioWithToast();
   const { addPlan } = useSystematicPlans();
   const { addOrder: addHodlOrder } = useHodlOrders();
   const { addLimitOrder } = useLimitOrders();
@@ -92,7 +92,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order
         const margin = qty * crypto.price;
-        buy(crypto.id, margin);
+        buy(crypto, margin);
     }
   };
   
@@ -102,7 +102,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
           toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity.' });
           return;
       }
-      sell(crypto.id, qty);
+      sell(crypto, qty);
   }
   
   const handleCreateHodl = () => {
@@ -118,7 +118,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
     }
 
     // Execute the buy order first
-    buy(crypto.id, margin);
+    buy(crypto, margin);
 
     // Then create the HODL order record
     addHodlOrder({
@@ -264,5 +264,3 @@ export default function TradePage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-
-    
