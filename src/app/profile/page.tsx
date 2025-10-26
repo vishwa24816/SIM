@@ -33,10 +33,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const ProfileItem = ({ icon, title, description, badge, hasArrow = true }: { icon: React.ElementType, title: string, description: string, badge?: { text: string, type: string }, hasArrow?: boolean }) => {
+const ProfileItem = ({ icon, title, description, badge }: { icon: React.ElementType, title: string, description: string, badge?: { text: string, type: string } }) => {
   const Icon = icon;
   return (
-    <div className="flex items-center w-full p-4 hover:bg-muted/50 rounded-lg">
+    <div className="flex items-center w-full p-4">
       <div className="flex items-center gap-4">
         <Icon className="w-6 h-6 text-primary" />
         <div className="flex flex-col">
@@ -48,11 +48,12 @@ const ProfileItem = ({ icon, title, description, badge, hasArrow = true }: { ico
         </div>
       </div>
       <div className="ml-auto">
-        {hasArrow && <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+        <ChevronRight className="h-5 w-5 text-muted-foreground" />
       </div>
     </div>
   );
 };
+
 
 const CollapsibleProfileItem = ({ icon, title, description, children, badge }: { icon: React.ElementType, title: string, description: string, children: React.ReactNode, badge?: { text: string, type: string } }) => {
   const Icon = icon;
@@ -91,6 +92,7 @@ export default function ProfilePage() {
     { id: 'profile', icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { id: 'kyc', icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' }, href: '#' },
     { id: 'banks', icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details', href: '/profile/banks' },
+    { id: 'nominee', icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds', href: '/profile/nominee' },
     { id: 'accountMgmt', icon: UserCog, title: 'Account Management', description: 'Delete or disable your account', href: '#' },
     { id: 'security', icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings', href: '#' },
     { id: 'wallet', icon: Wallet, title: 'Wallet Management', description: 'Add, remove, or view your wallets', href: '#' },
@@ -129,23 +131,24 @@ export default function ProfilePage() {
       <div className="px-4 pb-24">
         <div className="divide-y divide-border/50">
           {profileItems.map((item) => {
-            const isLink = !!item.href;
-            const isCollapsible = !!item.collapsible;
-
-            if (isCollapsible) {
+            if (item.collapsible) {
               return (
                  <CollapsibleProfileItem key={item.id} icon={item.icon} title={item.title} description={item.description} badge={item.badge}>
                   {/* Children for collapsible items can be added here */}
                  </CollapsibleProfileItem>
               )
             }
-            
-            const ItemWrapper = isLink ? ({children}: {children: React.ReactNode}) => <Link href={item.href!} key={item.id}>{children}</Link> : ({children}: {children: React.ReactNode}) => <div key={item.id}>{children}</div>;
-            
+            if (item.href) {
+                return (
+                    <Link href={item.href} key={item.id} className="block hover:bg-muted/50 rounded-lg">
+                       <ProfileItem {...item} />
+                    </Link>
+                )
+            }
             return (
-              <ItemWrapper key={item.id}>
+              <div key={item.id} className="hover:bg-muted/50 rounded-lg">
                 <ProfileItem {...item} />
-              </ItemWrapper>
+              </div>
             )
           })}
         </div>
