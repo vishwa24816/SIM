@@ -20,7 +20,7 @@ const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
         <div className="flex items-center justify-between py-3 cursor-pointer">
             <div className="flex items-center gap-3">
                 <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
-                    {IconComponent && <IconComponent className="w-6 h-6" />}
+                    {IconComponent && typeof IconComponent === 'function' && <IconComponent className="w-6 h-6" />}
                 </div>
                 <div>
                     <p className="font-semibold">{crypto.symbol}</p>
