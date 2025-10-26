@@ -32,14 +32,6 @@ interface CryptoPositionsProps {
 
 const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
   const { sell } = usePortfolioStore();
-  const [positionToSquare, setPositionToSquare] = React.useState<any>(null);
-
-  const handleSquareOff = () => {
-    if (positionToSquare) {
-      sell(positionToSquare.crypto, positionToSquare.amount);
-      setPositionToSquare(null);
-    }
-  }
 
   if (holdings.length === 0) {
     return (
@@ -61,7 +53,6 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
   }
 
   return (
-    <>
     <Accordion type="single" collapsible className="w-full">
       {holdings.map((holding) => {
         const entryPrice = holding.margin > 0 && holding.amount > 0 ? holding.margin / holding.amount : 0;
@@ -112,7 +103,7 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                       <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
                           <Button size="sm" variant="outline" className="w-full">Modify</Button>
                       </Link>
-                      <Button size="sm" variant="destructive" className="w-full" onClick={() => setPositionToSquare(holding)}>Square Off</Button>
+                      <Button size="sm" variant="destructive" className="w-full" onClick={() => sell(holding.crypto, holding.amount)}>Square Off</Button>
                   </div>
               </div>
             </AccordionContent>
@@ -120,37 +111,12 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
         )
       })}
     </Accordion>
-    <AlertDialog open={!!positionToSquare} onOpenChange={(open) => !open && setPositionToSquare(null)}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Square Off</AlertDialogTitle>
-            <AlertDialogDescription>
-                Are you sure you want to square off your position of {positionToSquare?.amount.toFixed(6)} {positionToSquare?.crypto.symbol}? This will sell all your holdings for this asset.
-            </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPositionToSquare(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSquareOff} className="bg-destructive hover:bg-destructive/90">
-                Square Off
-            </AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 };
 
 
 const FuturesAccordion = ({ positions }: { positions: any[] }) => {
     const { sell } = usePortfolioStore();
-    const [positionToSquare, setPositionToSquare] = React.useState<any>(null);
-
-    const handleSquareOff = () => {
-        if (positionToSquare) {
-            sell(positionToSquare.crypto, positionToSquare.amount);
-            setPositionToSquare(null);
-        }
-    }
 
     if (positions.length === 0) {
         return (
@@ -165,79 +131,61 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
     }
 
     return (
-        <>
-            <Accordion type="single" collapsible className="w-full">
-                {positions.map((holding) => {
-                    const entryPrice = (holding.margin / holding.amount) * holding.leverage;
-                    const currentValue = holding.amount * holding.baseAssetPrice;
-                    const pnl = currentValue - (entryPrice * holding.amount);
-                    const pnlPercent = (pnl / holding.margin) * 100;
-                    
-                    return (
-                        <AccordionItem value={holding.crypto.id} key={holding.crypto.id}>
-                            <AccordionTrigger>
-                                <div className="flex items-center gap-3 w-full">
-                                    <holding.crypto.icon className="h-8 w-8" />
+        <Accordion type="single" collapsible className="w-full">
+            {positions.map((holding) => {
+                const entryPrice = (holding.margin / holding.amount) * holding.leverage;
+                const currentValue = holding.amount * holding.baseAssetPrice;
+                const pnl = currentValue - (entryPrice * holding.amount);
+                const pnlPercent = (pnl / holding.margin) * 100;
+                
+                return (
+                    <AccordionItem value={holding.crypto.id} key={holding.crypto.id}>
+                        <AccordionTrigger>
+                            <div className="flex items-center gap-3 w-full">
+                                <holding.crypto.icon className="h-8 w-8" />
+                                <div>
+                                    <div className="font-semibold">{holding.crypto.name}</div>
+                                    <div className="text-xs text-muted-foreground">{holding.crypto.symbol} ({holding.leverage}x)</div>
+                                </div>
+                                <div className="ml-auto text-right">
+                                    <div className="font-mono font-semibold">
+                                       ${(holding.margin ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </div>
+                                     <div className={cn("text-sm flex items-center justify-end gap-1", pnl >= 0 ? "text-green-500" : "text-red-500")}>
+                                        {pnl >= 0 ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>}
+                                        <span>{pnl.toFixed(2)} ({pnlPercent.toFixed(2)}%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="p-2 bg-muted/50 rounded-md">
+                                <div className="grid grid-cols-3 gap-4 text-sm mb-4">
                                     <div>
-                                        <div className="font-semibold">{holding.crypto.name}</div>
-                                        <div className="text-xs text-muted-foreground">{holding.crypto.symbol} ({holding.leverage}x)</div>
+                                        <p className="text-muted-foreground">Quantity</p>
+                                        <p className="font-semibold">{holding.amount.toFixed(4)}</p>
                                     </div>
-                                    <div className="ml-auto text-right">
-                                        <div className="font-mono font-semibold">
-                                           ${(holding.margin ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                        </div>
-                                         <div className={cn("text-sm flex items-center justify-end gap-1", pnl >= 0 ? "text-green-500" : "text-red-500")}>
-                                            {pnl >= 0 ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>}
-                                            <span>{pnl.toFixed(2)} ({pnlPercent.toFixed(2)}%)</span>
-                                        </div>
+                                    <div className="text-center">
+                                        <p className="text-muted-foreground">Entry Price</p>
+                                        <p className="font-semibold">${entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                     </div>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                <div className="p-2 bg-muted/50 rounded-md">
-                                    <div className="grid grid-cols-3 gap-4 text-sm mb-4">
-                                        <div>
-                                            <p className="text-muted-foreground">Quantity</p>
-                                            <p className="font-semibold">{holding.amount.toFixed(4)}</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-muted-foreground">Entry Price</p>
-                                            <p className="font-semibold">${entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-muted-foreground">Current Price</p>
-                                            <p className="font-semibold">${holding.baseAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2 mt-4">
-                                        <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
-                                            <Button size="sm" variant="outline" className="w-full">Modify</Button>
-                                        </Link>
-                                        <Button size="sm" variant="destructive" className="w-full" onClick={() => setPositionToSquare(holding)}>Square Off</Button>
+                                    <div className="text-right">
+                                        <p className="text-muted-foreground">Current Price</p>
+                                        <p className="font-semibold">${holding.baseAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                     </div>
                                 </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                    )
-                })}
-            </Accordion>
-             <AlertDialog open={!!positionToSquare} onOpenChange={(open) => !open && setPositionToSquare(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                    <AlertDialogTitle>Confirm Square Off</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Are you sure you want to square off your futures position for {positionToSquare?.crypto.symbol}?
-                    </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setPositionToSquare(null)}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleSquareOff} className="bg-destructive hover:bg-destructive/90">
-                        Square Off
-                    </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </>
+                                <div className="flex gap-2 mt-4">
+                                    <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
+                                        <Button size="sm" variant="outline" className="w-full">Modify</Button>
+                                    </Link>
+                                    <Button size="sm" variant="destructive" className="w-full" onClick={() => sell(holding.crypto, holding.amount)}>Square Off</Button>
+                                </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                )
+            })}
+        </Accordion>
     );
 };
 
@@ -311,5 +259,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
     </>
   );
 }
+
+    
 
     
