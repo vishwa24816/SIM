@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
 import { SystematicPlan } from '@/lib/types';
 import { useHodlOrders } from '@/hooks/use-hodl-orders';
+import { Button } from '@/components/ui/button';
 
 export default function TradePage({ params }: { params: { id: string } }) {
   const { marketData, loading: marketLoading } = useMarketData();
@@ -182,6 +183,8 @@ export default function TradePage({ params }: { params: { id: string } }) {
     );
   }
 
+  const isComplexOrder = investmentType === 'sp' || investmentType === 'hodl';
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <OrderPageHeader crypto={crypto} />
@@ -213,13 +216,20 @@ export default function TradePage({ params }: { params: { id: string } }) {
         <SimbotAnalysis crypto={crypto} showTabs={true} />
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4 space-y-3">
-        <SwipeToConfirm 
-          onConfirm={handleConfirm}
-          text={
-            investmentType === 'sp' ? 'Swipe to Create Plan' : 
-            investmentType === 'hodl' ? 'Swipe to HODL' : 'Swipe to Buy'
-          }
-        />
+         {isComplexOrder ? (
+            <SwipeToConfirm 
+              onConfirm={handleConfirm}
+              text={
+                investmentType === 'sp' ? 'Swipe to Create Plan' : 
+                investmentType === 'hodl' ? 'Swipe to HODL' : 'Swipe to Confirm'
+              }
+            />
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell}>Sell</Button>
+            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy}>Buy</Button>
+          </div>
+        )}
       </footer>
     </div>
   );
