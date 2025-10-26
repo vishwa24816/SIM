@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { MutualFund } from '@/lib/types';
+import { MutualFund, SPFrequency, SystematicPlan, SystematicPlanType } from '@/lib/types';
 import { SwipeToConfirm } from '../ui/swipe-to-confirm';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -14,6 +14,7 @@ import { BellRing, Briefcase } from 'lucide-react';
 import { useAlerts } from '@/hooks/use-alerts';
 import { AddToBasketForm } from './add-to-basket-form';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
+import { useSystematicPlans } from '@/hooks/use-systematic-plans';
 
 interface MutualFundOrderFormProps {
     fund: MutualFund;
@@ -24,35 +25,66 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
     const [amount, setAmount] = React.useState('');
     const { toast } = useToast();
     const { addAlert } = useAlerts();
+    const { addPlan } = useSystematicPlans();
+
     const [isSettingAlert, setIsSettingAlert] = React.useState(false);
     const [alertPrice, setAlertPrice] = React.useState('');
     const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
 
-    const [spPlanType, setSpPlanType] = React.useState('sip');
+    const [spPlanType, setSpPlanType] = React.useState<SystematicPlanType>('sip');
     const [sipInvestmentType, setSipInvestmentType] = React.useState<'amount' | 'qty'>('amount');
-    const [swpWithdrawalType, setSwpWithdrawalType] = React.useState<'amount' | 'qty'>('amount');
+    const [spAmount, setSpAmount] = React.useState('');
+    const [spFrequency, setSpFrequency] = React.useState<SPFrequency>('monthly');
 
     const canAddToBasket = React.useMemo(() => {
+        if (investmentType === 'sp') return false;
         const numericAmount = parseFloat(amount);
         return !isNaN(numericAmount) && numericAmount > 0;
-    }, [amount]);
+    }, [amount, investmentType]);
 
 
     const handleSwipeConfirm = () => {
-        if ((investmentType === 'one-time' || investmentType === 'hodl') && (!amount || parseFloat(amount) <= 0)) {
-            toast({
-                variant: 'destructive',
-                title: 'Invalid Amount',
-                description: 'Please enter a valid investment amount.',
+        if (investmentType === 'one-time' || investmentType === 'hodl') {
+            if (!amount || parseFloat(amount) <= 0) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Invalid Amount',
+                    description: 'Please enter a valid investment amount.',
+                });
+                return;
+            }
+             toast({
+                title: 'Investment Successful',
+                description: `Your investment in ${fund.name} is being processed.`,
             });
+            console.log(`Investing ${amount} in ${fund.name}`);
+        } else if (investmentType === 'sp') {
+             const numericAmount = parseFloat(spAmount);
+            if (isNaN(numericAmount) || numericAmount <= 0) {
+            toast({ variant: 'destructive', title: 'Invalid Amount', description: `Please enter a valid ${spPlanType === 'sip' ? 'investment' : 'withdrawal'} amount.`});
             return;
+            }
+
+            const plan: Omit<SystematicPlan, 'id' | 'createdAt' | 'status'> = {
+                instrumentId: fund.id,
+                instrumentName: fund.name,
+                instrumentSymbol: fund.symbol,
+                planType: spPlanType,
+                amount: numericAmount,
+                frequency: spFrequency,
+                investmentType: sipInvestmentType,
+            };
+
+            addPlan({
+                ...plan,
+                id: `${fund.id}-${spPlanType}-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            } as SystematicPlan);
+
+            toast({ title: 'Systematic Plan Created', description: `Your ${spPlanType.toUpperCase()} for ${fund.name} has been set up.`});
+            setSpAmount('');
         }
-        toast({
-            title: 'Investment Successful',
-            description: `Your investment in ${fund.name} is being processed.`,
-        });
-        // Here you would typically call an API to process the investment
-        console.log(`Investing in ${fund.name}`);
     };
     
     const handleSetAlert = () => {
@@ -138,73 +170,29 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
 
                     {investmentType === 'sp' && (
                         <div className="mb-4 space-y-4">
-                            <RadioGroup value={spPlanType} onValueChange={setSpPlanType} className="flex space-x-4">
+                             <RadioGroup value={spPlanType} onValueChange={(v) => setSpPlanType(v as SystematicPlanType)} className="flex space-x-4">
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="sip" id="sip"/>
                                     <Label htmlFor="sip">SIP</Label>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="swp" id="swp"/>
-                                    <Label htmlFor="swp">SWP</Label>
-                                </div>
+                                 {/* SWP is not applicable for Mutual Funds in this context */}
                             </RadioGroup>
 
                             {spPlanType === 'sip' && (
                                 <div className="space-y-4 p-4 border rounded-md">
                                     <div className="space-y-2">
-                                        <Label>SIP Installment</Label>
-                                        <div className="flex gap-2">
-                                            <Input placeholder="0.00" type="number" />
-                                            <div className="flex rounded-md bg-muted p-1">
-                                                <Button variant={sipInvestmentType === 'amount' ? 'default' : 'ghost'} size="sm" onClick={() => setSipInvestmentType('amount')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Amt</Button>
-                                                <Button variant={sipInvestmentType === 'qty' ? 'default' : 'ghost'} size="sm" onClick={() => setSipInvestmentType('qty')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Qty</Button>
-                                            </div>
-                                        </div>
+                                        <Label>SIP Installment Amount</Label>
+                                        <Input placeholder="0.00" type="number" value={spAmount} onChange={e => setSpAmount(e.target.value)} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>SIP Mode</Label>
-                                        <Select defaultValue="monthly">
+                                        <Label>SIP Frequency</Label>
+                                        <Select value={spFrequency} onValueChange={(v) => setSpFrequency(v as SPFrequency)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select mode" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="daily">Daily</SelectItem>
                                                 <SelectItem value="weekly">Weekly</SelectItem>
                                                 <SelectItem value="monthly">Monthly</SelectItem>
-                                                <SelectItem value="annually">Annually</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            )}
-                            
-                            {spPlanType === 'swp' && (
-                                <div className="space-y-4 p-4 border rounded-md">
-                                    <div className="space-y-2">
-                                        <Label>Lumpsum Amount</Label>
-                                        <Input placeholder="0.00" type="number" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Withdrawal</Label>
-                                        <div className="flex gap-2">
-                                            <Input placeholder="0.00" type="number" />
-                                            <div className="flex rounded-md bg-muted p-1">
-                                                <Button variant={swpWithdrawalType === 'amount' ? 'default' : 'ghost'} size="sm" onClick={() => setSwpWithdrawalType('amount')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Amt</Button>
-                                                <Button variant={swpWithdrawalType === 'qty' ? 'default' : 'ghost'} size="sm" onClick={() => setSwpWithdrawalType('qty')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">Qty</Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Withdrawal Mode</Label>
-                                        <Select defaultValue="monthly">
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select mode" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="daily">Daily</SelectItem>
-                                                <SelectItem value="weekly">Weekly</SelectItem>
-                                                <SelectItem value="monthly">Monthly</SelectItem>
-                                                <SelectItem value="annually">Annually</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -214,7 +202,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     )}
 
                     <div className="mb-6">
-                        <SwipeToConfirm onConfirm={handleSwipeConfirm} />
+                        <SwipeToConfirm onConfirm={handleSwipeConfirm} text={investmentType === 'sp' ? 'Start Plan' : 'Swipe to Invest'} />
                     </div>
 
 

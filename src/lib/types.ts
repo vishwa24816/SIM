@@ -103,3 +103,21 @@ export interface Basket {
   name: string;
   items: BasketItem[];
 }
+
+export type SystematicPlanType = 'sip' | 'swp';
+export type SPInvestmentType = 'amount' | 'qty';
+export type SPFrequency = 'daily' | 'weekly' | 'monthly' | 'annually';
+
+export interface SystematicPlan {
+  id: string;
+  instrumentId: string;
+  instrumentName: string;
+  instrumentSymbol: string;
+  planType: SystematicPlanType;
+  investmentType: SPInvestmentType; // For SIP
+  amount: number; // SIP installment or SWP withdrawal amount
+  lumpsumAmount?: number; // For SWP
+  frequency: SPFrequency;
+  status: 'active' | 'paused' | 'cancelled';
+  createdAt: string;
+}

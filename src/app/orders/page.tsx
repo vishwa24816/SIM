@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/dashboard/header';
-import { Search, BarChart2, Trash2 } from 'lucide-react';
+import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle } from 'lucide-react';
 import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
@@ -25,6 +25,8 @@ import {
 import { usePortfolio } from '@/hooks/use-portfolio';
 import { useToast } from '@/hooks/use-toast';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
+import { useSystematicPlans } from '@/hooks/use-systematic-plans';
+import { SystematicPlan } from '@/lib/types';
 
 const orders = [
   {
@@ -139,11 +141,66 @@ const AlertCard = ({ alert, currentPrice, onRemove }: { alert: Alert, currentPri
     )
 }
 
+const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, onStatusChange: (id: string, status: 'active' | 'paused' | 'cancelled') => void }) => {
+    const isSIP = plan.planType === 'sip';
+    return (
+        <Card>
+            <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 className="font-bold text-lg">{plan.instrumentName} <span className="text-sm text-muted-foreground">({plan.instrumentSymbol})</span></h3>
+                        <p className="text-sm uppercase text-primary font-medium">{plan.planType}</p>
+                    </div>
+                    <Badge variant={plan.status === 'active' ? 'default' : 'secondary'} className={cn(
+                        plan.status === 'active' && 'bg-green-500/20 text-green-500 border-green-500/30',
+                        plan.status === 'paused' && 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
+                        plan.status === 'cancelled' && 'bg-red-500/20 text-red-500 border-red-500/30',
+                    )}>{plan.status}</Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                        <p className="text-muted-foreground">{isSIP ? 'Installment' : 'Withdrawal'}</p>
+                        <p className="font-semibold">{plan.investmentType === 'amount' ? `$${plan.amount.toLocaleString()}` : `${plan.amount} units`}</p>
+                    </div>
+                     <div className="text-right">
+                        <p className="text-muted-foreground">Frequency</p>
+                        <p className="font-semibold capitalize">{plan.frequency}</p>
+                    </div>
+                    {!isSIP && plan.lumpsumAmount && (
+                         <div>
+                            <p className="text-muted-foreground">Lumpsum</p>
+                            <p className="font-semibold">${plan.lumpsumAmount.toLocaleString()}</p>
+                        </div>
+                    )}
+                </div>
+                
+                <div className="flex gap-2">
+                    {plan.status === 'active' && (
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'paused')}>
+                            <PauseCircle className="mr-2 h-4 w-4" /> Pause
+                        </Button>
+                    )}
+                    {plan.status === 'paused' && (
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'active')}>
+                            <PlayCircle className="mr-2 h-4 w-4" /> Resume
+                        </Button>
+                    )}
+                     <Button variant="destructive" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'cancelled')}>
+                        <XCircle className="mr-2 h-4 w-4" /> Cancel
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
+
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = React.useState('Limit');
   const { alerts, removeAlert, updateAlertStatus } = useAlerts();
   const { marketData } = useMarketData();
   const { baskets, removeBasket } = useBaskets();
+  const { plans, updatePlanStatus } = useSystematicPlans();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
   const { buy, sell } = usePortfolio(marketData);
   const { toast } = useToast();
@@ -232,6 +289,16 @@ export default function OrdersPage() {
                       </div>
                   )
               )}
+               {activeTab === 'SP' && (
+                  plans.length > 0 ? plans.map(plan => (
+                    <SystematicPlanCard key={plan.id} plan={plan} onStatusChange={updatePlanStatus} />
+                  )) : (
+                      <div className="text-center text-muted-foreground py-10">
+                          <p>You have no active systematic plans.</p>
+                          <p className="text-sm">You can set up SIP/SWP from the trade screen.</p>
+                      </div>
+                  )
+              )}
               {activeTab === 'Baskets' && (
                   baskets.length > 0 ? (
                       <Accordion type="single" collapsible className="w-full">
@@ -306,7 +373,7 @@ export default function OrdersPage() {
                       </div>
                   )
               )}
-              {(activeTab !== 'Limit' && activeTab !== 'Alerts' && activeTab !== 'Baskets') && (
+              {(activeTab !== 'Limit' && activeTab !== 'Alerts' && activeTab !== 'Baskets' && activeTab !== 'SP') && (
                   <div className="text-center text-muted-foreground py-10">
                       <p>No {activeTab.toLowerCase()} orders found.</p>
                   </div>
