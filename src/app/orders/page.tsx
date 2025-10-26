@@ -99,57 +99,81 @@ const OrderCard = ({ order }: { order: (typeof orders)[0] }) => (
   </Card>
 );
 
-const HodlOrderCard = ({ order }: { order: HodlOrder }) => (
-    <Card>
-        <CardHeader>
-            <div className="flex justify-between items-start">
-                <div>
-                    <CardTitle className="text-lg">{order.instrumentName} <span className="text-sm text-muted-foreground">({order.instrumentSymbol})</span></CardTitle>
-                    <p className="text-xs text-muted-foreground uppercase">{order.assetType} - {order.orderType}</p>
-                </div>
-                <Badge variant="outline" className="border-blue-500 text-blue-500">HODL</Badge>
-            </div>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm">
-             <div className="grid grid-cols-3 gap-4">
-                <div>
-                    <p className="text-muted-foreground">Qty.</p>
-                    <p className="font-semibold">{order.quantity.toFixed(6)}</p>
-                </div>
-                <div>
-                    <p className="text-muted-foreground">Price</p>
-                    <p className="font-semibold">${order.price.toLocaleString()}</p>
-                </div>
-                <div className="text-right">
-                    <p className="text-muted-foreground">Margin</p>
-                    <p className="font-semibold">${order.margin.toLocaleString()}</p>
-                </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <p className="text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3"/> Lock-in Period</p>
-                    <p className="font-semibold">{order.period.years > 0 && `${order.period.years}y `}{order.period.months > 0 && `${order.period.months}m`}</p>
-                </div>
-                 <div className="text-right">
-                    <p className="text-muted-foreground">Created At</p>
-                    <p className="font-semibold">{new Date(order.createdAt).toLocaleDateString()}</p>
-                </div>
-            </div>
-             {(order.stopLoss || order.takeProfit) && (
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+const HodlOrderCard = ({ order, onCancelClick }: { order: HodlOrder, onCancelClick: (order: HodlOrder) => void }) => {
+    
+    const getAssetPath = (item: { assetType?: string, id: string }) => {
+        switch (item.assetType) {
+            case 'Crypto ETF': return `/trade/etf/${item.id}`;
+            case 'Mutual Fund': return `/trade/mutual-fund/${item.id}`;
+            case 'Web3': return `/trade/web3/${item.id}`;
+            case 'Futures': return `/trade/futures/${item.id}`;
+            case 'Spot': return `/trade/${item.id}`;
+            default: return `/crypto/${item.id}`;
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex justify-between items-start">
                     <div>
-                        <p className="text-muted-foreground">Stop Loss</p>
-                        <p className="font-semibold text-red-500">{order.stopLoss ? `$${order.stopLoss}` : 'Not Set'}</p>
+                        <CardTitle className="text-lg">{order.instrumentName} <span className="text-sm text-muted-foreground">({order.instrumentSymbol})</span></CardTitle>
+                        <p className="text-xs text-muted-foreground uppercase">{order.assetType} - {order.orderType}</p>
+                    </div>
+                    <Badge variant="outline" className="border-blue-500 text-blue-500">HODL</Badge>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+                 <div className="grid grid-cols-3 gap-4">
+                    <div>
+                        <p className="text-muted-foreground">Qty.</p>
+                        <p className="font-semibold">{order.quantity.toFixed(6)}</p>
+                    </div>
+                    <div>
+                        <p className="text-muted-foreground">Price</p>
+                        <p className="font-semibold">${order.price.toLocaleString()}</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-muted-foreground">Take Profit</p>
-                        <p className="font-semibold text-green-500">{order.takeProfit ? `$${order.takeProfit}` : 'Not Set'}</p>
+                        <p className="text-muted-foreground">Margin</p>
+                        <p className="font-semibold">${order.margin.toLocaleString()}</p>
                     </div>
                 </div>
-            )}
-        </CardContent>
-    </Card>
-);
+                <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <p className="text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3"/> Lock-in Period</p>
+                        <p className="font-semibold">{order.period.years > 0 && `${order.period.years}y `}{order.period.months > 0 && `${order.period.months}m`}</p>
+                    </div>
+                     <div className="text-right">
+                        <p className="text-muted-foreground">Created At</p>
+                        <p className="font-semibold">{new Date(order.createdAt).toLocaleDateString()}</p>
+                    </div>
+                </div>
+                 {(order.stopLoss || order.takeProfit) && (
+                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div>
+                            <p className="text-muted-foreground">Stop Loss</p>
+                            <p className="font-semibold text-red-500">{order.stopLoss ? `$${order.stopLoss}` : 'Not Set'}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-muted-foreground">Take Profit</p>
+                            <p className="font-semibold text-green-500">{order.takeProfit ? `$${order.takeProfit}` : 'Not Set'}</p>
+                        </div>
+                    </div>
+                )}
+                 <div className="flex gap-2 mt-4">
+                    <Link href={getAssetPath({id: order.instrumentId, assetType: order.assetType})} className="w-full">
+                        <Button variant="outline" className="w-full">
+                            Modify
+                        </Button>
+                    </Link>
+                    <Button variant="destructive" className="w-full" onClick={() => onCancelClick(order)}>
+                        Cancel
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
 
 const AlertCard = ({ alert, currentPrice, onRemove }: { alert: Alert, currentPrice: number, onRemove: (id: string) => void }) => {
     const isAbove = currentPrice >= alert.price;
@@ -246,7 +270,7 @@ const SystematicPlanCard = ({ plan, onStatusChange }: { plan: SystematicPlan, on
                         </Button>
                     )}
                      {plan.status === 'cancelled' && (
-                        <Button variant="outline" size="sm" className="w-full" onClick={() => updatePlanStatus(plan.id, 'paused')}>
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => onStatusChange(plan.id, 'paused')}>
                             <RotateCcw className="mr-2 h-4 w-4" /> Revert
                         </Button>
                     )}
@@ -262,10 +286,11 @@ export default function OrdersPage() {
   const { marketData } = useMarketData();
   const { baskets, removeBasket } = useBaskets();
   const { plans, updatePlanStatus } = useSystematicPlans();
-  const { orders: hodlOrders } = useHodlOrders();
+  const { orders: hodlOrders, removeOrder: removeHodlOrder } = useHodlOrders();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
   const { buy, sell } = usePortfolio(marketData);
   const { toast } = useToast();
+  const [hodlToCancel, setHodlToCancel] = React.useState<HodlOrder | null>(null);
 
   // Check alerts against current market data
   React.useEffect(() => {
@@ -308,6 +333,33 @@ export default function OrdersPage() {
     });
   }
 
+  const handleCancelHodl = () => {
+    if (hodlToCancel) {
+      // Simulate selling the asset and applying penalty
+      const asset = marketData.find(c => c.id === hodlToCancel.instrumentId);
+      if (asset) {
+        const currentValue = hodlToCancel.quantity * asset.price;
+        const profit = currentValue - hodlToCancel.margin;
+        let penalty = 0;
+        if (profit > 0) {
+          penalty = profit * 0.20;
+        }
+        const amountToReturn = hodlToCancel.margin + profit - penalty;
+        
+        // This is a simplified simulation. A real implementation would be more complex.
+        buy(hodlToCancel.instrumentId, -amountToReturn); // Effectively returning funds to USD balance
+      }
+
+      removeHodlOrder(hodlToCancel.id);
+      toast({
+        title: "HODL Order Cancelled",
+        description: `Your HODL order for ${hodlToCancel.instrumentName} has been cancelled with a 20% profit penalty.`,
+        variant: "destructive"
+      });
+      setHodlToCancel(null);
+    }
+  };
+
 
   const TABS = ['Limit', 'HODL', 'Baskets', 'SP', 'Alerts'];
 
@@ -342,7 +394,7 @@ export default function OrdersPage() {
               ))}
               {activeTab === 'HODL' && (
                   hodlOrders.length > 0 ? hodlOrders.map(order => (
-                    <HodlOrderCard key={order.id} order={order} />
+                    <HodlOrderCard key={order.id} order={order} onCancelClick={setHodlToCancel} />
                   )) : (
                       <div className="text-center text-muted-foreground py-10">
                           <p>You have no active HODL orders.</p>
@@ -466,6 +518,24 @@ export default function OrdersPage() {
             <AlertDialogCancel onClick={() => setBasketToDelete(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteBasket} className="bg-destructive hover:bg-destructive/90">
                 Delete
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={!!hodlToCancel} onOpenChange={(open) => !open && setHodlToCancel(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Cancel HODL Order?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Cancelling this HODL order before the lock-in period ends will incur a
+                <span className="font-bold text-destructive"> 20% penalty on any profits</span>.
+                Are you sure you want to proceed?
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setHodlToCancel(null)}>Keep Order</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelHodl} className="bg-destructive hover:bg-destructive/90">
+                Yes, Cancel
             </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
