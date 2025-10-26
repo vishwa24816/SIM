@@ -73,6 +73,9 @@ export default function TradePage() {
         return;
     }
 
+    const sl = hodlConfig?.stopLoss ? parseFloat(hodlConfig.stopLoss) : undefined;
+    const tp = hodlConfig?.takeProfit ? parseFloat(hodlConfig.takeProfit) : undefined;
+
     if (orderType === 'limit') {
         const prc = parseFloat(price);
         if (!prc || prc <= 0) {
@@ -90,13 +93,13 @@ export default function TradePage() {
             price: prc,
             quantity: qty,
             status: 'Open',
-            stopLoss: hodlConfig?.stopLoss ? parseFloat(hodlConfig.stopLoss) : undefined,
-            takeProfit: hodlConfig?.takeProfit ? parseFloat(hodlConfig.takeProfit) : undefined,
+            stopLoss: sl,
+            takeProfit: tp,
         });
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order
         const margin = qty * crypto.price;
-        buy(crypto, margin, qty);
+        buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
     }
   };
   
@@ -121,8 +124,11 @@ export default function TradePage() {
         return;
     }
 
+    const sl = stopLoss ? parseFloat(stopLoss) : undefined;
+    const tp = takeProfit ? parseFloat(takeProfit) : undefined;
+
     // Execute the buy order first
-    buy(crypto, margin, qty);
+    buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
 
     // Then create the HODL order record
     addHodlOrder({
@@ -136,8 +142,8 @@ export default function TradePage() {
       orderType: orderType as 'limit' | 'market',
       period: { months: parseInt(months) || 0, years: parseInt(years) || 0 },
       margin,
-      stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
-      takeProfit: takeProfit ? parseFloat(takeProfit) : undefined,
+      stopLoss: sl,
+      takeProfit: tp,
       createdAt: new Date().toISOString(),
     });
 

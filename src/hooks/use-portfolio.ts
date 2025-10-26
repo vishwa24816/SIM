@@ -12,11 +12,16 @@ const INITIAL_PORTFOLIO: Portfolio = {
   holdings: [],
 };
 
+interface BuyOptions {
+    stopLoss?: number;
+    takeProfit?: number;
+}
+
 interface PortfolioState {
   portfolio: Portfolio;
   addUsd: (amount: number) => void;
   withdrawUsd: (amount: number) => void;
-  buy: (crypto: CryptoCurrency, usdAmount: number, quantity?: number) => void;
+  buy: (crypto: CryptoCurrency, usdAmount: number, quantity?: number, options?: BuyOptions) => void;
   sell: (crypto: CryptoCurrency, cryptoAmount: number) => void;
   getPortfolioValue: (marketData: CryptoCurrency[]) => number;
 }
@@ -56,7 +61,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                 }));
                 toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
             },
-            buy: (crypto, usdAmount, quantity) => {
+            buy: (crypto, usdAmount, quantity, options) => {
                 const currentBalance = get().portfolio.usdBalance;
 
                 if (usdAmount <= 0) {
@@ -81,9 +86,18 @@ export const usePortfolioStore = create<PortfolioState>()(
                             ...existingHolding,
                             amount: existingHolding.amount + cryptoAmount,
                             margin: (existingHolding.margin ?? 0) + usdAmount,
+                            stopLoss: options?.stopLoss ?? existingHolding.stopLoss,
+                            takeProfit: options?.takeProfit ?? existingHolding.takeProfit,
                         };
                     } else {
-                        newHoldings = [...state.portfolio.holdings, { cryptoId: crypto.id, amount: cryptoAmount, margin: usdAmount, assetType: crypto.assetType }];
+                        newHoldings = [...state.portfolio.holdings, { 
+                            cryptoId: crypto.id, 
+                            amount: cryptoAmount, 
+                            margin: usdAmount, 
+                            assetType: crypto.assetType,
+                            stopLoss: options?.stopLoss,
+                            takeProfit: options?.takeProfit,
+                        }];
                     }
 
                     return {
@@ -118,7 +132,8 @@ export const usePortfolioStore = create<PortfolioState>()(
                     
                     const usdAmount = cryptoAmount * crypto.price;
                     const newAmount = holding.amount - cryptoAmount;
-                    const proportionSold = cryptoAmount / holding.amount;
+                    
+                    const proportionSold = holding.amount > 0 ? cryptoAmount / holding.amount : 1;
                     const marginToReturn = (holding.margin ?? 0) * proportionSold;
                     const newMargin = (holding.margin ?? 0) - marginToReturn;
 
@@ -159,7 +174,8 @@ export const usePortfolioStore = create<PortfolioState>()(
                         const baseAsset = marketData.find(c => c.id === h.cryptoId.replace('-fut',''));
                         if (!crypto || !baseAsset || !h.margin) return acc;
                         
-                        const entryPrice = (h.margin * crypto.price) / (h.amount * baseAsset.price);
+                        const leverage = (h.amount * baseAsset.price) / h.margin;
+                        const entryPrice = isNaN(leverage) || leverage === 0 ? 0 : (h.margin * leverage) / h.amount;
                         const pnl = (baseAsset.price - entryPrice) * h.amount;
                         return acc + pnl;
                     }, 0);

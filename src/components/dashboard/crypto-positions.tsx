@@ -8,7 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { CryptoCurrency, Portfolio } from "@/lib/types";
+import { CryptoCurrency, Holding, Portfolio } from "@/lib/types";
 import { PieChart, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -99,6 +99,18 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                           <p className="font-semibold">${holding.margin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       </div>
                   </div>
+                  {(holding.stopLoss || holding.takeProfit) && (
+                    <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm mb-4">
+                        <div>
+                            <p className="text-muted-foreground">Stop Loss</p>
+                            <p className="font-semibold text-red-500">{holding.stopLoss ? `$${holding.stopLoss}` : 'Not Set'}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-muted-foreground">Take Profit</p>
+                            <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
+                        </div>
+                    </div>
+                )}
                   <div className="flex gap-2 mt-4">
                       <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
                           <Button size="sm" variant="outline" className="w-full">Modify</Button>
@@ -174,6 +186,18 @@ const FuturesAccordion = ({ positions }: { positions: any[] }) => {
                                         <p className="font-semibold">${holding.baseAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                     </div>
                                 </div>
+                                {(holding.stopLoss || holding.takeProfit) && (
+                                    <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm mb-4">
+                                        <div>
+                                            <p className="text-muted-foreground">Stop Loss</p>
+                                            <p className="font-semibold text-red-500">{holding.stopLoss ? `$${holding.stopLoss}` : 'Not Set'}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-muted-foreground">Take Profit</p>
+                                            <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="flex gap-2 mt-4">
                                     <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
                                         <Button size="sm" variant="outline" className="w-full">Modify</Button>
@@ -259,7 +283,3 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
     </>
   );
 }
-
-    
-
-    

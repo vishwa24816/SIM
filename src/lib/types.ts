@@ -16,6 +16,8 @@ export interface Holding {
   amount: number;
   margin?: number; // Margin used for futures or total cost for spot
   assetType: CryptoCurrency['assetType'];
+  stopLoss?: number;
+  takeProfit?: number;
 }
 
 export interface Portfolio {
