@@ -10,7 +10,6 @@ import { FuturesOrderForm } from '@/components/trade/futures-order-form';
 import { MarketDepth } from '@/components/trade/market-depth';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Separator } from '@/components/ui/separator';
 import { CryptoTechnicals } from '@/components/trade/crypto-technicals';
 import { CryptoAnalysis } from '@/components/trade/crypto-analysis';
@@ -23,6 +22,9 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('limit');
   const [activeTab, setActiveTab] = React.useState('Technicals');
+  const [investmentType, setInvestmentType] = React.useState('delivery');
+  const [quantity, setQuantity] = React.useState('');
+  const [canAddToBasket, setCanAddToBasket] = React.useState(false);
   
   const TABS = ['Technicals', 'Analysis'];
   
@@ -33,7 +35,8 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
       price: crypto.price,
       symbol: `${crypto.symbol}-FUT`,
       name: `${crypto.name} Futures`,
-      id: `${crypto.id}-fut`
+      id: `${crypto.id}-fut`,
+      assetType: 'Futures' as const,
   })), [marketData]);
 
   const crypto = React.useMemo(() => {
@@ -58,7 +61,7 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={undefined} loading={true} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4">
           <Skeleton className="h-[300px] w-full" />
           <Skeleton className="h-[400px] w-full" />
           <Skeleton className="h-[200px] w-full" />
@@ -71,7 +74,7 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
          <OrderPageHeader crypto={undefined} />
-        <main className="flex-1 flex items-center justify-center pb-20">
+        <main className="flex-1 flex items-center justify-center">
           <p>Futures contract not found.</p>
         </main>
       </div>
@@ -82,7 +85,7 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <OrderPageHeader crypto={crypto} />
       
-      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
+      <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-24">
         <PriceChart crypto={crypto} loading={marketLoading} />
         <Separator className="bg-border/50" />
         <FuturesOrderForm
@@ -91,9 +94,16 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
           setPrice={setPrice}
           orderType={orderType}
           setOrderType={setOrderType}
+          investmentType={investmentType}
+          setInvestmentType={setInvestmentType}
         />
         <Separator className="bg-border/50" />
-        <MarketDepth crypto={crypto} onPriceSelect={handlePriceSelect} />
+        <MarketDepth 
+          crypto={crypto} 
+          onPriceSelect={handlePriceSelect}
+          canAddToBasket={canAddToBasket}
+          orderState={{price, quantity, orderType, investmentType}}
+        />
         <Separator className="bg-border/50" />
         
         <div className="border-b border-border">
@@ -127,5 +137,3 @@ export default function FuturesTradePage({ params }: { params: { id: string } })
     </div>
   );
 }
-
-    

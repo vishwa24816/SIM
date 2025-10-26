@@ -268,7 +268,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                 <CollapsibleContent>
                     <AddToBasketForm
                         instrument={{ id: fund.id, name: fund.name, symbol: fund.symbol, assetType: 'Mutual Fund' }}
-                        orderState={{ price: fund.nav.toString(), quantity: quantity.toString(), orderType: 'one-time' }}
+                        orderState={{ price: fund.nav.toString(), quantity: quantity.toString(), orderType: 'one-time', investmentType }}
                         onClose={() => setIsAddingToBasket(false)}
                     />
                 </CollapsibleContent>

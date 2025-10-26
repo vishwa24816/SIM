@@ -96,6 +96,7 @@ export interface BasketItem {
     quantity: number;
     price: number;
     orderType: string;
+    investmentType: string;
 }
 
 export interface Basket {

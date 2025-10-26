@@ -21,6 +21,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
   const [orderType, setOrderType] = React.useState('limit');
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
   const [quantity, setQuantity] = React.useState('');
+  const [investmentType, setInvestmentType] = React.useState('delivery');
 
   const crypto = React.useMemo(() => {
     return marketData.find(c => c.id === params.id);
@@ -44,7 +45,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={undefined} loading={true} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4">
           <Skeleton className="h-[300px] w-full" />
           <Skeleton className="h-[400px] w-full" />
           <Skeleton className="h-[200px] w-full" />
@@ -57,7 +58,7 @@ export default function TradePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
          <OrderPageHeader crypto={undefined} />
-        <main className="flex-1 flex items-center justify-center pb-20">
+        <main className="flex-1 flex items-center justify-center">
           <p>Cryptocurrency not found.</p>
         </main>
       </div>
@@ -79,13 +80,15 @@ export default function TradePage({ params }: { params: { id: string } }) {
           onCanAddToBasketChange={setCanAddToBasket}
           quantity={quantity}
           setQuantity={setQuantity}
+          investmentType={investmentType}
+          setInvestmentType={setInvestmentType}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
           crypto={crypto} 
           onPriceSelect={handlePriceSelect} 
           canAddToBasket={canAddToBasket}
-          orderState={{price, quantity, orderType}}
+          orderState={{price, quantity, orderType, investmentType}}
         />
         <Separator className="bg-border/50" />
         <SimbotAnalysis crypto={crypto} showTabs={true} />

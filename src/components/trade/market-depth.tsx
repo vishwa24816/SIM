@@ -19,6 +19,7 @@ interface MarketDepthProps {
         price: string;
         quantity: string;
         orderType: string;
+        investmentType: string;
     }
 }
 

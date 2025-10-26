@@ -13,11 +13,12 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Card, CardContent } from '../ui/card';
 
 interface AddToBasketFormProps {
-  instrument: Omit<BasketItem, 'price' | 'quantity' | 'orderType'>;
+  instrument: Omit<BasketItem, 'price' | 'quantity' | 'orderType' | 'investmentType'>;
   orderState: {
     price: string;
     quantity: string;
     orderType: string;
+    investmentType: string;
   };
   onClose: () => void;
 }
@@ -45,6 +46,7 @@ export function AddToBasketForm({ instrument, orderState, onClose }: AddToBasket
       quantity: parseFloat(orderState.quantity) || 0,
       price: parseFloat(orderState.price) || 0,
       orderType: orderState.orderType,
+      investmentType: orderState.investmentType,
     };
 
     if (itemToAdd.quantity <= 0) {

@@ -31,6 +31,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
   const [isAddingToBasket, setIsAddingToBasket] = React.useState(false);
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
   const [quantity, setQuantity] = React.useState('');
+  const [investmentType, setInvestmentType] = React.useState('delivery');
 
 
   const etf = React.useMemo(() => {
@@ -91,7 +92,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={undefined} loading={true} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4">
           <Skeleton className="h-[300px] w-full" />
           <Skeleton className="h-[400px] w-full" />
           <Skeleton className="h-[200px] w-full" />
@@ -104,7 +105,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
          <OrderPageHeader crypto={undefined} />
-        <main className="flex-1 flex items-center justify-center pb-20">
+        <main className="flex-1 flex items-center justify-center">
           <p>ETF not found.</p>
         </main>
       </div>
@@ -115,7 +116,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
     <>
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={etf} />
-        <main className="flex-1 overflow-y-auto p-4 space-y-6">
+        <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-24">
           <PriceChart crypto={etf} loading={marketLoading} />
           <Separator className="bg-border/50" />
           <OrderForm
@@ -127,6 +128,8 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
             onCanAddToBasketChange={setCanAddToBasket}
             quantity={quantity}
             setQuantity={setQuantity}
+            investmentType={investmentType}
+            setInvestmentType={setInvestmentType}
           />
           <Separator className="bg-border/50" />
           
@@ -162,7 +165,7 @@ export default function ETFTradePage({ params }: { params: { id: string } }) {
             <CollapsibleContent>
                  <AddToBasketForm
                     instrument={{ id: etf.id, name: etf.name, symbol: etf.symbol, assetType: 'Crypto ETF' }}
-                    orderState={{price, quantity, orderType}}
+                    orderState={{price, quantity, orderType, investmentType}}
                     onClose={() => setIsAddingToBasket(false)}
                 />
             </CollapsibleContent>

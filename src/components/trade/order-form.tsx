@@ -19,10 +19,11 @@ interface OrderFormProps {
     onCanAddToBasketChange: (canAdd: boolean) => void;
     quantity: string;
     setQuantity: (qty: string) => void;
+    investmentType: string;
+    setInvestmentType: (type: string) => void;
 }
 
-export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, quantity, setQuantity }: OrderFormProps) {
-  const [investmentType, setInvestmentType] = React.useState('delivery');
+export function OrderForm({ crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, quantity, setQuantity, investmentType, setInvestmentType }: OrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');

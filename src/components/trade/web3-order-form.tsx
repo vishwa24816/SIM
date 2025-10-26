@@ -179,7 +179,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
                  <CollapsibleContent>
                      <AddToBasketForm
                         instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Web3' }}
-                        orderState={{ price: crypto.price.toString(), quantity: quantity.toString(), orderType: 'one-time'}}
+                        orderState={{ price: crypto.price.toString(), quantity: quantity.toString(), orderType: 'one-time', investmentType}}
                         onClose={() => setIsAddingToBasket(false)}
                     />
                 </CollapsibleContent>

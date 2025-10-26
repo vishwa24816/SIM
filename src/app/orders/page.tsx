@@ -196,7 +196,7 @@ export default function OrdersPage() {
     <>
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 overflow-y-auto pb-20 p-4 space-y-4">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
           <div className="border-b border-border">
             <div className="px-4 overflow-x-auto">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
@@ -260,7 +260,7 @@ export default function OrdersPage() {
                                                       <div className="flex justify-between items-center">
                                                           <div>
                                                               <p className="font-semibold">{item.name} <span className="text-xs text-muted-foreground">({item.assetType})</span></p>
-                                                              <p className="text-xs text-muted-foreground">{item.symbol}</p>
+                                                              <p className="text-xs text-muted-foreground">{item.symbol} <span className="capitalize text-primary">· {item.investmentType}</span></p>
                                                           </div>
                                                           {asset && (
                                                               <div className="text-right">

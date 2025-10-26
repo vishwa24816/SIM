@@ -16,12 +16,13 @@ interface FuturesOrderFormProps {
     setPrice: (price: string) => void;
     orderType: string;
     setOrderType: (type: string) => void;
+    investmentType: string;
+    setInvestmentType: (type: string) => void;
 }
 
 const leverageOptions = [1, 2, 3, 4, 5, 10, 20, 25, 50, 100, 200];
 
-export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderType }: FuturesOrderFormProps) {
-  const [investmentType, setInvestmentType] = React.useState('delivery');
+export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderType, investmentType, setInvestmentType }: FuturesOrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
   const [stopLossType, setStopLossType] = React.useState<'price' | 'percentage'>('price');
@@ -47,7 +48,7 @@ export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderT
     if (investmentType === 'hodl' && selectedLeverage > 5) {
         setInvestmentType('delivery');
     }
-  }, [selectedLeverage, investmentType]);
+  }, [selectedLeverage, investmentType, setInvestmentType]);
 
 
   return (
@@ -238,7 +239,3 @@ export function FuturesOrderForm({ crypto, price, setPrice, orderType, setOrderT
     </div>
   );
 }
-
-    
-
-    
