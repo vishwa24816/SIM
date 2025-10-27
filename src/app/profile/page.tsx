@@ -132,6 +132,30 @@ const ThemeSelector = () => {
     );
 };
 
+const languages = [
+    'English', 'Hindi',
+    'Sanskrit', 'Gujarati',
+    'Marathi', 'Bengali',
+    'Tamil', 'Telugu',
+    'Kannada', 'Malayalam',
+    'Urdu'
+];
+
+const LanguageSelector = () => {
+    const [selectedLanguage, setSelectedLanguage] = React.useState('English');
+
+    return (
+        <RadioGroup value={selectedLanguage} onValueChange={setSelectedLanguage} className="grid grid-cols-2 gap-4">
+            {languages.map((lang) => (
+                <div key={lang} className="flex items-center space-x-2">
+                    <RadioGroupItem value={lang} id={lang} />
+                    <Label htmlFor={lang}>{lang}</Label>
+                </div>
+            ))}
+        </RadioGroup>
+    );
+};
+
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -211,6 +235,10 @@ export default function ProfilePage() {
                     ) : item.id === 'theme' ? (
                         <div className="pl-10">
                            <ThemeSelector />
+                        </div>
+                    ) : item.id === 'language' ? (
+                        <div className="pl-10">
+                            <LanguageSelector />
                         </div>
                     ) : null}
                  </CollapsibleProfileItem>
