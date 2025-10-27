@@ -20,7 +20,7 @@ export default function WalletPage() {
   const { copy } = useCopyToClipboard();
   const { toast } = useToast();
   const [walletToRemove, setWalletToRemove] = React.useState<string | null>(null);
-  const [openAccordion, setOpenAccordion] = React.useState<string | null>(null);
+  const [openAccordion, setOpenAccordion] = React.useState<string | undefined>(undefined);
 
   const handleCopy = (text: string, type: string) => {
     copy(text);
@@ -32,10 +32,6 @@ export default function WalletPage() {
       removeWallet(walletToRemove);
       setWalletToRemove(null);
     }
-  };
-
-  const handleAccordionToggle = (value: string) => {
-    setOpenAccordion(openAccordion === value ? null : value);
   };
 
   return (
@@ -66,24 +62,22 @@ export default function WalletPage() {
               <p className="mt-1 text-sm text-muted-foreground">Create or import a wallet to get started.</p>
             </div>
           ) : (
-            <Accordion type="single" collapsible className="w-full space-y-4" value={openAccordion || ''} onValueChange={setOpenAccordion}>
+            <Accordion type="single" collapsible className="w-full space-y-4" value={openAccordion} onValueChange={setOpenAccordion}>
               {wallets.map((wallet) => (
                 <Card key={wallet.id}>
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-start">
-                          <AccordionTrigger onClick={() => handleAccordionToggle(wallet.id)} className="p-0 text-left hover:no-underline flex-1">
-                              <div>
-                                  <div className="flex items-center gap-2 mb-1">
-                                      <p className="font-bold">{wallet.name}</p>
-                                      {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                                  </div>
-                              </div>
-                          </AccordionTrigger>
+                          <div className="font-bold flex items-center gap-2">
+                            {wallet.name}
+                            {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                          </div>
                            <div className="flex items-center gap-1 pl-4">
-                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAccordionToggle(wallet.id)}>
-                                   <Eye className="h-4 w-4" />
-                               </Button>
+                               <AccordionTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                               </AccordionTrigger>
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>
                                    <Trash2 className="h-4 w-4 text-destructive" />
                                </Button>
