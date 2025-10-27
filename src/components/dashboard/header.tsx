@@ -5,20 +5,23 @@ import * as React from 'react';
 import { Menu, Search, User, Home, Info, BarChart2, Cpu, History, Rocket, FileText, LifeBuoy, X, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetFooter, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '../ui/button';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
 
-  const handleLinkClick = () => {
+  const handleNavigation = (path: string) => {
     setIsMenuOpen(false);
+    router.push(path);
   };
 
   return (
@@ -42,16 +45,16 @@ export function Header() {
                         </SheetHeader>
                         <div className="p-4 flex-1 overflow-y-auto">
                             <nav className="flex flex-col gap-1">
-                                <Link href="/" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Home /> Home</Link>
-                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Info /> About</Link>
-                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><BarChart2 /> Analytics</Link>
-                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Cpu /> No code Algo</Link>
-                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><History /> Backtester</Link>
+                                <Button onClick={() => handleNavigation('/')} variant="ghost" className="justify-start gap-3"><Home /> Home</Button>
+                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><Info /> About</Button>
+                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
+                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button>
+                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
                                 <Separator className="my-2" />
-                                <Link href="/simball" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Rocket /> SIMBALL</Link>
-                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><FileText /> TAXY</Link>
+                                <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
+                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
                                 <Separator className="my-2" />
-                                <Link href="/support" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><LifeBuoy /> Support</Link>
+                                <Button onClick={() => handleNavigation('/support')} variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button>
                             </nav>
                         </div>
                         <SheetFooter className="p-4 border-t mt-auto">
