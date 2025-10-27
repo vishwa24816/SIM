@@ -3,12 +3,11 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Wallet as WalletIcon, Trash2, Eye, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Wallet as WalletIcon, Trash2, CheckCircle, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets } from '@/hooks/use-wallets';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,19 +18,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
+const generatePublicKey = () => `0x${[...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
 
 export default function WalletManagementPage() {
   const router = useRouter();
   const { wallets, removeWallet, setPrimaryWallet } = useWallets();
   const [walletToDelete, setWalletToDelete] = React.useState<string | null>(null);
-  const { toast } = useToast();
-
-  const handleShowPhrase = (phrase: string) => {
-    toast({
-        title: 'Recovery Phrase',
-        description: phrase,
-    });
-  }
 
   const handleDelete = () => {
     if (walletToDelete) {
@@ -64,46 +58,54 @@ export default function WalletManagementPage() {
                 </Button>
             </div>
             
-            <div className="space-y-4">
+            <Accordion type="single" collapsible className="w-full space-y-4">
                 {wallets.map(wallet => (
-                    <Card key={wallet.id}>
-                        <CardContent className="p-4">
-                             <div className="flex justify-between items-start mb-4">
+                    <AccordionItem value={wallet.id} key={wallet.id} className="border bg-card rounded-lg">
+                        <AccordionTrigger className="p-4 hover:no-underline">
+                            <div className="flex justify-between items-center w-full">
                                 <div className="flex items-center gap-3">
                                     <WalletIcon className="h-6 w-6 text-primary" />
                                     <h3 className="font-bold text-lg">{wallet.name}</h3>
+                                     {wallet.isPrimary && (
+                                        <Badge>
+                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                            Primary
+                                        </Badge>
+                                    )}
                                 </div>
-                                {wallet.isPrimary ? (
-                                    <Badge>
-                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                        Primary
-                                    </Badge>
-                                ) : (
-                                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setWalletToDelete(wallet.id)}>
-                                        <Trash2 className="h-5 w-5" />
+                                <div className="flex items-center gap-2">
+                                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                                </div>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                           <div className="p-4 pt-0 space-y-4">
+                             <div>
+                                <p className="text-sm font-semibold mb-2">Recovery Phrase</p>
+                                <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-2">
+                                  {wallet.recoveryPhrase.split(' ').map((word, i) => <span key={i}><span className="font-bold text-foreground">{i+1}.</span> {word}</span>)}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold mb-2">Public Key</p>
+                                <p className="p-3 bg-muted rounded-md text-sm text-muted-foreground break-all">{generatePublicKey()}</p>
+                              </div>
+                               <div className="flex gap-2 mt-4">
+                                {!wallet.isPrimary && (
+                                    <Button variant="outline" className="w-full" onClick={() => setPrimaryWallet(wallet.id)}>
+                                        Make Primary
                                     </Button>
                                 )}
-                            </div>
-
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between items-center">
-                                    <span className="font-medium">Recovery Phrase</span>
-                                    <Button variant="ghost" size="icon" onClick={() => handleShowPhrase(wallet.recoveryPhrase)}>
-                                        <Eye className="h-5 w-5 text-muted-foreground" />
-                                    </Button>
-                                </div>
-                                <p><span className="text-muted-foreground">Account:</span> {wallet.accountId}</p>
-                            </div>
-                            
-                            {!wallet.isPrimary && (
-                                <Button variant="outline" className="w-full mt-4" onClick={() => setPrimaryWallet(wallet.id)}>
-                                    Make Primary
+                                 <Button variant="destructive" size="sm" className="w-full" onClick={() => setWalletToDelete(wallet.id)}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
                                 </Button>
-                            )}
-                        </CardContent>
-                    </Card>
+                               </div>
+                           </div>
+                        </AccordionContent>
+                    </AccordionItem>
                 ))}
-            </div>
+            </Accordion>
         </main>
       </div>
       <AlertDialog open={!!walletToDelete} onOpenChange={() => setWalletToDelete(null)}>
