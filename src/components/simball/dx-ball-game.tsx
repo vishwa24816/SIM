@@ -30,8 +30,6 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const paddleHeight = 10;
   const paddleWidth = 100;
   const paddleX = useRef<number>(0);
-  const rightPressed = useRef(false);
-  const leftPressed = useRef(false);
 
   const bricks = useRef<{ x: number; y: number; status: number }[][]>([]);
 
@@ -107,7 +105,8 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     
     // Dynamic brick sizing
     const brickHeight = 20;
-    const brickWidth = (canvas.width - (brickOffsetLeft * 2) - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
+    const availableWidth = canvas.width - (brickOffsetLeft * 2);
+    const brickWidth = (availableWidth - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
 
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -129,12 +128,6 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       }
     }
 
-    if (rightPressed.current && paddleX.current < canvas.width - paddleWidth) {
-        paddleX.current += 7;
-    } else if (leftPressed.current && paddleX.current > 0) {
-        paddleX.current -= 7;
-    }
-
     x.current += dx.current;
     y.current += dy.current;
 
@@ -146,7 +139,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     if (!canvas) return;
     
     // Set canvas dimensions once
-    canvas.width = Math.min(window.innerWidth, 960); // Cap width for large screens
+    canvas.width = Math.min(window.innerWidth * 0.9, 960);
     canvas.height = window.innerHeight * 0.9;
     
     x.current = canvas.width / 2;
@@ -156,9 +149,16 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     setupBricks();
     
     const mouseMoveHandler = (e: MouseEvent) => {
-        const relativeX = e.clientX - canvas.offsetLeft;
+        const canvasRect = canvas.getBoundingClientRect();
+        const relativeX = e.clientX - canvasRect.left;
         if (relativeX > 0 && relativeX < canvas.width) {
             paddleX.current = relativeX - paddleWidth / 2;
+            if (paddleX.current < 0) {
+              paddleX.current = 0;
+            }
+            if (paddleX.current + paddleWidth > canvas.width) {
+              paddleX.current = canvas.width - paddleWidth;
+            }
         }
     };
     
