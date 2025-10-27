@@ -52,26 +52,34 @@ const gamesPlayed: SimballGame[] = [
     },
 ];
 
-const GameCard = React.memo(({ game }: { game: SimballGame }) => {
+const GameCard = React.memo(({ game, isPlayed }: { game: SimballGame, isPlayed?: boolean }) => {
     const isBuy = game.type === 'BUY';
 
     return (
         <Card className={cn(
-            "overflow-hidden rounded-2xl shadow-lg text-white",
-            isBuy 
-                ? "bg-gradient-to-br from-green-400 to-emerald-600" 
-                : "bg-gradient-to-br from-red-400 to-rose-600"
+            "overflow-hidden rounded-2xl shadow-lg",
+            isPlayed
+                ? "bg-muted text-foreground"
+                : "text-white " + (isBuy 
+                    ? "bg-gradient-to-br from-green-400 to-emerald-600" 
+                    : "bg-gradient-to-br from-red-400 to-rose-600")
         )}>
             <CardContent className="p-6">
-                <div className={cn("flex items-center gap-2 text-sm text-white/90")}>
+                <div className={cn(
+                    "flex items-center gap-2 text-sm",
+                    isPlayed ? "text-muted-foreground" : "text-white/90"
+                )}>
                     {isBuy ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
                     <span>{game.type}</span>
                 </div>
                 <h3 className="text-4xl font-bold mt-2">{game.crypto}</h3>
-                <p className="mt-1 text-white/80">{game.quantity}</p>
+                <p className={cn("mt-1", isPlayed ? "text-muted-foreground" : "text-white/80")}>{game.quantity}</p>
 
-                <div className="mt-6 space-y-2 text-sm text-white/90">
-                    <p>Brokerage to be earned back: <span className="font-bold text-white">{game.brokerage}</span></p>
+                <div className={cn(
+                    "mt-6 space-y-2 text-sm",
+                    isPlayed ? "text-muted-foreground" : "text-white/90"
+                )}>
+                    <p>Brokerage to be earned back: <span className={cn("font-bold", !isPlayed && "text-white")}>{game.brokerage}</span></p>
                     <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         <span>{game.time}</span>
@@ -162,7 +170,7 @@ export default function SimballPage() {
                     <h2 className="text-xl font-bold mb-4">Games played</h2>
                     <div className="space-y-4">
                         {gamesPlayed.map((game, index) => (
-                            <GameCard key={index} game={game} />
+                            <GameCard key={index} game={game} isPlayed />
                         ))}
                     </div>
                 </div>
