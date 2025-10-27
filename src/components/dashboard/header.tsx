@@ -10,8 +10,6 @@ import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { buttonVariants } from '../ui/button';
 import { useRouter } from 'next/navigation';
 
 export function Header() {
