@@ -5,7 +5,6 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Wallet as WalletIcon, Trash2, CheckCircle, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useWallets } from '@/hooks/use-wallets';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -65,15 +64,18 @@ export default function WalletManagementPage() {
                             <div className="flex justify-between items-center w-full">
                                 <div className="flex items-center gap-3">
                                     <WalletIcon className="h-6 w-6 text-primary" />
-                                    <h3 className="font-bold text-lg">{wallet.name}</h3>
-                                     {wallet.isPrimary && (
-                                        <Badge>
-                                            <CheckCircle className="mr-2 h-4 w-4" />
-                                            Primary
-                                        </Badge>
-                                    )}
+                                    <div className="text-left">
+                                        <h3 className="font-bold text-lg">{wallet.name}</h3>
+                                        {wallet.isPrimary && (
+                                            <Badge>
+                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                                Primary
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2">
+                                  <span className="text-sm text-muted-foreground">View</span>
                                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                                 </div>
                             </div>
@@ -82,8 +84,12 @@ export default function WalletManagementPage() {
                            <div className="p-4 pt-0 space-y-4">
                              <div>
                                 <p className="text-sm font-semibold mb-2">Recovery Phrase</p>
-                                <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-2">
-                                  {wallet.recoveryPhrase.split(' ').map((word, i) => <span key={i}><span className="font-bold text-foreground">{i+1}.</span> {word}</span>)}
+                                <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
+                                  {wallet.recoveryPhrase.split(' ').map((word, i) => (
+                                    <span key={i} className="font-mono text-foreground">
+                                      <span className="text-muted-foreground">{i+1}.</span> {word}
+                                    </span>
+                                  ))}
                                 </div>
                               </div>
                               <div>
