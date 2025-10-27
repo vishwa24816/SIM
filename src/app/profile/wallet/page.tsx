@@ -81,7 +81,7 @@ export default function WalletPage() {
                               </div>
                           </AccordionTrigger>
                            <div className="flex items-center gap-1 pl-4">
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAccordionToggle(wallet.id)}>
+                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAccordionToggle(wallet.id)}>
                                    <Eye className="h-4 w-4" />
                                </Button>
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>

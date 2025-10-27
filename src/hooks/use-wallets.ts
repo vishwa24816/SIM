@@ -11,15 +11,15 @@ const initialWallets: Wallet[] = [
         id: 'wallet_1',
         name: 'My Main Wallet',
         isPrimary: true,
-        recoveryPhrase: 'example recovery phrase one two three four five six seven eight nine',
-        publicKey: '0x1234...abcd'
+        recoveryPhrase: 'witch collapse practice feed shame open despair creek road again ice least',
+        publicKey: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B'
     },
     {
         id: 'wallet_2',
         name: 'Trading Vault',
         isPrimary: false,
-        recoveryPhrase: 'another secret key for wallet two that is long and very secure',
-        publicKey: '0x5678...efgh'
+        recoveryPhrase: 'desert thank remain material lounge fly captain raw master fleet hurry amazing',
+        publicKey: '0x51b7a3a59345a18621a22119413994358895c15c'
     }
 ];
 
