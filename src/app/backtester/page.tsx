@@ -24,7 +24,6 @@ export default function BacktesterPage() {
 
   const handleRunBacktest = async () => {
     setIsLoading(true);
-    setResults(null);
     try {
       const btcHistory = marketData.find(c => c.id === 'bitcoin')?.priceHistory || [];
       if (btcHistory.length > 0) {
