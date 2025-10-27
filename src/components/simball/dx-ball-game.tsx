@@ -92,6 +92,9 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
           if (x.current > b.x && x.current < b.x + brickWidth && y.current > b.y && y.current < b.y + brickHeight) {
             dy.current = -dy.current;
             b.status = 0;
+            // Increase ball speed by 20%
+            dx.current *= 1.2;
+            dy.current *= 1.2;
           }
         }
       }
