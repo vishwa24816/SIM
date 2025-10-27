@@ -19,7 +19,7 @@ const initialWallets: Wallet[] = [
         name: 'My Main Wallet',
         accountId: 'DEMO123',
         type: 'Custodian',
-        recoveryPhrase: 'example recovery phrase one',
+        recoveryPhrase: 'orbit mystery ribbon pizza salt bus afford dash canoe ranch eagle symptom',
         isPrimary: false,
     },
     {
@@ -27,7 +27,7 @@ const initialWallets: Wallet[] = [
         name: 'Trading Wallet',
         accountId: 'REAL456',
         type: 'Self',
-        recoveryPhrase: 'example recovery phrase two',
+        recoveryPhrase: 'lava acquire lobster vacant junk garlic jungle puzzle harvest absorb valid vendor',
         isPrimary: true,
     }
 ]
