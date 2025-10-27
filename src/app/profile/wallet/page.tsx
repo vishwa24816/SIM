@@ -73,15 +73,15 @@ export default function WalletPage() {
             <Accordion type="single" collapsible className="w-full space-y-4" value={openAccordion} onValueChange={setOpenAccordion}>
               {wallets.map((wallet) => (
                 <Card key={wallet.id}>
-                   <AccordionItem value={wallet.id} className="border-b-0">
+                  <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center">
-                          <AccordionTrigger className="p-0 flex-1 hover:no-underline" asChild>
-                            <div className="font-bold flex items-center gap-2">
-                                {wallet.name}
-                                {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                            </div>
-                          </AccordionTrigger>
+                            <AccordionTrigger className="p-0 flex-1 hover:no-underline justify-start">
+                                <div className="font-bold flex items-center gap-2">
+                                    {wallet.name}
+                                    {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                                </div>
+                            </AccordionTrigger>
                            <div className="flex items-center gap-1">
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleAccordion(wallet.id)}>
                                  <Eye className="h-4 w-4" />
