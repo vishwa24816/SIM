@@ -7,10 +7,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Menu, Save, Play, Plus, Minus, Expand, Lock, Mic, Send, List as ListIcon, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
 
 const StartNode = () => {
     return (
-        <Card className="w-64 border-2 border-green-500 shadow-lg">
+        <Card className="w-64 border-2 border-green-500 shadow-lg cursor-grab active:cursor-grabbing">
             <CardContent className="p-3">
                 <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center gap-2">
@@ -36,6 +37,7 @@ const StartNode = () => {
 
 export default function NoCodeAlgoPage() {
   const router = useRouter();
+  const canvasRef = React.useRef<HTMLDivElement>(null);
   
   return (
       <div className="flex flex-col h-screen bg-background text-foreground font-sans">
@@ -56,10 +58,14 @@ export default function NoCodeAlgoPage() {
             </div>
         </header>
 
-        <main className="flex-1 relative dot-grid">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <main ref={canvasRef} className="flex-1 relative dot-grid">
+            <motion.div
+                drag
+                dragConstraints={canvasRef}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            >
                 <StartNode />
-            </div>
+            </motion.div>
 
             <div className="absolute top-4 right-4 flex flex-col gap-2">
                 <Button variant="outline" size="icon"><Plus className="h-4 w-4" /></Button>
