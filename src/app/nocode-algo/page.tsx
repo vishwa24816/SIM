@@ -134,7 +134,6 @@ export default function NoCodeAlgoPage() {
                         <Button variant="ghost" size="icon" onClick={() => router.back()}>
                             <ArrowLeft className="h-6 w-6" />
                         </Button>
-                        <h1 className="text-xl font-bold">New Algorithm</h1>
                         <div className="ml-auto flex items-center gap-2">
                             <Button variant="outline"><Trash2 className="w-4 h-4 mr-2" /> Clear</Button>
                             <Button variant="outline"><Save className="w-4 h-4 mr-2" /> Save</Button>
