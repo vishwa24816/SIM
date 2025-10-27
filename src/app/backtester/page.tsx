@@ -126,9 +126,11 @@ export default function BacktesterPage() {
 
         {(isLoading || results) && <Separator />}
 
-        {results && (
+        {isLoading ? (
+          <div className="text-center text-muted-foreground">Loading results...</div>
+        ) : results ? (
           <BacktestResults results={results} />
-        )}
+        ) : null}
       </main>
     </div>
   );
