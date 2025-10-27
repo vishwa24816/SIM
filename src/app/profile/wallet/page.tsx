@@ -92,7 +92,26 @@ export default function WalletPage() {
 
                         <AccordionContent className="pt-4 px-0 pb-0">
                            <div className="space-y-4">
-                                {/* Recovery Phrase and Public Key removed as requested */}
+                                <div>
+                                    <Label className="text-xs font-semibold">Recovery Phrase</Label>
+                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
+                                        {wallet.recoveryPhrase.split(' ').map((word, index) => (
+                                            <div key={index} className="flex items-baseline">
+                                                <span className="text-xs mr-1.5">{index + 1}.</span>
+                                                <span className="font-medium text-foreground">{word}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <Label className="text-xs font-semibold">Public Key</Label>
+                                    <div className="p-3 pr-2 bg-muted rounded-md text-sm text-muted-foreground flex items-center justify-between">
+                                        <span className="font-mono text-xs break-all text-foreground">{wallet.publicKey}</span>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleCopy(wallet.publicKey, 'Public Key')}>
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
                            </div>
                         </AccordionContent>
                         
