@@ -25,6 +25,7 @@ import {
   LogOut,
   ArrowLeft,
   Volume2,
+  Copy,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,9 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 const ProfileItem = ({ icon, title, description, badge }: { icon: React.ElementType, title: string, description: string, badge?: { text: string, type: string } }) => {
   const Icon = icon;
@@ -88,6 +92,21 @@ const CollapsibleProfileItem = ({ icon, title, description, children, badge }: {
 
 export default function ProfilePage() {
     const router = useRouter();
+    const { copy } = useCopyToClipboard();
+    const { toast } = useToast();
+    const [apiKey, setApiKey] = React.useState('');
+
+    const generateApiKey = () => {
+      const randomKey = 'sim_live_' + [...Array(32)].map(() => Math.random().toString(36)[2]).join('');
+      setApiKey(randomKey);
+    };
+
+    const handleCopyKey = () => {
+      if (!apiKey) return;
+      copy(apiKey);
+      toast({ title: 'API Key Copied!' });
+    };
+
     const profileItems = [
     { id: 'profile', icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { id: 'kyc', icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' }, href: '#' },
@@ -134,7 +153,19 @@ export default function ProfilePage() {
             if (item.collapsible) {
               return (
                  <CollapsibleProfileItem key={item.id} icon={item.icon} title={item.title} description={item.description} badge={item.badge}>
-                  {/* Children for collapsible items can be added here */}
+                    {item.id === 'api' ? (
+                      <div className="space-y-4 pl-10">
+                        <div className="relative">
+                          <Input readOnly value={apiKey} placeholder="Click 'Generate' to create a key" className="pr-10" />
+                          {apiKey && (
+                            <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" onClick={handleCopyKey}>
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <Button onClick={generateApiKey} className="w-full">Generate Key</Button>
+                      </div>
+                    ) : null}
                  </CollapsibleProfileItem>
               )
             }
