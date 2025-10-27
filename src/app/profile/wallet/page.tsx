@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye } from 'lucide-react';
+import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets } from '@/hooks/use-wallets';
@@ -76,11 +76,13 @@ export default function WalletPage() {
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center">
-                            <div className="font-bold flex items-center gap-2">
-                                {wallet.name}
-                                {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                            </div>
-                           <div className="flex items-center gap-1">
+                            <AccordionTrigger className="p-0 hover:no-underline">
+                                <div className="font-bold flex items-center gap-2">
+                                    {wallet.name}
+                                    {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                                </div>
+                            </AccordionTrigger>
+                           <div className="flex items-center gap-1 pl-4">
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleAccordion(wallet.id)}>
                                  <Eye className="h-4 w-4" />
                                </Button>
@@ -104,10 +106,10 @@ export default function WalletPage() {
                                 </div>
                                 <div>
                                     <Label className="text-xs font-semibold">Public Key</Label>
-                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground">
+                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground mb-2">
                                         <span className="font-mono text-xs break-all text-foreground">{dummyPublicKey}</span>
                                     </div>
-                                    <Button variant="link" className="p-0 h-auto mt-2 text-sm" onClick={handleGetPrivateKey}>Get private key</Button>
+                                    <Button variant="outline" size="sm" className="w-full" onClick={handleGetPrivateKey}>Get private key</Button>
                                 </div>
                            </div>
                         </AccordionContent>
