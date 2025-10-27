@@ -59,7 +59,7 @@ const GameCard = React.memo(({ game, isPlayed }: { game: SimballGame, isPlayed?:
         <Card className={cn(
             "overflow-hidden rounded-2xl shadow-lg",
             isPlayed
-                ? "bg-muted text-foreground"
+                ? "bg-[#e5e5e5] text-[#333333]" 
                 : "text-white " + (isBuy 
                     ? "bg-gradient-to-br from-green-400 to-emerald-600" 
                     : "bg-gradient-to-br from-red-400 to-rose-600")
@@ -67,17 +67,17 @@ const GameCard = React.memo(({ game, isPlayed }: { game: SimballGame, isPlayed?:
             <CardContent className="p-6">
                 <div className={cn(
                     "flex items-center gap-2 text-sm",
-                    isPlayed ? "text-muted-foreground" : "text-white/90"
+                    isPlayed ? "text-inherit/70" : "text-white/90"
                 )}>
                     {isBuy ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
                     <span>{game.type}</span>
                 </div>
                 <h3 className="text-4xl font-bold mt-2">{game.crypto}</h3>
-                <p className={cn("mt-1", isPlayed ? "text-muted-foreground" : "text-white/80")}>{game.quantity}</p>
+                <p className={cn("mt-1", isPlayed ? "text-inherit/60" : "text-white/80")}>{game.quantity}</p>
 
                 <div className={cn(
                     "mt-6 space-y-2 text-sm",
-                    isPlayed ? "text-muted-foreground" : "text-white/90"
+                    isPlayed ? "text-inherit/70" : "text-white/90"
                 )}>
                     <p>Brokerage to be earned back: <span className={cn("font-bold", !isPlayed && "text-white")}>{game.brokerage}</span></p>
                     <div className="flex items-center gap-2">
