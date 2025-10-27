@@ -201,5 +201,4 @@ export interface SimballGame {
   quantity: string;
   brokerage: string;
   time: string;
-  color: string;
 }

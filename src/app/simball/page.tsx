@@ -18,7 +18,6 @@ const gamesToBePlayed: SimballGame[] = [
         quantity: '0.5 Quantity',
         brokerage: '₹50.00',
         time: '3 days ago',
-        color: 'bg-gradient-to-br from-green-400 to-green-600',
     },
     {
         type: 'SELL',
@@ -26,7 +25,6 @@ const gamesToBePlayed: SimballGame[] = [
         quantity: '5 Quantity',
         brokerage: '₹80.00',
         time: '2 days ago',
-        color: 'bg-gradient-to-br from-red-500 to-red-700',
     },
     {
         type: 'BUY',
@@ -34,7 +32,6 @@ const gamesToBePlayed: SimballGame[] = [
         quantity: '10 Quantity',
         brokerage: '₹40.00',
         time: '1 day ago',
-        color: 'bg-gradient-to-br from-blue-500 to-blue-700',
     },
 ];
 
@@ -45,7 +42,6 @@ const gamesPlayed: SimballGame[] = [
         quantity: '1000 Quantity',
         brokerage: '₹25.00',
         time: '8 hours ago',
-        color: 'bg-slate-700',
     },
     {
         type: 'SELL',
@@ -53,7 +49,6 @@ const gamesPlayed: SimballGame[] = [
         quantity: '500000 Quantity',
         brokerage: '₹35.00',
         time: '2 hours ago',
-        color: 'bg-slate-700',
     },
 ];
 
@@ -65,10 +60,19 @@ const leaderboardData = [
     { rank: 5, name: 'Vikram', cashback: 41000, initial: 'V' },
 ];
 
-const GameCard = ({ game }: { game: SimballGame }) => {
+const GameCard = ({ game }: { game: Omit<SimballGame, 'color'> }) => {
     const isBuy = game.type === 'BUY';
+
+    const colorClass = {
+        'BTC': 'bg-gradient-to-br from-green-400 to-green-600',
+        'ETH': 'bg-gradient-to-br from-red-500 to-red-700',
+        'SOL': 'bg-gradient-to-br from-blue-500 to-blue-700',
+        'DOGE': 'bg-slate-700',
+        'SHIB': 'bg-slate-700',
+    }[game.crypto] || 'bg-slate-700';
+
     return (
-        <Card className={cn("text-white p-6 rounded-2xl shadow-lg", game.color)}>
+        <Card className={cn("text-white p-6 rounded-2xl shadow-lg", colorClass)}>
             <div className="flex items-center gap-2 text-sm opacity-80">
                 {isBuy ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
                 <span>{game.type}</span>
