@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -15,14 +15,12 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const animationFrameId = useRef<number>();
 
   const brickColumnCount = 10;
-  const brickRowCount = Math.ceil(brokerage / brickColumnCount);
-  const brickWidth = 75;
-  const brickHeight = 20;
+  const brickRowCount = useMemo(() => Math.ceil(brokerage / brickColumnCount), [brokerage]);
   const brickPadding = 10;
   const brickOffsetTop = 30;
   const brickOffsetLeft = 30;
 
-  // Use refs for game state to avoid re-renders and stale closures in requestAnimationFrame
+  // Game state refs
   const x = useRef<number>(0);
   const y = useRef<number>(0);
   const dx = useRef(4);
@@ -32,6 +30,8 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const paddleHeight = 10;
   const paddleWidth = 100;
   const paddleX = useRef<number>(0);
+  const rightPressed = useRef(false);
+  const leftPressed = useRef(false);
 
   const bricks = useRef<{ x: number; y: number; status: number }[][]>([]);
 
@@ -41,12 +41,10 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     for (let c = 0; c < brickRowCount; c++) {
       newBricks[c] = [];
       for (let r = 0; r < brickColumnCount; r++) {
-        if (brickCount < brokerage) {
-          newBricks[c][r] = { x: 0, y: 0, status: 1 };
-          brickCount++;
-        } else {
-          // Fill the rest with non-drawable bricks if brokerage isn't a multiple of 10
-          newBricks[c][r] = { x: 0, y: 0, status: 0 };
+        const status = brickCount < brokerage ? 1 : 0;
+        newBricks[c][r] = { x: 0, y: 0, status: status };
+        if (status === 1) {
+            brickCount++;
         }
       }
     }
@@ -68,11 +66,11 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     ctx.fill();
     ctx.closePath();
   };
-
-  const drawBricks = (ctx: CanvasRenderingContext2D) => {
+  
+  const drawBricks = useCallback((ctx: CanvasRenderingContext2D, brickWidth: number, brickHeight: number) => {
     for (let c = 0; c < brickRowCount; c++) {
       for (let r = 0; r < brickColumnCount; r++) {
-        if (bricks.current[c] && bricks.current[c][r] && bricks.current[c][r].status === 1) {
+        if (bricks.current[c]?.[r]?.status === 1) {
           const brickX = (r * (brickWidth + brickPadding)) + brickOffsetLeft;
           const brickY = (c * (brickHeight + brickPadding)) + brickOffsetTop;
           bricks.current[c][r].x = brickX;
@@ -85,9 +83,9 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
         }
       }
     }
-  };
+  }, [brickRowCount]);
   
-  const collisionDetection = useCallback(() => {
+  const collisionDetection = useCallback((brickWidth: number, brickHeight: number) => {
     for (let c = 0; c < brickRowCount; c++) {
       for (let r = 0; r < brickColumnCount; r++) {
         const b = bricks.current[c]?.[r];
@@ -106,12 +104,17 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    
+    // Dynamic brick sizing
+    const brickHeight = 20;
+    const brickWidth = (canvas.width - (brickOffsetLeft * 2) - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
+
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBricks(ctx);
+    drawBricks(ctx, brickWidth, brickHeight);
     drawBall(ctx);
     drawPaddle(ctx);
-    collisionDetection();
+    collisionDetection(brickWidth, brickHeight);
 
     if (x.current + dx.current > canvas.width - ballRadius || x.current + dx.current < ballRadius) {
       dx.current = -dx.current;
@@ -126,19 +129,26 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       }
     }
 
+    if (rightPressed.current && paddleX.current < canvas.width - paddleWidth) {
+        paddleX.current += 7;
+    } else if (leftPressed.current && paddleX.current > 0) {
+        paddleX.current -= 7;
+    }
+
     x.current += dx.current;
     y.current += dy.current;
 
     animationFrameId.current = requestAnimationFrame(draw);
-  }, [collisionDetection, onClose]);
+  }, [collisionDetection, drawBricks, onClose]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
+    // Set canvas dimensions once
+    canvas.width = Math.min(window.innerWidth, 960); // Cap width for large screens
+    canvas.height = window.innerHeight * 0.9;
+    
     x.current = canvas.width / 2;
     y.current = canvas.height - 30;
     paddleX.current = (canvas.width - paddleWidth) / 2;
