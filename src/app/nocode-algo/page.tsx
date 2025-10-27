@@ -2,52 +2,31 @@
 'use client';
 
 import * as React from 'react';
-import { ArrowLeft, Play, Save, Trash2, Clock, GitBranch, ArrowDown, Settings, GripVertical, Plus, Menu } from 'lucide-react';
+import { ArrowLeft, Play, Save, Trash2, GitBranch, Plus, Menu, ZoomIn, ZoomOut, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-
-const DraggableNode = ({ icon: Icon, title, description, color, children, isConnector = false }: { icon: React.ElementType; title: string; description?: string; color: string; children?: React.ReactNode; isConnector?: boolean }) => (
-    <div className={`relative ${isConnector ? 'w-full' : 'w-64'}`}>
-        {!isConnector && (
-            <Card className={`bg-${color}-500/10 border-${color}-500/50 shadow-md`}>
-                <CardHeader className="flex flex-row items-center gap-4 p-4">
-                    <div className={`p-2 bg-background rounded-lg`}>
-                        <Icon className={`w-6 h-6 text-${color}-500`} />
-                    </div>
-                    <div>
-                        <CardTitle className="text-base">{title}</CardTitle>
-                        {description && <CardDescription className="text-xs">{description}</CardDescription>}
-                    </div>
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6">
-                        <Settings className="w-4 h-4" />
-                    </Button>
-                </CardHeader>
-                {children && (
-                    <CardContent className="p-4 pt-0">
-                        {children}
-                    </CardContent>
-                )}
-            </Card>
-        )}
-        {isConnector && <div className="h-12 w-px bg-border mx-auto" />}
-        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-background border rounded-full flex items-center justify-center">
-            <Plus className="w-4 h-4 text-muted-foreground" />
-        </div>
-    </div>
-);
+import { cn } from '@/lib/utils';
+import { Clock } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 
 const SidebarNode = ({ icon: Icon, title, color }: { icon: React.ElementType; title: string; color: string }) => (
     <div className="flex items-center gap-3 p-3 rounded-lg border bg-card cursor-grab active:cursor-grabbing">
         <GripVertical className="w-5 h-5 text-muted-foreground" />
-        <Icon className={`w-5 h-5 text-${color}-500`} />
+        <Icon className={cn('w-5 h-5', `text-${color}-500`)} />
         <span className="font-medium">{title}</span>
     </div>
 );
 
+
 export default function NoCodeAlgoPage() {
     const router = useRouter();
+    const [zoom, setZoom] = React.useState(100);
+    const [isLocked, setIsLocked] = React.useState(false);
+
+    const handleZoomIn = () => setZoom(z => Math.min(z + 10, 200));
+    const handleZoomOut = () => setZoom(z => Math.max(z - 10, 30));
 
     return (
         <div className="bg-muted/40 min-h-screen flex flex-col">
@@ -88,11 +67,27 @@ export default function NoCodeAlgoPage() {
                 </div>
             </header>
 
-            <main className="flex-1 p-8 overflow-auto">
-                <div className="flex flex-col items-center justify-center min-h-full">
+            <main className="flex-1 p-8 overflow-hidden relative">
+                <div 
+                    className="flex flex-col items-center justify-center min-h-full transition-transform duration-200"
+                    style={{ transform: `scale(${zoom / 100})` }}
+                >
                     <div className="text-center text-muted-foreground">
                         <p>Drag and drop nodes from the panel to start building your algorithm.</p>
                     </div>
+                </div>
+
+                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                    <Button variant="outline" size="icon" onClick={handleZoomOut}>
+                        <ZoomOut className="h-5 w-5" />
+                    </Button>
+                    <span className="text-sm font-medium w-12 text-center">{zoom}%</span>
+                    <Button variant="outline" size="icon" onClick={handleZoomIn}>
+                        <ZoomIn className="h-5 w-5" />
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={() => setIsLocked(!isLocked)}>
+                        {isLocked ? <Lock className="h-5 w-5" /> : <Unlock className="h-5 w-5" />}
+                    </Button>
                 </div>
             </main>
         </div>
