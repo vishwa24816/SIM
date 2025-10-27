@@ -217,6 +217,8 @@ export interface BacktestResult {
   netPnlPercentage: number;
   totalTrades: number;
   winRate: number;
+  maxDrawdown: number;
+  sharpeRatio: number;
   portfolioHistory: { time: string; value: number }[];
   trades: BacktestTrade[];
 }

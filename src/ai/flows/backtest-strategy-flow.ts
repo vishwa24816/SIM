@@ -36,11 +36,12 @@ const PortfolioPointSchema = z.object({
 });
 
 export const BacktestStrategyOutputSchema = z.object({
-  netPnl: z.number().describe('The net profit or loss over the entire backtest period.'),
+  netPnl: z.number().describe('The net profit or loss over the entire backtest period in INR.'),
   netPnlPercentage: z.number().describe('The net P&L as a percentage of the initial investment.'),
   totalTrades: z.number().describe('The total number of trades executed.'),
   winRate: z.number().describe('The percentage of profitable trades out of all closing trades.'),
-  portfolioHistory: z.array(PortfolioPointSchema).describe('The history of the portfolio\'s total value over time.'),
+  maxDrawdown: z.number().describe('The maximum drawdown percentage from a peak to a trough of the portfolio.'),
+  sharpeRatio: z.number().describe('The Sharpe ratio of the strategy, assuming a risk-free rate of 0.'),
   trades: z.array(TradeSchema).describe('A list of all trades executed during the backtest.'),
 });
 export type BacktestStrategyOutput = z.infer<typeof BacktestStrategyOutputSchema>;
@@ -54,9 +55,9 @@ const backtestPrompt = ai.definePrompt({
     input: { schema: BacktestStrategyInputSchema },
     output: { schema: BacktestStrategyOutputSchema },
     prompt: `
-You are a sophisticated trading bot that backtests a given trading strategy against historical price data for BTC.
+You are a sophisticated trading bot that backtests a given trading strategy against historical price data for BTC, assuming all prices are in INR (₹).
 
-You will simulate the strategy day by day, starting with an initial capital of $100,000 USD and 0 BTC.
+You will simulate the strategy day by day, starting with an initial capital of ₹10,000,000 INR and 0 BTC.
 
 **Strategy to execute:**
 "{{{strategy}}}"
@@ -66,17 +67,19 @@ You will simulate the strategy day by day, starting with an initial capital of $
 2.  At each day, evaluate the conditions described in the user's strategy.
 3.  If a BUY or SELL condition is met, execute a trade.
 4.  The asset for all trades is "BTC".
-5.  Maintain a portfolio state: current USD balance and current BTC holdings.
-6.  For each day, calculate the total portfolio value (USD balance + (BTC holdings * current price)).
+5.  Maintain a portfolio state: current INR balance and current BTC holdings.
+6.  For each day, calculate the total portfolio value (INR balance + (BTC holdings * current price)). Record this value.
 7.  Record every trade (BUY or SELL) in the 'trades' array.
     - For a BUY trade, the P&L is 0.
     - For a SELL trade, calculate the realized P&L based on the difference between the sell price and the average buy price of the BTC being sold.
 8.  After iterating through all data, calculate the summary statistics:
-    - **netPnl**: Final Portfolio Value - Initial Capital ($100,000).
+    - **netPnl**: Final Portfolio Value - Initial Capital (₹10,000,000).
     - **netPnlPercentage**: (netPnl / Initial Capital) * 100.
     - **totalTrades**: Total number of BUY and SELL orders.
     - **winRate**: (Number of profitable SELL trades / Total number of SELL trades) * 100. If no sell trades, win rate is 0.
-9.  You must strictly follow the quantities specified in the strategy. If the portfolio does not have enough BTC to sell or enough USD to buy, the trade cannot be executed.
+    - **maxDrawdown**: The largest percentage drop from a portfolio's peak value to its subsequent trough. Calculate it as ((Peak Value - Trough Value) / Peak Value) * 100.
+    - **sharpeRatio**: Calculate the Sharpe Ratio. First, calculate the daily portfolio returns. Then, compute the average daily return and the standard deviation of daily returns. Annualize these values (average daily return * 365, standard deviation * sqrt(365)). The Sharpe Ratio is the Annualized Average Return / Annualized Standard Deviation. Assume a risk-free rate of 0.
+9.  You must strictly follow the quantities specified in the strategy. If the portfolio does not have enough BTC to sell or enough INR to buy, the trade cannot be executed.
 10. Assume all trades are executed at the day's closing price ('value').
 
 **Historical Data (first 5 and last 5 points shown):**

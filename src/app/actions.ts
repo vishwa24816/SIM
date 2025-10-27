@@ -34,7 +34,8 @@ export async function getAiScreenedCryptos(prompt: string, cryptos: CryptoCurren
 export async function runBacktest(strategy: string, history: { time: string; value: number }[]): Promise<BacktestResult> {
     try {
         const result = await backtestStrategy({ strategy, history });
-        return result;
+        // The portfolioHistory is no longer needed in the UI, so we can omit it.
+        return { ...result, portfolioHistory: [] };
     } catch (error) {
         console.error('Error running backtest:', error);
         // Return a default or error state if the flow fails
@@ -43,6 +44,8 @@ export async function runBacktest(strategy: string, history: { time: string; val
             netPnlPercentage: 0,
             totalTrades: 0,
             winRate: 0,
+            maxDrawdown: 0,
+            sharpeRatio: 0,
             portfolioHistory: [],
             trades: [],
         };
