@@ -34,7 +34,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
 
   const bricks = useRef<{ x: number; y: number; status: number }[][]>([]);
   const score = useRef(0);
-  const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+  const [gameState, setGameState] = useState<'playing' | 'ended'>('playing');
 
   const brickColors = useMemo(() => ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1"], []);
 
@@ -117,7 +117,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
             dy.current *= 1.2;
 
             if (score.current === brokerage) {
-              setGameState('won');
+              setGameState('ended');
               if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
             }
           }
@@ -152,18 +152,17 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       if (x.current > paddleX.current && x.current < paddleX.current + paddleWidth) {
         dy.current = -dy.current;
       } else {
-        setGameState('lost');
+        setGameState('ended');
         if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
+        return; // Stop the draw loop
       }
     }
 
     x.current += dx.current;
     y.current += dy.current;
     
-    if (gameState === 'playing') {
-      animationFrameId.current = requestAnimationFrame(draw);
-    }
-  }, [collisionDetection, drawBricks, gameState]);
+    animationFrameId.current = requestAnimationFrame(draw);
+  }, [collisionDetection, drawBricks]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -175,6 +174,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     resetGame();
     
     const updatePaddlePosition = (clientX: number) => {
+      if (!canvas) return;
       const canvasRect = canvas.getBoundingClientRect();
       const relativeX = clientX - canvasRect.left;
       if (relativeX > 0 && relativeX < canvas.width) {
@@ -199,7 +199,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     };
     
     document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('touchmove', touchMoveHandler, { passive: true });
+    document.addEventListener('touchmove', touchMoveHandler, { passive: false });
 
     return () => {
       document.removeEventListener('mousemove', mouseMoveHandler);
@@ -208,25 +208,24 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [draw, setupBricks, resetGame]);
+  }, [resetGame]);
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
       <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white" onClick={onClose}>
         <X className="h-8 w-8" />
       </Button>
-      <canvas ref={canvasRef} style={{ display: gameState !== 'playing' ? 'none' : 'block' }}></canvas>
+      <canvas ref={canvasRef} style={{ display: gameState === 'ended' ? 'none' : 'block' }}></canvas>
       
-      {gameState !== 'playing' && (
+      {gameState === 'ended' && (
         <Card className="w-full max-w-sm text-center">
             <CardHeader>
                 <CardTitle className="flex items-center justify-center gap-2">
                     <Trophy className="w-8 h-8 text-yellow-400" />
-                    {gameState === 'won' ? 'Congratulations!' : 'Game Over'}
+                    Congratulations!
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p>You hit {score.current} blocks.</p>
                 <p className="text-2xl font-bold">You've earned <span className="text-primary">₹{score.current}</span> cashback!</p>
                 <div className="flex gap-4">
                     <Button variant="outline" className="w-full" onClick={resetGame}>
