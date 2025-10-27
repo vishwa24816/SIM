@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth, useUser } from '@/firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>
@@ -78,32 +81,67 @@ const DeveloperLoginDialog = ({ open, onOpenChange }: { open: boolean, onOpenCha
 
 export default function LoginPage() {
   const [isDevLoginOpen, setIsDevLoginOpen] = React.useState(false);
+  const auth = useAuth();
+  const { user, loading } = useUser();
+  const router = useRouter();
+  const [isSigningIn, setIsSigningIn] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  const handleGoogleSignIn = async () => {
+    if (!auth) return;
+    setIsSigningIn(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // The useEffect will handle redirection
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+      setIsSigningIn(false);
+    }
+  };
+
+  if (loading || user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-                <Logo className="h-12 w-12 text-primary" />
-            </div>
-          <CardTitle className="text-2xl">Welcome to SIM</CardTitle>
-          <CardDescription>
-            Sign in to access your simulated crypto exchange.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button variant="outline" className="w-full">
-            <GoogleIcon className="mr-2 h-5 w-5" />
-            Sign in with Google
-          </Button>
-           <Button variant="link" className="w-full" onClick={() => setIsDevLoginOpen(true)}>
-            Developer Login
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-    <DeveloperLoginDialog open={isDevLoginOpen} onOpenChange={setIsDevLoginOpen} />
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                  <Logo className="h-12 w-12 text-primary" />
+              </div>
+            <CardTitle className="text-2xl">Welcome to SIM</CardTitle>
+            <CardDescription>
+              Sign in to access your simulated crypto exchange.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSigningIn}>
+              {isSigningIn ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : (
+                <GoogleIcon className="mr-2 h-5 w-5" />
+              )}
+              Sign in with Google
+            </Button>
+             <Button variant="link" className="w-full" onClick={() => setIsDevLoginOpen(true)}>
+              Developer Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+      <DeveloperLoginDialog open={isDevLoginOpen} onOpenChange={setIsDevLoginOpen} />
     </>
   );
 }
