@@ -36,6 +36,9 @@ import { useRouter } from 'next/navigation';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { useTheme } from 'next-themes';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const ProfileItem = ({ icon, title, description, badge }: { icon: React.ElementType, title: string, description: string, badge?: { text: string, type: string } }) => {
   const Icon = icon;
@@ -88,6 +91,46 @@ const CollapsibleProfileItem = ({ icon, title, description, children, badge }: {
     </Collapsible>
   )
 }
+
+const themes = [
+    { name: 'Blue', color: '217 91% 60%' },
+    { name: 'Cyan', color: '180 80% 45%' },
+    { name: 'Light Green', color: '142 76% 41%' },
+    { name: 'Dark Green', color: '142 80% 25%' },
+    { name: 'Pink', color: '340 82% 52%' },
+    { name: 'Red', color: '0 84% 60%' },
+    { name: 'Orange', color: '25 95% 53%' },
+    { name: 'Yellow', color: '48 96% 53%' },
+    { name: 'Gold', color: '45 80% 50%' },
+    { name: 'Brown', color: '30 60% 30%' },
+    { name: 'Violet', color: '262 84% 59%' },
+    { name: 'Purple', color: '270 70% 45%' },
+    { name: 'Skin', color: '24 70% 60%' },
+];
+
+const ThemeSelector = () => {
+    const { theme, setTheme } = useTheme();
+    const [activeTheme, setActiveTheme] = React.useState('Blue');
+
+    const handleThemeChange = (themeName: string) => {
+        const selected = themes.find(t => t.name === themeName);
+        if (selected) {
+            document.documentElement.style.setProperty('--primary', selected.color);
+            setActiveTheme(themeName);
+        }
+    };
+
+    return (
+        <RadioGroup value={activeTheme} onValueChange={handleThemeChange} className="grid grid-cols-2 gap-4">
+            {themes.map((themeOption) => (
+                <div key={themeOption.name} className="flex items-center space-x-2">
+                    <RadioGroupItem value={themeOption.name} id={themeOption.name} />
+                    <Label htmlFor={themeOption.name}>{themeOption.name}</Label>
+                </div>
+            ))}
+        </RadioGroup>
+    );
+};
 
 
 export default function ProfilePage() {
@@ -165,6 +208,10 @@ export default function ProfilePage() {
                         </div>
                         <Button onClick={generateApiKey} className="w-full">Generate Key</Button>
                       </div>
+                    ) : item.id === 'theme' ? (
+                        <div className="pl-10">
+                           <ThemeSelector />
+                        </div>
                     ) : null}
                  </CollapsibleProfileItem>
               )
