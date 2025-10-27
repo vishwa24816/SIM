@@ -12,12 +12,12 @@ export const BacktestStrategyInputSchema = z.object({
 export type BacktestStrategyInput = z.infer<typeof BacktestStrategyInputSchema>;
 
 const TradeSchema = z.object({
-    date: z.string().describe('The date of the trade.'),
+    date: z.string().describe('The date of the trade in YYYY-MM-DD format.'),
     type: z.enum(['BUY', 'SELL']).describe('The type of trade.'),
-    asset: z.string().describe('The asset being traded (e.g., BTC).'),
+    asset: z.literal('BTC').describe('The asset being traded, which is always BTC.'),
     price: z.number().describe('The price at which the trade was executed.'),
     quantity: z.number().describe('The quantity of the asset traded.'),
-    pnl: z.number().describe('The profit or loss from this trade. For BUY trades, P&L is 0. For SELL trades, it is the realized gain or loss.'),
+    pnl: z.number().optional().describe('The profit or loss from this trade. For BUY trades, this should be 0. For SELL trades, it is the realized gain or loss. This is an optional field.'),
 });
 export type BacktestTrade = z.infer<typeof TradeSchema>;
 
