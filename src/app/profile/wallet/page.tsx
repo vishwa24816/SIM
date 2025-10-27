@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye, Copy, CheckCircle2, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye, Copy, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets } from '@/hooks/use-wallets';
@@ -13,7 +13,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -38,6 +37,10 @@ export default function WalletPage() {
   const toggleAccordion = (walletId: string) => {
     setOpenAccordion(prev => prev === walletId ? undefined : walletId);
   }
+
+  const dummyPhrase = "apple banana cherry date elderberry fig grape honey ice kiwi";
+  const dummyPublicKey = "0x1234567890ABCDEF1234567890ABCDEF12345678";
+
 
   return (
     <>
@@ -70,13 +73,15 @@ export default function WalletPage() {
             <Accordion type="single" collapsible className="w-full space-y-4" value={openAccordion} onValueChange={setOpenAccordion}>
               {wallets.map((wallet) => (
                 <Card key={wallet.id}>
-                  <AccordionItem value={wallet.id} className="border-b-0">
+                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center">
+                          <AccordionTrigger className="p-0 hover:no-underline" onClick={() => toggleAccordion(wallet.id)}>
                             <div className="font-bold flex items-center gap-2">
                                 {wallet.name}
                                 {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
                             </div>
+                          </AccordionTrigger>
                            <div className="flex items-center gap-1">
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleAccordion(wallet.id)}>
                                  <Eye className="h-4 w-4" />
@@ -86,13 +91,12 @@ export default function WalletPage() {
                                </Button>
                            </div>
                         </div>
-
                         <AccordionContent className="pt-4 px-0 pb-0">
                            <div className="space-y-4">
                                 <div>
                                     <Label className="text-xs font-semibold">Recovery Phrase</Label>
                                     <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
-                                        {wallet.recoveryPhrase.split(' ').map((word, index) => (
+                                        {dummyPhrase.split(' ').map((word, index) => (
                                             <div key={index} className="flex items-baseline">
                                                 <span className="text-xs mr-1.5">{index + 1}.</span>
                                                 <span className="font-medium text-foreground">{word}</span>
@@ -103,8 +107,8 @@ export default function WalletPage() {
                                 <div>
                                     <Label className="text-xs font-semibold">Public Key</Label>
                                     <div className="p-3 pr-2 bg-muted rounded-md text-sm text-muted-foreground flex items-center justify-between">
-                                        <span className="font-mono text-xs break-all text-foreground">{wallet.publicKey}</span>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleCopy(wallet.publicKey, 'Public Key')}>
+                                        <span className="font-mono text-xs break-all text-foreground">{dummyPublicKey}</span>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleCopy(dummyPublicKey, 'Public Key')}>
                                             <Copy className="h-4 w-4" />
                                         </Button>
                                     </div>
