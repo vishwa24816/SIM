@@ -57,20 +57,22 @@ const GameCard = React.memo(({ game }: { game: SimballGame }) => {
 
     return (
         <Card className={cn(
-            "overflow-hidden rounded-2xl shadow-lg border-t-4",
-            isBuy ? "border-green-500" : "border-red-500"
+            "overflow-hidden rounded-2xl shadow-lg text-white",
+            isBuy 
+                ? "bg-gradient-to-br from-green-400 to-emerald-600" 
+                : "bg-gradient-to-br from-red-400 to-rose-600"
         )}>
             <CardContent className="p-6">
-                <div className={cn("flex items-center gap-2 text-sm", isBuy ? "text-green-500" : "text-red-500")}>
+                <div className={cn("flex items-center gap-2 text-sm text-white/90")}>
                     {isBuy ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
                     <span>{game.type}</span>
                 </div>
                 <h3 className="text-4xl font-bold mt-2">{game.crypto}</h3>
-                <p className="mt-1 text-muted-foreground">{game.quantity}</p>
+                <p className="mt-1 text-white/80">{game.quantity}</p>
 
-                <div className="mt-6 space-y-2 text-sm">
-                    <p>Brokerage to be earned back: <span className="font-bold">{game.brokerage}</span></p>
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="mt-6 space-y-2 text-sm text-white/90">
+                    <p>Brokerage to be earned back: <span className="font-bold text-white">{game.brokerage}</span></p>
+                    <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         <span>{game.time}</span>
                     </div>
