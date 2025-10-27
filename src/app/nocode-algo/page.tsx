@@ -160,37 +160,6 @@ export default function NoCodeAlgoPage() {
               )}
             </Droppable>
           </main>
-
-          {/* Properties Panel */}
-          <aside className="w-80 border-l bg-card flex-shrink-0 p-4">
-             <div className="flex items-center gap-2 mb-4">
-                <Settings className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">Properties</h2>
-            </div>
-
-            {selectedNode ? (
-                <div className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <selectedNode.icon className="h-5 w-5"/>
-                                {selectedNode.content}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                             <div className="space-y-2">
-                                <Label htmlFor="node-id">Node ID</Label>
-                                <Input id="node-id" value={selectedNode.id} readOnly disabled />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            ) : (
-                <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-                    <p>Select a node to see its properties.</p>
-                </div>
-            )}
-          </aside>
         </div>
       </div>
     </DragDropContext>
