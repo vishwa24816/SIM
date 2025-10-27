@@ -95,7 +95,6 @@ export default function ProfilePage() {
     { id: 'nominee', icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds', href: '/profile/nominee' },
     { id: 'accountMgmt', icon: UserCog, title: 'Account Management', description: 'Delete or disable your account', href: '/profile/account-management' },
     { id: 'security', icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings', href: '#' },
-    { id: 'wallet', icon: Wallet, title: 'Wallet Management', description: 'Add, remove, or view your wallets', href: '/profile/wallet' },
     { id: 'support', icon: LifeBuoy, title: 'Support', description: 'Get help and support from our team', href: '#' },
     { id: 'fees', icon: FileText, title: 'Fee Structure', description: 'View the fee structure for all services', href: '#' },
     { id: 'feedback', icon: Star, title: 'Feedback', description: 'Share your feedback and suggestions with us', href: '#' },

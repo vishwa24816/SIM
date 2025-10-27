@@ -183,10 +183,3 @@ export interface BankAccount {
     ifsc: string;
     isPrimary: boolean;
 }
-
-export interface Wallet {
-  id: string;
-  name: string;
-  recoveryPhrase: string;
-  isPrimary: boolean;
-}
