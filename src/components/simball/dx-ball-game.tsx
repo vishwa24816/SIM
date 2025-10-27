@@ -1,9 +1,10 @@
 
 'use client';
 
-import React, { useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Trophy, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 interface DxBallGameProps {
   brokerage: number;
@@ -32,7 +33,25 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const paddleX = useRef<number>(0);
 
   const bricks = useRef<{ x: number; y: number; status: number }[][]>([]);
+  const score = useRef(0);
+  const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+
   const brickColors = useMemo(() => ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1"], []);
+
+  const resetGame = useCallback(() => {
+    score.current = 0;
+    setGameState('playing');
+    const canvas = canvasRef.current;
+    if (canvas) {
+        x.current = canvas.width / 2;
+        y.current = canvas.height - 30;
+        dx.current = 4;
+        dy.current = -4;
+        paddleX.current = (canvas.width - paddleWidth) / 2;
+    }
+    setupBricks();
+    animationFrameId.current = requestAnimationFrame(draw);
+  }, []);
 
   const setupBricks = useCallback(() => {
     const newBricks = [];
@@ -92,14 +111,20 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
           if (x.current > b.x && x.current < b.x + brickWidth && y.current > b.y && y.current < b.y + brickHeight) {
             dy.current = -dy.current;
             b.status = 0;
+            score.current += 1;
             // Increase ball speed by 20%
             dx.current *= 1.2;
             dy.current *= 1.2;
+
+            if (score.current === brokerage) {
+              setGameState('won');
+              if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
+            }
           }
         }
       }
     }
-  }, [brickRowCount]);
+  }, [brokerage]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -127,15 +152,18 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       if (x.current > paddleX.current && x.current < paddleX.current + paddleWidth) {
         dy.current = -dy.current;
       } else {
-        onClose();
+        setGameState('lost');
+        if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
       }
     }
 
     x.current += dx.current;
     y.current += dy.current;
-
-    animationFrameId.current = requestAnimationFrame(draw);
-  }, [collisionDetection, drawBricks, onClose]);
+    
+    if (gameState === 'playing') {
+      animationFrameId.current = requestAnimationFrame(draw);
+    }
+  }, [collisionDetection, drawBricks, gameState]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -144,11 +172,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     canvas.width = Math.min(window.innerWidth * 0.9, 960);
     canvas.height = window.innerHeight * 0.9;
     
-    x.current = canvas.width / 2;
-    y.current = canvas.height - 30;
-    paddleX.current = (canvas.width - paddleWidth) / 2;
-    
-    setupBricks();
+    resetGame();
     
     const updatePaddlePosition = (clientX: number) => {
       const canvasRect = canvas.getBoundingClientRect();
@@ -175,9 +199,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     };
     
     document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('touchmove', touchMoveHandler);
-
-    animationFrameId.current = requestAnimationFrame(draw);
+    document.addEventListener('touchmove', touchMoveHandler, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', mouseMoveHandler);
@@ -186,14 +208,39 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [draw, setupBricks]);
+  }, [draw, setupBricks, resetGame]);
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
       <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white" onClick={onClose}>
         <X className="h-8 w-8" />
       </Button>
-      <canvas ref={canvasRef}></canvas>
+      <canvas ref={canvasRef} style={{ display: gameState !== 'playing' ? 'none' : 'block' }}></canvas>
+      
+      {gameState !== 'playing' && (
+        <Card className="w-full max-w-sm text-center">
+            <CardHeader>
+                <CardTitle className="flex items-center justify-center gap-2">
+                    <Trophy className="w-8 h-8 text-yellow-400" />
+                    {gameState === 'won' ? 'Congratulations!' : 'Game Over'}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <p>You hit {score.current} blocks.</p>
+                <p className="text-2xl font-bold">You've earned <span className="text-primary">₹{score.current}</span> cashback!</p>
+                <div className="flex gap-4">
+                    <Button variant="outline" className="w-full" onClick={resetGame}>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Play Again
+                    </Button>
+                    <Button className="w-full" onClick={onClose}>
+                        Close
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+      )}
+
     </div>
   );
 };
