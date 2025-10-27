@@ -45,7 +45,7 @@ export function Header() {
                             <nav className="flex flex-col gap-1">
                                 <Button onClick={() => handleNavigation('/')} variant="ghost" className="justify-start gap-3"><Home /> Home</Button>
                                 <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><Info /> About</Button>
-                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
+                                <Button onClick={() => handleNavigation('/analytics')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
                                 <Button onClick={() => handleNavigation('/backtester')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
