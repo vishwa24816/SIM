@@ -202,3 +202,21 @@ export interface SimballGame {
   brokerage: string;
   time: string;
 }
+
+export interface BacktestTrade {
+  date: string;
+  type: 'BUY' | 'SELL';
+  asset: string;
+  price: number;
+  quantity: number;
+  pnl: number;
+}
+
+export interface BacktestResult {
+  netPnl: number;
+  netPnlPercentage: number;
+  totalTrades: number;
+  winRate: number;
+  portfolioHistory: { time: string; value: number }[];
+  trades: BacktestTrade[];
+}
