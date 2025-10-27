@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye, Copy, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye, Copy, CheckCircle2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets } from '@/hooks/use-wallets';
@@ -13,6 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -33,6 +34,10 @@ export default function WalletPage() {
       setWalletToRemove(null);
     }
   };
+
+  const toggleAccordion = (walletId: string) => {
+    setOpenAccordion(prev => prev === walletId ? undefined : walletId);
+  }
 
   return (
     <>
@@ -67,15 +72,13 @@ export default function WalletPage() {
                 <Card key={wallet.id}>
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                           <AccordionTrigger asChild>
-                                <div className="font-bold flex items-center gap-2 cursor-pointer">
-                                  {wallet.name}
-                                  {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                                </div>
-                            </AccordionTrigger>
-                           <div className="flex items-center gap-1 pl-4">
-                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpenAccordion(openAccordion === wallet.id ? undefined : wallet.id)}>
+                        <div className="flex justify-between items-center">
+                            <div className="font-bold flex items-center gap-2">
+                                {wallet.name}
+                                {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                            </div>
+                           <div className="flex items-center gap-1">
+                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleAccordion(wallet.id)}>
                                  <Eye className="h-4 w-4" />
                                </Button>
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>
