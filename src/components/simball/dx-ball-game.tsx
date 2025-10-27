@@ -103,7 +103,6 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Dynamic brick sizing
     const brickHeight = 20;
     const availableWidth = canvas.width - (brickOffsetLeft * 2);
     const brickWidth = (availableWidth - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
@@ -124,7 +123,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       if (x.current > paddleX.current && x.current < paddleX.current + paddleWidth) {
         dy.current = -dy.current;
       } else {
-        onClose(); // Game over
+        onClose();
       }
     }
 
@@ -138,7 +137,6 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Set canvas dimensions once
     canvas.width = Math.min(window.innerWidth * 0.9, 960);
     canvas.height = window.innerHeight * 0.9;
     
@@ -148,26 +146,38 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     
     setupBricks();
     
+    const updatePaddlePosition = (clientX: number) => {
+      const canvasRect = canvas.getBoundingClientRect();
+      const relativeX = clientX - canvasRect.left;
+      if (relativeX > 0 && relativeX < canvas.width) {
+          paddleX.current = relativeX - paddleWidth / 2;
+          if (paddleX.current < 0) {
+            paddleX.current = 0;
+          }
+          if (paddleX.current + paddleWidth > canvas.width) {
+            paddleX.current = canvas.width - paddleWidth;
+          }
+      }
+    };
+
     const mouseMoveHandler = (e: MouseEvent) => {
-        const canvasRect = canvas.getBoundingClientRect();
-        const relativeX = e.clientX - canvasRect.left;
-        if (relativeX > 0 && relativeX < canvas.width) {
-            paddleX.current = relativeX - paddleWidth / 2;
-            if (paddleX.current < 0) {
-              paddleX.current = 0;
-            }
-            if (paddleX.current + paddleWidth > canvas.width) {
-              paddleX.current = canvas.width - paddleWidth;
-            }
+        updatePaddlePosition(e.clientX);
+    };
+
+    const touchMoveHandler = (e: TouchEvent) => {
+        if (e.touches[0]) {
+            updatePaddlePosition(e.touches[0].clientX);
         }
     };
     
     document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('touchmove', touchMoveHandler);
 
     animationFrameId.current = requestAnimationFrame(draw);
 
     return () => {
       document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('touchmove', touchMoveHandler);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
