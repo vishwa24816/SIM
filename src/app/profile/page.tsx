@@ -174,6 +174,10 @@ export default function ProfilePage() {
       toast({ title: 'API Key Copied!' });
     };
 
+    const handleLogout = () => {
+      router.push('/login');
+    };
+
     const profileItems = [
     { id: 'profile', icon: User, title: 'Profile', description: 'Add or change information about you', href: '/profile/account' },
     { id: 'kyc', icon: ShieldCheck, title: 'KYC Verification', description: 'Your KYC has been successfully verified', badge: { text: 'ACTIVE', type: 'active' }, href: '#' },
@@ -259,7 +263,7 @@ export default function ProfilePage() {
           })}
         </div>
         <div className="p-4 mt-4">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
             </Button>

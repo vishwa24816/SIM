@@ -22,6 +22,11 @@ export function Header() {
     router.push(path);
   };
 
+  const handleLogout = () => {
+    setIsMenuOpen(false);
+    router.push('/login');
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-primary/95 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,7 +61,7 @@ export function Header() {
                         </div>
                         <SheetFooter className="p-4 border-t mt-auto">
                            <div className="flex items-center justify-between w-full">
-                                <Button variant="ghost" className="justify-start gap-3">
+                                <Button variant="ghost" className="justify-start gap-3" onClick={handleLogout}>
                                     <LogOut /> Log Out
                                 </Button>
                                 <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
