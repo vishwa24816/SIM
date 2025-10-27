@@ -3,30 +3,30 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye, Copy, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Wallet as WalletIcon, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets } from '@/hooks/use-wallets';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 
 export default function WalletPage() {
   const router = useRouter();
   const { wallets, removeWallet, setPrimaryWallet } = useWallets();
-  const { copy } = useCopyToClipboard();
   const { toast } = useToast();
   const [walletToRemove, setWalletToRemove] = React.useState<string | null>(null);
   const [openAccordion, setOpenAccordion] = React.useState<string | undefined>(undefined);
 
-  const handleCopy = (text: string, type: string) => {
-    copy(text);
-    toast({ title: `${type} Copied!` });
+  const handleGetPrivateKey = () => {
+    toast({
+      title: 'Request Received',
+      description: 'You will get your private key in mail by 1 hour.',
+    });
   };
-  
+
   const handleDeleteConfirm = () => {
     if (walletToRemove) {
       removeWallet(walletToRemove);
@@ -76,12 +76,10 @@ export default function WalletPage() {
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center">
-                            <AccordionTrigger className="p-0 flex-1 hover:no-underline justify-start">
-                                <div className="font-bold flex items-center gap-2">
-                                    {wallet.name}
-                                    {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                                </div>
-                            </AccordionTrigger>
+                            <div className="font-bold flex items-center gap-2">
+                                {wallet.name}
+                                {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                            </div>
                            <div className="flex items-center gap-1">
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleAccordion(wallet.id)}>
                                  <Eye className="h-4 w-4" />
@@ -91,7 +89,7 @@ export default function WalletPage() {
                                </Button>
                            </div>
                         </div>
-                        <AccordionContent className="pt-4 px-0 pb-0">
+                         <AccordionContent className="pt-4 px-0 pb-0">
                            <div className="space-y-4">
                                 <div>
                                     <Label className="text-xs font-semibold">Recovery Phrase</Label>
@@ -106,12 +104,10 @@ export default function WalletPage() {
                                 </div>
                                 <div>
                                     <Label className="text-xs font-semibold">Public Key</Label>
-                                    <div className="p-3 pr-2 bg-muted rounded-md text-sm text-muted-foreground flex items-center justify-between">
+                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground">
                                         <span className="font-mono text-xs break-all text-foreground">{dummyPublicKey}</span>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleCopy(dummyPublicKey, 'Public Key')}>
-                                            <Copy className="h-4 w-4" />
-                                        </Button>
                                     </div>
+                                    <Button variant="link" className="p-0 h-auto mt-2 text-sm" onClick={handleGetPrivateKey}>Get private key</Button>
                                 </div>
                            </div>
                         </AccordionContent>
