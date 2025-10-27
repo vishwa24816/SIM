@@ -28,7 +28,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const ballRadius = 10;
 
   const paddleHeight = 10;
-  const paddleWidth = 100;
+  const paddleWidth = 200;
   const paddleX = useRef<number>(0);
 
   const bricks = useRef<{ x: number; y: number; status: number }[][]>([]);
