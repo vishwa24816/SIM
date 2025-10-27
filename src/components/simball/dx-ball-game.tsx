@@ -50,6 +50,9 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
         paddleX.current = (canvas.width - paddleWidth) / 2;
     }
     setupBricks();
+    if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+    }
     animationFrameId.current = requestAnimationFrame(draw);
   }, []);
 
@@ -118,19 +121,25 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
 
             if (score.current === brokerage) {
               setGameState('ended');
-              if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
             }
           }
         }
       }
     }
-  }, [brokerage]);
+  }, [brokerage, brickRowCount]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    
+    if (gameState === 'ended') {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+      return;
+    }
     
     const brickHeight = 20;
     const availableWidth = canvas.width - (brickOffsetLeft * 2);
@@ -153,7 +162,6 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
         dy.current = -dy.current;
       } else {
         setGameState('ended');
-        if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
         return; // Stop the draw loop
       }
     }
@@ -162,18 +170,10 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     y.current += dy.current;
     
     animationFrameId.current = requestAnimationFrame(draw);
-  }, [collisionDetection, drawBricks]);
+  }, [collisionDetection, drawBricks, gameState]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    canvas.width = Math.min(window.innerWidth * 0.9, 960);
-    canvas.height = window.innerHeight * 0.9;
-    
-    resetGame();
-    
-    const updatePaddlePosition = (clientX: number) => {
+  const updatePaddlePosition = useCallback((clientX: number) => {
+      const canvas = canvasRef.current;
       if (!canvas) return;
       const canvasRect = canvas.getBoundingClientRect();
       const relativeX = clientX - canvasRect.left;
@@ -186,7 +186,16 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
             paddleX.current = canvas.width - paddleWidth;
           }
       }
-    };
+    }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    canvas.width = Math.min(window.innerWidth * 0.9, 960);
+    canvas.height = window.innerHeight * 0.9;
+    
+    resetGame();
 
     const mouseMoveHandler = (e: MouseEvent) => {
         updatePaddlePosition(e.clientX);
@@ -195,6 +204,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
     const touchMoveHandler = (e: TouchEvent) => {
         if (e.touches[0]) {
             updatePaddlePosition(e.touches[0].clientX);
+            e.preventDefault();
         }
     };
     
@@ -208,7 +218,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [resetGame]);
+  }, [resetGame, updatePaddlePosition]);
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
@@ -228,10 +238,6 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
             <CardContent className="space-y-4">
                 <p className="text-2xl font-bold">You've earned <span className="text-primary">₹{score.current}</span> cashback!</p>
                 <div className="flex gap-4">
-                    <Button variant="outline" className="w-full" onClick={resetGame}>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Play Again
-                    </Button>
                     <Button className="w-full" onClick={onClose}>
                         Close
                     </Button>
