@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import QRCode from 'qrcode.react';
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { useWallets } from "@/hooks/use-wallets";
 
 interface PortfolioViewProps {
     portfolio: Portfolio;
@@ -176,6 +177,11 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
   const [isManageFundsOpen, setIsManageFundsOpen] = React.useState(false);
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
   const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
+  const { wallets } = useWallets();
+
+  const primaryWallet = React.useMemo(() => wallets.find(w => w.isPrimary), [wallets]);
+  const walletName = primaryWallet?.name || 'Trading Wallet';
+
 
   const handleOpenManageFunds = (action: 'add' | 'withdraw') => {
     setDialogAction(action);
@@ -219,7 +225,7 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
           <div className="p-2 bg-primary/10 rounded-md">
             <Bitcoin className="w-6 h-6 text-primary" />
           </div>
-          <h3 className="text-2xl font-semibold leading-none tracking-tight">Trading Wallet</h3>
+          <h3 className="text-2xl font-semibold leading-none tracking-tight">{walletName}</h3>
         </div>
       </div>
       <div className="p-6 pt-0">
