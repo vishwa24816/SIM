@@ -52,48 +52,46 @@ const gamesPlayed: SimballGame[] = [
     },
 ];
 
-const leaderboardData = [
-    { rank: 1, name: 'Suraj', cashback: 59000, initial: 'S' },
-    { rank: 2, name: 'Anjali', cashback: 52000, initial: 'A' },
-    { rank: 3, name: 'Rohit', cashback: 48000, initial: 'R' },
-    { rank: 4, name: 'Priya', cashback: 45000, initial: 'P' },
-    { rank: 5, name: 'Vikram', cashback: 41000, initial: 'V' },
-];
-
-const GameCard = ({ game }: { game: Omit<SimballGame, 'color'> }) => {
+const GameCard = React.memo(({ game }: { game: SimballGame }) => {
     const isBuy = game.type === 'BUY';
 
-    const colorClass = {
-        'BTC': 'bg-gradient-to-br from-green-400 to-green-600',
-        'ETH': 'bg-gradient-to-br from-red-500 to-red-700',
-        'SOL': 'bg-gradient-to-br from-blue-500 to-blue-700',
-        'DOGE': 'bg-slate-700',
-        'SHIB': 'bg-slate-700',
-    }[game.crypto] || 'bg-slate-700';
-
     return (
-        <Card className={cn("text-white p-6 rounded-2xl shadow-lg", colorClass)}>
-            <div className="flex items-center gap-2 text-sm opacity-80">
-                {isBuy ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-                <span>{game.type}</span>
-            </div>
-            <h3 className="text-4xl font-bold mt-2">{game.crypto}</h3>
-            <p className="mt-1 opacity-90">{game.quantity}</p>
-
-            <div className="mt-6 space-y-2 text-sm">
-                <p>Brokerage to be earned back: <span className="font-bold">{game.brokerage}</span></p>
-                <div className="flex items-center gap-2 opacity-80">
-                    <Clock className="w-4 h-4" />
-                    <span>{game.time}</span>
+        <Card className={cn(
+            "overflow-hidden rounded-2xl shadow-lg border-t-4",
+            isBuy ? "border-green-500" : "border-red-500"
+        )}>
+            <CardContent className="p-6">
+                <div className={cn("flex items-center gap-2 text-sm", isBuy ? "text-green-500" : "text-red-500")}>
+                    {isBuy ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+                    <span>{game.type}</span>
                 </div>
-            </div>
+                <h3 className="text-4xl font-bold mt-2">{game.crypto}</h3>
+                <p className="mt-1 text-muted-foreground">{game.quantity}</p>
+
+                <div className="mt-6 space-y-2 text-sm">
+                    <p>Brokerage to be earned back: <span className="font-bold">{game.brokerage}</span></p>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        <span>{game.time}</span>
+                    </div>
+                </div>
+            </CardContent>
         </Card>
     );
-};
+});
+GameCard.displayName = 'GameCard';
 
 
 export default function SimballPage() {
     const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
+
+    const leaderboardData = [
+        { rank: 1, name: 'Suraj', cashback: 59000, initial: 'S' },
+        { rank: 2, name: 'Anjali', cashback: 52000, initial: 'A' },
+        { rank: 3, name: 'Rohit', cashback: 48000, initial: 'R' },
+        { rank: 4, name: 'Priya', cashback: 45000, initial: 'P' },
+        { rank: 5, name: 'Vikram', cashback: 41000, initial: 'V' },
+    ];
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
