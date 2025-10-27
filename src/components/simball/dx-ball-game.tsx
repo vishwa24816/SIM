@@ -32,6 +32,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const paddleX = useRef<number>(0);
 
   const bricks = useRef<{ x: number; y: number; status: number }[][]>([]);
+  const brickColors = useMemo(() => ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1"], []);
 
   const setupBricks = useCallback(() => {
     const newBricks = [];
@@ -52,7 +53,7 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
   const drawBall = (ctx: CanvasRenderingContext2D) => {
     ctx.beginPath();
     ctx.arc(x.current, y.current, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fill();
     ctx.closePath();
   };
@@ -75,13 +76,13 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
           bricks.current[c][r].y = brickY;
           ctx.beginPath();
           ctx.rect(brickX, brickY, brickWidth, brickHeight);
-          ctx.fillStyle = "#0095DD";
+          ctx.fillStyle = brickColors[(c + r) % brickColors.length];
           ctx.fill();
           ctx.closePath();
         }
       }
     }
-  }, [brickRowCount]);
+  }, [brickRowCount, brickColors]);
   
   const collisionDetection = useCallback((brickWidth: number, brickHeight: number) => {
     for (let c = 0; c < brickRowCount; c++) {
