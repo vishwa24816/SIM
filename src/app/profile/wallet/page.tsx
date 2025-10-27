@@ -102,7 +102,7 @@ export default function WalletPage() {
                                 <div>
                                      <Label className="text-xs font-semibold">Public Key</Label>
                                      <div className="flex items-center justify-between p-2 pl-3 bg-muted rounded-md">
-                                        <p className="text-sm text-muted-foreground break-all">{wallet.publicKey}</p>
+                                        <p className="text-sm text-foreground break-all">{wallet.publicKey}</p>
                                         <Button variant="ghost" size="icon" onClick={() => handleCopy(wallet.publicKey, 'Public Key')} className="h-8 w-8">
                                             <Copy className="h-4 w-4" />
                                         </Button>
