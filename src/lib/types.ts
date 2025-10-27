@@ -1,4 +1,5 @@
 
+
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -190,4 +191,6 @@ export interface Wallet {
   isPrimary: boolean;
   recoveryPhrase: string;
   publicKey: string;
+  pin?: string;
+  privateKey?: string;
 }
