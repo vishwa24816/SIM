@@ -14,42 +14,13 @@ import { BacktestResults } from '@/components/backtester/backtest-results';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 
-const DUMMY_RESULTS: BacktestResult = {
-  netPnl: 1250.75,
-  netPnlPercentage: 0.0125,
-  totalTrades: 2,
-  winRate: 100,
-  maxDrawdown: 0.5,
-  sharpeRatio: 1.5,
-  portfolioHistory: [],
-  trades: [
-    {
-      date: '2024-06-20',
-      type: 'BUY',
-      asset: 'BTC',
-      quantity: 1,
-      price: 64500,
-      pnl: 0,
-    },
-    {
-      date: '2024-06-21',
-      type: 'SELL',
-      asset: 'BTC',
-      quantity: 1,
-      price: 65750.75,
-      pnl: 1250.75,
-    },
-  ],
-};
-
-
 export default function BacktesterPage() {
   const router = useRouter();
   const { marketData, loading: marketLoading } = useMarketData();
   
   const [strategy, setStrategy] = React.useState('WHEN BTC price goes below $65000\nBUY 1 BTC\n\nWHEN BTC price goes above $70000\nSELL 1 BTC\n\nTest this strategy on the last 1 Month of data.');
   const [isLoading, setIsLoading] = React.useState(false);
-  const [results, setResults] = React.useState<BacktestResult | null>(DUMMY_RESULTS);
+  const [results, setResults] = React.useState<BacktestResult | null>(null);
 
   const handleRunBacktest = async () => {
     setIsLoading(true);
@@ -62,11 +33,11 @@ export default function BacktesterPage() {
       } else {
         // Handle case where btc data is not available
         console.error("Bitcoin market data not available for backtesting.");
-        setResults(DUMMY_RESULTS);
+        setResults(null);
       }
     } catch (error) {
       console.error("Backtest failed:", error);
-       setResults(DUMMY_RESULTS);
+       setResults(null);
     } finally {
       setIsLoading(false);
     }
