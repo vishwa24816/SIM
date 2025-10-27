@@ -20,6 +20,7 @@ export default function WalletPage() {
   const { copy } = useCopyToClipboard();
   const { toast } = useToast();
   const [walletToRemove, setWalletToRemove] = React.useState<string | null>(null);
+  const [openAccordion, setOpenAccordion] = React.useState<string | null>(null);
 
   const handleCopy = (text: string, type: string) => {
     copy(text);
@@ -31,6 +32,10 @@ export default function WalletPage() {
       removeWallet(walletToRemove);
       setWalletToRemove(null);
     }
+  };
+
+  const handleAccordionToggle = (value: string) => {
+    setOpenAccordion(openAccordion === value ? null : value);
   };
 
   return (
@@ -61,22 +66,24 @@ export default function WalletPage() {
               <p className="mt-1 text-sm text-muted-foreground">Create or import a wallet to get started.</p>
             </div>
           ) : (
-            <Accordion type="single" collapsible className="w-full space-y-4">
+            <Accordion type="single" collapsible className="w-full space-y-4" value={openAccordion || ''} onValueChange={setOpenAccordion}>
               {wallets.map((wallet) => (
                 <Card key={wallet.id}>
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-start">
-                          <AccordionTrigger className="p-0 text-left hover:no-underline">
+                          <AccordionTrigger onClick={() => handleAccordionToggle(wallet.id)} className="p-0 text-left hover:no-underline flex-1">
                               <div>
                                   <div className="flex items-center gap-2 mb-1">
                                       <p className="font-bold">{wallet.name}</p>
                                       {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
                                   </div>
-                                  <p className="text-xs text-muted-foreground break-all">{wallet.publicKey}</p>
                               </div>
-                           </AccordionTrigger>
+                          </AccordionTrigger>
                            <div className="flex items-center gap-1 pl-4">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAccordionToggle(wallet.id)}>
+                                   <Eye className="h-4 w-4" />
+                               </Button>
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>
                                    <Trash2 className="h-4 w-4 text-destructive" />
                                </Button>
@@ -85,15 +92,24 @@ export default function WalletPage() {
 
                         <AccordionContent className="pt-4 px-0 pb-0">
                            <div className="space-y-4">
-                                <div>
-                                    <Label className="text-xs font-semibold">Recovery Phrase</Label>
-                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
-                                        {wallet.recoveryPhrase.split(' ').map((word, index) => (
-                                            <div key={index} className="flex items-baseline">
-                                                <span className="text-xs mr-1">{index + 1}.</span>
-                                                <span>{word}</span>
-                                            </div>
-                                        ))}
+                                <div className="space-y-2">
+                                  <Label className="text-xs font-semibold">Recovery Phrase</Label>
+                                  <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
+                                      {wallet.recoveryPhrase.split(' ').map((word, index) => (
+                                          <div key={index} className="flex items-baseline">
+                                              <span className="text-xs mr-1">{index + 1}.</span>
+                                              <span>{word}</span>
+                                          </div>
+                                      ))}
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold">Public Key</Label>
+                                    <div className="p-3 pr-2 bg-muted rounded-md text-sm text-muted-foreground flex items-center justify-between">
+                                        <span className="break-all">{wallet.publicKey}</span>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => handleCopy(wallet.publicKey, 'Public Key')}>
+                                            <Copy className="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </div>
                            </div>
