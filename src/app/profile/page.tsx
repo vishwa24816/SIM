@@ -94,6 +94,7 @@ export default function ProfilePage() {
     { id: 'banks', icon: Landmark, title: 'Account Details', description: 'Add or Change your bank account details', href: '/profile/banks' },
     { id: 'nominee', icon: Users, title: 'Nominee Details', description: 'Add recipients of your funds', href: '/profile/nominee' },
     { id: 'accountMgmt', icon: UserCog, title: 'Account Management', description: 'Delete or disable your account', href: '/profile/account-management' },
+    { id: 'wallet', icon: Wallet, title: 'Wallet Management', description: 'Manage your crypto wallets', href: '/profile/wallet' },
     { id: 'security', icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings', href: '#' },
     { id: 'support', icon: LifeBuoy, title: 'Support', description: 'Get help and support from our team', href: '#' },
     { id: 'fees', icon: FileText, title: 'Fee Structure', description: 'View the fee structure for all services', href: '#' },
