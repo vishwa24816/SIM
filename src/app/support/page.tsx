@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -11,11 +12,13 @@ import {
   Mail,
   User,
   Wallet,
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 
 const FaqItem = ({
   icon: Icon,
@@ -59,7 +62,7 @@ export default function SupportPage() {
         </div>
       </header>
 
-      <main className="p-4 space-y-6">
+      <main className="p-4 space-y-6 pb-24">
         <div>
           <h2 className="text-2xl font-bold mb-4">Contact us 24x7</h2>
           <Card>
@@ -97,21 +100,30 @@ export default function SupportPage() {
             </CardContent>
           </Card>
         </div>
+        
+        <div className="p-4 bg-background border-t">
+            <div className="flex justify-around items-center text-sm font-medium">
+              <Link href="#" passHref>
+                <span className="text-primary hover:underline">Past tickets</span>
+              </Link>
+              <Separator orientation="vertical" className="h-4" />
+              <Link href="#" passHref>
+                <span className="text-primary hover:underline">Feedback</span>
+              </Link>
+              <Separator orientation="vertical" className="h-4" />
+              <Link href="#" passHref>
+                <span className="text-primary hover:underline">Grievance</span>
+              </Link>
+            </div>
+        </div>
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-        <div className="flex justify-around items-center text-sm font-medium">
-          <Link href="#" passHref>
-            <span className="text-primary hover:underline">Past tickets</span>
-          </Link>
-          <Separator orientation="vertical" className="h-4" />
-          <Link href="#" passHref>
-            <span className="text-primary hover:underline">Feedback</span>
-          </Link>
-          <Separator orientation="vertical" className="h-4" />
-          <Link href="#" passHref>
-            <span className="text-primary hover:underline">Grievance</span>
-          </Link>
+      <footer className="fixed bottom-0 left-0 right-0 p-2 bg-background border-t">
+        <div className="relative">
+          <Input placeholder="Type your message..." className="pr-12 h-12" />
+          <Button size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9">
+            <Send className="h-5 w-5" />
+          </Button>
         </div>
       </footer>
     </div>
