@@ -10,6 +10,8 @@ import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '../ui/button';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -39,17 +41,17 @@ export function Header() {
                             <SheetTitle className="sr-only">Menu</SheetTitle>
                         </SheetHeader>
                         <div className="p-4 flex-1 overflow-y-auto">
-                            <nav className="flex flex-col gap-2">
-                                <Link href="/" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Home /> Home</Button></Link>
-                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Info /> About</Button></Link>
-                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button></Link>
-                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button></Link>
-                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><History /> Backtester</Button></Link>
+                            <nav className="flex flex-col gap-1">
+                                <Link href="/" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Home /> Home</Link>
+                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Info /> About</Link>
+                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><BarChart2 /> Analytics</Link>
+                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Cpu /> No code Algo</Link>
+                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><History /> Backtester</Link>
                                 <Separator className="my-2" />
-                                <Link href="/simball" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button></Link>
-                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button></Link>
+                                <Link href="/simball" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><Rocket /> SIMBALL</Link>
+                                <Link href="#" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><FileText /> TAXY</Link>
                                 <Separator className="my-2" />
-                                <Link href="/support" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button></Link>
+                                <Link href="/support" onClick={handleLinkClick} className={cn(buttonVariants({ variant: 'ghost' }), "justify-start gap-3")}><LifeBuoy /> Support</Link>
                             </nav>
                         </div>
                         <SheetFooter className="p-4 border-t mt-auto">
