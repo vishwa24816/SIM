@@ -194,3 +194,12 @@ export interface Wallet {
   pin?: string;
   privateKey?: string;
 }
+
+export interface SimballGame {
+  type: 'BUY' | 'SELL';
+  crypto: string;
+  quantity: string;
+  brokerage: string;
+  time: string;
+  color: string;
+}

@@ -41,7 +41,7 @@ export function Header() {
                                 <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button></Link>
                                 <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><History /> Backtester</Button></Link>
                                 <Separator className="my-2" />
-                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button></Link>
+                                <Link href="/simball" passHref><Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button></Link>
                                 <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button></Link>
                                 <Separator className="my-2" />
                                 <Link href="/support" passHref><Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button></Link>
