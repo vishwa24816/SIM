@@ -9,9 +9,23 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 
+const Handle = ({ position }: { position: 'left' | 'right' | 'top' | 'bottom' }) => {
+    const baseClasses = "absolute w-3 h-3 rounded-full bg-background border-2 border-primary cursor-pointer";
+    const positionClasses = {
+        left: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
+        right: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+        top: "top-0 left-1/2 -translate-x-1/2 -translate-y-1/2",
+        bottom: "bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2",
+    };
+    return <div className={`${baseClasses} ${positionClasses[position]}`} />;
+};
+
+
 const StartNode = () => {
     return (
-        <Card className="w-64 border-2 border-green-500 shadow-lg cursor-grab active:cursor-grabbing">
+        <Card className="w-64 border-2 border-green-500 shadow-lg cursor-grab active:cursor-grabbing relative">
+            <Handle position="right" />
+            <Handle position="left" />
             <CardContent className="p-3">
                 <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center gap-2">
