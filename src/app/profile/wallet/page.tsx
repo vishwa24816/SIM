@@ -68,16 +68,16 @@ export default function WalletPage() {
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-start">
-                          <div className="font-bold flex items-center gap-2">
-                            {wallet.name}
-                            {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                          </div>
+                           <AccordionTrigger asChild>
+                                <div className="font-bold flex items-center gap-2 cursor-pointer">
+                                  {wallet.name}
+                                  {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                                </div>
+                            </AccordionTrigger>
                            <div className="flex items-center gap-1 pl-4">
-                               <AccordionTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                               </AccordionTrigger>
+                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpenAccordion(openAccordion === wallet.id ? undefined : wallet.id)}>
+                                 <Eye className="h-4 w-4" />
+                               </Button>
                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>
                                    <Trash2 className="h-4 w-4 text-destructive" />
                                </Button>
