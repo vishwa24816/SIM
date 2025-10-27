@@ -50,7 +50,7 @@ export function Header() {
                                 <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
-                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
+                                <Button onClick={() => handleNavigation('/taxy')} variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/support')} variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button>
                             </nav>
