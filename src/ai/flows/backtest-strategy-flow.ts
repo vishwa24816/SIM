@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow for backtesting a trading strategy.
@@ -26,8 +27,10 @@ You will simulate the strategy day by day, starting with an initial capital of â
 **Strategy to execute:**
 "{{{strategy}}}"
 
+If the user specifies a timeframe (e.g., "last 7 days", "last month"), you MUST filter the historical data to only use that period. The latest data point is the most recent.
+
 **Execution Rules:**
-1.  Iterate through the provided historical data, one day at a time.
+1.  Iterate through the provided (and potentially filtered) historical data, one day at a time.
 2.  At each day, evaluate the conditions described in the user's strategy.
 3.  If a BUY or SELL condition is met, execute a trade.
 4.  The asset for all trades is "BTC".
@@ -42,11 +45,11 @@ You will simulate the strategy day by day, starting with an initial capital of â
     - **totalTrades**: Total number of BUY and SELL orders.
     - **winRate**: (Number of profitable SELL trades / Total number of SELL trades) * 100. If no sell trades, win rate is 0.
     - **maxDrawdown**: The largest percentage drop from a portfolio's peak value to its subsequent trough. Calculate it as ((Peak Value - Trough Value) / Peak Value) * 100.
-    - **sharpeRatio**: Calculate the Sharpe Ratio. First, calculate the daily portfolio returns. Then, compute the average daily return and the standard deviation of daily returns. Annualize these values (average daily return * 365, standard deviation * sqrt(365)). The Sharpe Ratio is the Annualized Average Return / Annualized Standard Deviation. Assume a risk-free rate of 0.
+    - **sharpeRatio**: Calculate the Sharpe Ratio. First, calculate the daily portfolio returns. Then, compute the average daily return and the standard deviation of daily returns. Annualize these values (average daily return * 365, standard deviation * sqrt(365)). Assume a risk-free rate of 0.
 9.  You must strictly follow the quantities specified in the strategy. If the portfolio does not have enough BTC to sell or enough INR to buy, the trade cannot be executed.
 10. Assume all trades are executed at the day's closing price ('value').
 
-**Historical Data (first 5 and last 5 points shown):**
+**Full Historical Data (first 5 and last 5 points shown):**
 {{#each (slice history 0 5)}}
 - {{time}}: {{value}}
 {{/each}}

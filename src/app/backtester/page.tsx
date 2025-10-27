@@ -12,7 +12,6 @@ import { runBacktest } from '../actions';
 import { BacktestResult } from '@/lib/types';
 import { BacktestResults } from '@/components/backtester/backtest-results';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
 const DUMMY_RESULTS: BacktestResult = {
@@ -48,10 +47,9 @@ export default function BacktesterPage() {
   const router = useRouter();
   const { marketData, loading: marketLoading } = useMarketData();
   
-  const [strategy, setStrategy] = React.useState('WHEN BTC price goes below $65000\nBUY 1 BTC\n\nWHEN BTC price goes above $70000\nSELL 1 BTC');
+  const [strategy, setStrategy] = React.useState('WHEN BTC price goes below $65000\nBUY 1 BTC\n\nWHEN BTC price goes above $70000\nSELL 1 BTC\n\nTest this strategy on the last 1 Month of data.');
   const [isLoading, setIsLoading] = React.useState(false);
   const [results, setResults] = React.useState<BacktestResult | null>(DUMMY_RESULTS);
-  const [timeframe, setTimeframe] = React.useState('1M');
 
   const handleRunBacktest = async () => {
     setIsLoading(true);
@@ -59,32 +57,7 @@ export default function BacktesterPage() {
     try {
       const btcHistory = marketData.find(c => c.id === 'bitcoin')?.priceHistory || [];
       if (btcHistory.length > 0) {
-        
-        let historySlice = btcHistory;
-        const endDate = new Date(btcHistory[btcHistory.length - 1].time);
-        
-        switch (timeframe) {
-            case '1D':
-                historySlice = btcHistory.slice(-1);
-                break;
-            case '7D':
-                 historySlice = btcHistory.slice(-7);
-                break;
-            case '1M':
-                 historySlice = btcHistory.slice(-30);
-                break;
-            case '3M':
-                 historySlice = btcHistory.slice(-90);
-                break;
-            case '1Y':
-                 historySlice = btcHistory.slice(-365);
-                break;
-            case 'ALL':
-            default:
-                historySlice = btcHistory;
-        }
-
-        const result = await runBacktest(strategy, historySlice);
+        const result = await runBacktest(strategy, btcHistory);
         setResults(result);
       } else {
         // Handle case where btc data is not available
@@ -121,7 +94,7 @@ export default function BacktesterPage() {
               <CardTitle className="text-lg">AI Strategy Backtester</CardTitle>
             </div>
             <CardDescription>
-              Describe a strategy in natural language and let our AI test it against historical Bitcoin data.
+              Describe a strategy in natural language, including the timeframe, and let our AI test it against historical Bitcoin data.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -132,24 +105,8 @@ export default function BacktesterPage() {
                 value={strategy}
                 onChange={(e) => setStrategy(e.target.value)}
                 className="min-h-[150px] font-mono text-sm bg-muted/50"
-                placeholder="e.g., BUY 1 BTC when its price is below $60000"
+                placeholder="e.g., BUY 1 BTC when its price is below $60000 and test it on the last 7 days of data."
               />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="timeframe">Timeframe</Label>
-                <Select value={timeframe} onValueChange={setTimeframe}>
-                  <SelectTrigger id="timeframe">
-                    <SelectValue placeholder="Select timeframe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1D">1 Day</SelectItem>
-                    <SelectItem value="7D">7 Days</SelectItem>
-                    <SelectItem value="1M">1 Month</SelectItem>
-                    <SelectItem value="3M">3 Months</SelectItem>
-                    <SelectItem value="1Y">1 Year</SelectItem>
-                    <SelectItem value="ALL">All Time</SelectItem>
-                  </SelectContent>
-                </Select>
             </div>
             <Button size="lg" className="w-full" onClick={handleRunBacktest} disabled={isLoading || marketLoading}>
               {isLoading ? (
