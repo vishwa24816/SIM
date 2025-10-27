@@ -89,29 +89,9 @@ export default function NoCodeAlgoPage() {
             </header>
 
             <main className="flex-1 p-8 overflow-auto">
-                <div className="flex flex-col items-center gap-4">
-                    <DraggableNode icon={Clock} title="Trigger: On a Schedule" description="Runs every 1 hour" color="blue" />
-                    <DraggableNode icon={ArrowDown} title="" isConnector={true} color="gray" />
-                    <DraggableNode icon={GitBranch} title="Condition: If/Else" color="yellow">
-                        <p className="text-sm font-mono p-2 bg-muted rounded">BTC.price > 68000</p>
-                    </DraggableNode>
-                    <DraggableNode icon={ArrowDown} title="" isConnector={true} color="gray" />
-
-                    <div className="flex gap-16">
-                        <div className="flex flex-col items-center gap-4">
-                           <div className="w-px h-8 bg-border" />
-                            <div className="absolute -mt-4 text-xs bg-background px-2 text-muted-foreground">TRUE</div>
-                            <DraggableNode icon={ArrowDown} title="Action: Buy" color="green">
-                                <p className="text-sm font-mono p-2 bg-muted rounded">Buy 0.5 BTC</p>
-                            </DraggableNode>
-                        </div>
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="w-px h-8 bg-border" />
-                            <div className="absolute -mt-4 text-xs bg-background px-2 text-muted-foreground">FALSE</div>
-                            <DraggableNode icon={ArrowDown} title="Action: Sell" color="red">
-                                 <p className="text-sm font-mono p-2 bg-muted rounded">Sell 0.2 BTC</p>
-                            </DraggableNode>
-                        </div>
+                <div className="flex flex-col items-center justify-center min-h-full">
+                    <div className="text-center text-muted-foreground">
+                        <p>Drag and drop nodes from the panel to start building your algorithm.</p>
                     </div>
                 </div>
             </main>
