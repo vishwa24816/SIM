@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Menu, Search, User, Home, Info, BarChart2, Cpu, History, Rocket, FileText, LifeBuoy, X, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetFooter, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/icons/logo";
 import { Separator } from '../ui/separator';
 import { useTheme } from 'next-themes';
@@ -32,6 +32,7 @@ export function Header() {
                                 <Logo className="h-8 w-8 text-primary" />
                                 <h2 className="text-xl font-bold">SIM</h2>
                             </div>
+                            <SheetTitle className="sr-only">Menu</SheetTitle>
                         </SheetHeader>
                         <div className="p-4 flex-1 overflow-y-auto">
                             <nav className="flex flex-col gap-2">
