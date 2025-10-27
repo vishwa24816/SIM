@@ -1,5 +1,4 @@
 
-
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -188,8 +187,6 @@ export interface BankAccount {
 export interface Wallet {
   id: string;
   name: string;
-  accountId: string;
-  type: 'Custodian' | 'Self';
   recoveryPhrase: string;
   isPrimary: boolean;
 }

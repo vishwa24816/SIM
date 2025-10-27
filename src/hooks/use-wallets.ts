@@ -17,16 +17,12 @@ const initialWallets: Wallet[] = [
     {
         id: 'wallet_1',
         name: 'My Main Wallet',
-        accountId: 'DEMO123',
-        type: 'Custodian',
         recoveryPhrase: 'orbit mystery ribbon pizza salt bus afford dash canoe ranch eagle symptom',
         isPrimary: false,
     },
     {
         id: 'wallet_2',
         name: 'Trading Wallet',
-        accountId: 'REAL456',
-        type: 'Self',
         recoveryPhrase: 'lava acquire lobster vacant junk garlic jungle puzzle harvest absorb valid vendor',
         isPrimary: true,
     }
