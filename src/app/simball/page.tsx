@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -10,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { SimballGame } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { DxBallGame } from '@/components/simball/dx-ball-game';
 
 const gamesToBePlayed: SimballGame[] = [
     {
@@ -52,18 +52,22 @@ const gamesPlayed: SimballGame[] = [
     },
 ];
 
-const GameCard = React.memo(({ game, isPlayed }: { game: SimballGame, isPlayed?: boolean }) => {
+const GameCard = React.memo(({ game, isPlayed, onClick }: { game: SimballGame, isPlayed?: boolean, onClick?: () => void }) => {
     const isBuy = game.type === 'BUY';
 
     return (
-        <Card className={cn(
-            "overflow-hidden rounded-2xl shadow-lg",
-            isPlayed
-                ? "bg-[#e5e5e5] text-[#333333]" 
-                : "text-white " + (isBuy 
-                    ? "bg-gradient-to-br from-green-400 to-emerald-600" 
-                    : "bg-gradient-to-br from-red-400 to-rose-600")
-        )}>
+        <Card 
+            className={cn(
+                "overflow-hidden rounded-2xl shadow-lg",
+                isPlayed
+                    ? "bg-[#e5e5e5] text-[#333333]" 
+                    : "text-white " + (isBuy 
+                        ? "bg-gradient-to-br from-green-400 to-emerald-600" 
+                        : "bg-gradient-to-br from-red-400 to-rose-600"),
+                !isPlayed && "cursor-pointer hover:scale-105 transition-transform duration-200"
+            )}
+            onClick={onClick}
+        >
             <CardContent className="p-6">
                 <div className={cn(
                     "flex items-center gap-2 text-sm",
@@ -94,6 +98,8 @@ GameCard.displayName = 'GameCard';
 
 export default function SimballPage() {
     const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
+    const [activeGame, setActiveGame] = React.useState<SimballGame | null>(null);
+
 
     const leaderboardData = [
         { rank: 1, name: 'Suraj', cashback: 59000, initial: 'S' },
@@ -103,7 +109,17 @@ export default function SimballPage() {
         { rank: 5, name: 'Vikram', cashback: 41000, initial: 'V' },
     ];
 
+    const handlePlayGame = (game: SimballGame) => {
+        setActiveGame(game);
+    };
+
+    const handleCloseGame = () => {
+        setActiveGame(null);
+    };
+
+
     return (
+        <>
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header />
             <main className="flex-1 overflow-y-auto p-4 space-y-8 pb-24">
@@ -161,7 +177,7 @@ export default function SimballPage() {
                     <h2 className="text-xl font-bold mb-4">Games to be played</h2>
                     <div className="space-y-4">
                         {gamesToBePlayed.map((game, index) => (
-                            <GameCard key={index} game={game} />
+                            <GameCard key={index} game={game} onClick={() => handlePlayGame(game)} />
                         ))}
                     </div>
                 </div>
@@ -178,5 +194,12 @@ export default function SimballPage() {
             </main>
             <BottomNav />
         </div>
+        {activeGame && (
+            <DxBallGame 
+                brokerage={parseInt(activeGame.brokerage.replace('₹', ''))}
+                onClose={handleCloseGame}
+            />
+        )}
+        </>
     )
 }
