@@ -19,19 +19,9 @@ const TradeSchema = z.object({
     quantity: z.number().describe('The quantity of the asset traded.'),
     pnl: z.number().describe('The profit or loss from this trade. For BUY trades, P&L is 0. For SELL trades, it is the realized gain or loss.'),
 });
-
-const PortfolioPointSchema = z.object({
-    time: z.string().describe('The timestamp for the portfolio value point.'),
-    value: z.number().describe('The total value of the portfolio at that time.'),
-});
+export type BacktestTrade = z.infer<typeof TradeSchema>;
 
 export const BacktestStrategyOutputSchema = z.object({
-  netPnl: z.number().describe('The net profit or loss over the entire backtest period in INR.'),
-  netPnlPercentage: z.number().describe('The net P&L as a percentage of the initial investment.'),
-  totalTrades: z.number().describe('The total number of trades executed.'),
-  winRate: z.number().describe('The percentage of profitable trades out of all closing trades.'),
-  maxDrawdown: z.number().describe('The maximum drawdown percentage from a peak to a trough of the portfolio.'),
-  sharpeRatio: z.number().describe('The Sharpe ratio of the strategy, assuming a risk-free rate of 0.'),
   trades: z.array(TradeSchema).describe('A list of all trades executed during the backtest.'),
 });
 export type BacktestStrategyOutput = z.infer<typeof BacktestStrategyOutputSchema>;

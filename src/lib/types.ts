@@ -1,5 +1,6 @@
 
 
+
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -219,6 +220,5 @@ export interface BacktestResult {
   winRate: number;
   maxDrawdown: number;
   sharpeRatio: number;
-  portfolioHistory: { time: string; value: number }[];
   trades: BacktestTrade[];
 }
