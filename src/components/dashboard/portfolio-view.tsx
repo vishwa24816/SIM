@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import QRCode from 'qrcode.react';
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useWallets } from "@/hooks/use-wallets";
+import { Skeleton } from "../ui/skeleton";
 
 interface PortfolioViewProps {
     portfolio: Portfolio;
@@ -178,6 +179,12 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
   const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
   const { wallets } = useWallets();
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const primaryWallet = wallets.find(w => w.isPrimary);
   const walletName = primaryWallet ? primaryWallet.name : 'Trading Wallet';
@@ -216,6 +223,14 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
   const holdingsValue = totalPortfolioValue - portfolio.usdBalance;
   const holdingsRatio = totalPortfolioValue > 0 ? (holdingsValue / totalPortfolioValue) * 100 : 0;
 
+  const dayPnl = marketData.reduce((acc, crypto) => {
+      const holding = portfolio.holdings.find(h => h.cryptoId === crypto.id);
+      if (holding) {
+          return acc + (holding.amount * crypto.price * (crypto.change24h / 100));
+      }
+      return acc;
+  }, 0);
+
 
   return (
     <>
@@ -231,44 +246,56 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addU
       <div className="p-6 pt-0">
         <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-                <p className={cn("text-2xl font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}>
-                    {pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-sm text-muted-foreground">Overall P&L ({pnlPercent.toFixed(2)}%)</p>
+              {isClient ? (
+                <>
+                  <p className={cn("text-2xl font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}>
+                      {pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Overall P&L ({pnlPercent.toFixed(2)}%)</p>
+                </>
+              ) : (
+                <>
+                  <Skeleton className="h-8 w-32 mb-1" />
+                  <Skeleton className="h-4 w-24" />
+                </>
+              )}
             </div>
             <div className="text-right">
-                 <p className={cn("text-2xl font-bold", marketData.reduce((acc, c) => acc + c.change24h, 0) >= 0 ? "text-green-500" : "text-red-500")}>
-                    {marketData.reduce((acc, crypto) => {
-                        const holding = portfolio.holdings.find(h => h.cryptoId === crypto.id);
-                        if (holding) {
-                            return acc + (holding.amount * crypto.price * (crypto.change24h / 100));
-                        }
-                        return acc;
-                    }, 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-sm text-muted-foreground">Day's P&L</p>
+              {isClient ? (
+                <>
+                  <p className={cn("text-2xl font-bold", dayPnl >= 0 ? "text-green-500" : "text-red-500")}>
+                      {dayPnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Day's P&L</p>
+                </>
+              ) : (
+                 <>
+                  <Skeleton className="h-8 w-24 mb-1 ml-auto" />
+                  <Skeleton className="h-4 w-16 ml-auto" />
+                </>
+              )}
             </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
             <div>
                 <p className="text-muted-foreground">Total Investment</p>
-                <p className="font-semibold">${totalInvestment.toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
+                {isClient ? <p className="font-semibold">${totalInvestment.toLocaleString('en-US', {minimumFractionDigits: 2})}</p> : <Skeleton className="h-5 w-20 mt-1" />}
             </div>
             <div className="text-right">
                 <p className="text-muted-foreground">Current Value</p>
-                <p className="font-semibold">{totalPortfolioValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}</p>
+                {isClient ? <p className="font-semibold">{totalPortfolioValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}</p> : <Skeleton className="h-5 w-28 mt-1 ml-auto" />}
             </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
              <div>
                 <p className="text-muted-foreground">Cash Balance</p>
-                <p className="font-semibold">${portfolio.usdBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</p>
+                {isClient ? <p className="font-semibold">${portfolio.usdBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</p> : <Skeleton className="h-5 w-24 mt-1" />}
             </div>
             <div className="text-right">
                 <p className="text-muted-foreground">Holdings/Position Ratio</p>
-                <p className="font-semibold">{holdingsRatio.toFixed(2)}%</p>
+                {isClient ? <p className="font-semibold">{holdingsRatio.toFixed(2)}%</p> : <Skeleton className="h-5 w-16 mt-1 ml-auto" />}
             </div>
         </div>
       </div>
