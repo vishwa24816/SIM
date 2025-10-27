@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,10 +6,10 @@ import { Header } from '@/components/dashboard/header';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { ArrowDown, ArrowUp, ChevronDown, Clock, Flame, Trophy } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { SimballGame } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { SimballIcon } from '@/components/icons/simball-icon';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const gamesToBePlayed: SimballGame[] = [
     {
@@ -56,6 +57,14 @@ const gamesPlayed: SimballGame[] = [
     },
 ];
 
+const leaderboardData = [
+    { rank: 1, name: 'Suraj', cashback: 59000, initial: 'S' },
+    { rank: 2, name: 'Anjali', cashback: 52000, initial: 'A' },
+    { rank: 3, name: 'Rohit', cashback: 48000, initial: 'R' },
+    { rank: 4, name: 'Priya', cashback: 45000, initial: 'P' },
+    { rank: 5, name: 'Vikram', cashback: 41000, initial: 'V' },
+];
+
 const GameCard = ({ game }: { game: SimballGame }) => {
     const isBuy = game.type === 'BUY';
     return (
@@ -80,6 +89,8 @@ const GameCard = ({ game }: { game: SimballGame }) => {
 
 
 export default function SimballPage() {
+    const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
+
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header />
@@ -88,27 +99,51 @@ export default function SimballPage() {
                     <h1 className="text-3xl font-bold text-primary">SIMBALL</h1>
                 </div>
 
-                <Card className="p-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white shadow-xl">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <Trophy className="w-4 h-4" />
-                                <span>Leading this month:</span>
+                <Collapsible open={isLeaderboardOpen} onOpenChange={setIsLeaderboardOpen}>
+                    <Card className="rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white shadow-xl overflow-hidden">
+                        <CollapsibleTrigger className="w-full text-left p-4">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Trophy className="w-4 h-4" />
+                                        <span>Leading this month:</span>
+                                    </div>
+                                    <div className="flex items-baseline gap-2">
+                                        <h2 className="text-3xl font-bold">Suraj</h2>
+                                        <Flame className="w-6 h-6 text-yellow-300" />
+                                    </div>
+                                    <p className="text-sm">with ₹59,000</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Avatar>
+                                        <AvatarFallback className="bg-white/30 text-white font-bold">S</AvatarFallback>
+                                    </Avatar>
+                                    <ChevronDown className={cn("w-5 h-5 transition-transform", isLeaderboardOpen && "rotate-180")} />
+                                </div>
                             </div>
-                            <div className="flex items-baseline gap-2">
-                                <h2 className="text-3xl font-bold">Suraj</h2>
-                                <Flame className="w-6 h-6 text-yellow-300" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <div className="bg-white/10 p-4">
+                                <h3 className="font-bold mb-3 text-lg">Leaderboard</h3>
+                                <div className="space-y-2">
+                                    {leaderboardData.map(player => (
+                                        <div key={player.rank} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-bold w-6 text-center">{player.rank}</span>
+                                                <Avatar className="h-8 w-8">
+                                                    <AvatarFallback className="bg-white/30 text-white font-bold text-sm">{player.initial}</AvatarFallback>
+                                                </Avatar>
+                                                <span className="font-semibold">{player.name}</span>
+                                            </div>
+                                            <span className="font-bold">₹{player.cashback.toLocaleString()}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <p className="text-sm">with ₹59,000</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Avatar>
-                                <AvatarFallback className="bg-white/30 text-white font-bold">S</AvatarFallback>
-                            </Avatar>
-                            <ChevronDown className="w-5 h-5" />
-                        </div>
-                    </div>
-                </Card>
+                        </CollapsibleContent>
+                    </Card>
+                </Collapsible>
+
 
                 <div>
                     <h2 className="text-xl font-bold mb-4">Games to be played</h2>
