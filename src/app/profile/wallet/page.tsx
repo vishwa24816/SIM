@@ -38,7 +38,7 @@ export default function WalletPage() {
     setOpenAccordion(prev => prev === walletId ? undefined : walletId);
   }
 
-  const dummyPhrase = "apple banana cherry date elderberry fig grape honey ice kiwi";
+  const dummyPhrase = "apple banana cherry date elderberry fig grape honey ice kiwi lemon mango";
   const dummyPublicKey = "0x1234567890ABCDEF1234567890ABCDEF12345678";
 
 
@@ -76,7 +76,7 @@ export default function WalletPage() {
                    <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-center">
-                          <AccordionTrigger className="p-0 hover:no-underline" onClick={() => toggleAccordion(wallet.id)}>
+                          <AccordionTrigger className="p-0 flex-1 hover:no-underline" asChild>
                             <div className="font-bold flex items-center gap-2">
                                 {wallet.name}
                                 {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
