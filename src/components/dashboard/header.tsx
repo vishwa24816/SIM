@@ -15,6 +15,10 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { setTheme, theme } = useTheme();
 
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-primary/95 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,16 +40,16 @@ export function Header() {
                         </SheetHeader>
                         <div className="p-4 flex-1 overflow-y-auto">
                             <nav className="flex flex-col gap-2">
-                                <Link href="/" passHref><Button variant="ghost" className="justify-start gap-3"><Home /> Home</Button></Link>
-                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Info /> About</Button></Link>
-                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button></Link>
-                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button></Link>
-                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><History /> Backtester</Button></Link>
+                                <Link href="/" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Home /> Home</Button></Link>
+                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Info /> About</Button></Link>
+                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button></Link>
+                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button></Link>
+                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><History /> Backtester</Button></Link>
                                 <Separator className="my-2" />
-                                <Link href="/simball" passHref><Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button></Link>
-                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button></Link>
+                                <Link href="/simball" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button></Link>
+                                <Link href="#" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button></Link>
                                 <Separator className="my-2" />
-                                <Link href="/support" passHref><Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button></Link>
+                                <Link href="/support" passHref onClick={handleLinkClick}><Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button></Link>
                             </nav>
                         </div>
                         <SheetFooter className="p-4 border-t mt-auto">
