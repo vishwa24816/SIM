@@ -7,16 +7,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
-import { useMarketData } from '@/hooks/use-market-data';
-import { runBacktest } from '../actions';
 import { BacktestResult } from '@/lib/types';
 import { BacktestResults } from '@/components/backtester/backtest-results';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 
+const DUMMY_RESULTS: BacktestResult = {
+  netPnl: 1250.8,
+  netPnlPercentage: 1.25,
+  totalTrades: 2,
+  winRate: 100,
+  maxDrawdown: 0.5,
+  sharpeRatio: 1.5,
+  trades: [
+    { date: '2024-06-10', type: 'BUY', asset: 'BTC', price: 64500.0, quantity: 1, pnl: 0 },
+    { date: '2024-06-18', type: 'SELL', asset: 'BTC', price: 65750.8, quantity: 1, pnl: 1250.8 },
+  ],
+};
+
 export default function BacktesterPage() {
   const router = useRouter();
-  const { marketData, loading: marketLoading } = useMarketData();
   
   const [strategy, setStrategy] = React.useState('WHEN BTC price goes below $65000\nBUY 1 BTC\n\nWHEN BTC price goes above $70000\nSELL 1 BTC\n\nTest this strategy on the last 1 Month of data.');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -24,22 +34,12 @@ export default function BacktesterPage() {
 
   const handleRunBacktest = async () => {
     setIsLoading(true);
-    try {
-      const btcHistory = marketData.find(c => c.id === 'bitcoin')?.priceHistory || [];
-      if (btcHistory.length > 0) {
-        const result = await runBacktest(strategy, btcHistory);
-        setResults(result);
-      } else {
-        // Handle case where btc data is not available
-        console.error("Bitcoin market data not available for backtesting.");
-        setResults(null);
-      }
-    } catch (error) {
-      console.error("Backtest failed:", error);
-       setResults(null);
-    } finally {
-      setIsLoading(false);
-    }
+    setResults(null);
+    // Simulate a network request to the AI
+    setTimeout(() => {
+        setResults(DUMMY_RESULTS);
+        setIsLoading(false);
+    }, 2000);
   };
 
 
@@ -78,7 +78,7 @@ export default function BacktesterPage() {
                 placeholder="e.g., BUY 1 BTC when its price is below $60000 and test it on the last 7 days of data."
               />
             </div>
-            <Button size="lg" className="w-full" onClick={handleRunBacktest} disabled={isLoading || marketLoading}>
+            <Button size="lg" className="w-full" onClick={handleRunBacktest} disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -96,11 +96,13 @@ export default function BacktesterPage() {
 
         {(isLoading || results) && <Separator />}
 
-        {isLoading ? (
+        {isLoading && (
           <div className="text-center text-muted-foreground">Loading results...</div>
-        ) : results ? (
+        )}
+        
+        {results && (
           <BacktestResults results={results} />
-        ) : null}
+        )}
       </main>
     </div>
   );
