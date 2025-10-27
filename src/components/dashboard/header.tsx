@@ -35,16 +35,16 @@ export function Header() {
                         </SheetHeader>
                         <div className="p-4 flex-1 overflow-y-auto">
                             <nav className="flex flex-col gap-2">
-                                <Button variant="ghost" className="justify-start gap-3"><Home /> Home</Button>
-                                <Button variant="ghost" className="justify-start gap-3"><Info /> About</Button>
-                                <Button variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
-                                <Button variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button>
-                                <Button variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
+                                <Link href="/" passHref><Button variant="ghost" className="justify-start gap-3"><Home /> Home</Button></Link>
+                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Info /> About</Button></Link>
+                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button></Link>
+                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Cpu /> No code Algo</Button></Link>
+                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><History /> Backtester</Button></Link>
                                 <Separator className="my-2" />
-                                <Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
-                                <Button variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
+                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button></Link>
+                                <Link href="#" passHref><Button variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button></Link>
                                 <Separator className="my-2" />
-                                <Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button>
+                                <Link href="/support" passHref><Button variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button></Link>
                             </nav>
                         </div>
                         <SheetFooter className="p-4 border-t mt-auto">

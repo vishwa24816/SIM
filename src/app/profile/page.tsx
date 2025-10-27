@@ -115,7 +115,7 @@ export default function ProfilePage() {
     { id: 'accountMgmt', icon: UserCog, title: 'Account Management', description: 'Delete or disable your account', href: '/profile/account-management' },
     { id: 'wallet', icon: Wallet, title: 'Wallet Management', description: 'Manage your crypto wallets', href: '/profile/wallet' },
     { id: 'security', icon: Lock, title: 'Security and Privacy', description: 'Manage your account security and data privacy settings', href: '#' },
-    { id: 'support', icon: LifeBuoy, title: 'Support', description: 'Get help and support from our team', href: '#' },
+    { id: 'support', icon: LifeBuoy, title: 'Support', description: 'Get help and support from our team', href: '/support' },
     { id: 'fees', icon: FileText, title: 'Fee Structure', description: 'View the fee structure for all services', href: '#' },
     { id: 'feedback', icon: Star, title: 'Feedback', description: 'Share your feedback and suggestions with us', href: '#' },
     { id: 'refer', icon: Gift, title: 'Refer and Earn', description: 'Refer your friends and earn rewards', href: '#' },
