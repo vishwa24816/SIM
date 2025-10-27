@@ -1,6 +1,7 @@
 
 
 
+
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -221,4 +222,18 @@ export interface BacktestResult {
   maxDrawdown: number;
   sharpeRatio: number;
   trades: BacktestTrade[];
+}
+
+export interface Transaction {
+  id: string;
+  type: 'BUY' | 'SELL';
+  asset: string;
+  quantity: number;
+  priceAtTransaction: number;
+  totalValue: number;
+  date: string;
+  blockchainId: string;
+  brokerage: number;
+  brokerageEarnedBack: number;
+  platform: string;
 }

@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Portfolio, CryptoCurrency, Holding } from '@/lib/types';
 import { toast } from './use-toast';
+import { useTransactionHistory } from './use-transaction-history';
 
 const INITIAL_PORTFOLIO: Portfolio = {
   usdBalance: 10000,
@@ -121,6 +122,20 @@ export const usePortfolioStore = create<PortfolioState>()(
                         }
                     };
                 });
+                
+                // Add to transaction history
+                useTransactionHistory.getState().addTransaction({
+                    type: 'BUY',
+                    asset: crypto.symbol,
+                    quantity: cryptoAmount,
+                    priceAtTransaction: crypto.price,
+                    totalValue: usdAmount * 83, // Assuming 1 USD = 83 INR for display
+                    date: new Date().toISOString(),
+                    blockchainId: Math.random().toString(36).substring(2, 10).toUpperCase(),
+                    brokerage: usdAmount * 0.001 * 83, // 0.1% brokerage
+                    brokerageEarnedBack: usdAmount * 0.0001 * 83, // 10% of brokerage
+                });
+
                 toast({ title: 'Trade Successful', description: `Order for ${Math.abs(cryptoAmount).toFixed(6)} ${crypto.symbol} placed.` });
             },
             sell: (crypto, cryptoAmountToSell) => {
@@ -145,10 +160,10 @@ export const usePortfolioStore = create<PortfolioState>()(
                     
                     let newHoldings = [...state.portfolio.holdings];
                     let updatedUsdBalance = state.portfolio.usdBalance;
+                    const usdGained = cryptoAmountToSell * crypto.price;
 
                     if (crypto.assetType === 'Futures') {
                         // Squaring off a futures position
-                        const baseAsset = get().portfolio.holdings.find(c => c.cryptoId === crypto.id.replace('-fut',''));
                         const margin = holding.margin || 0;
                         const leverage = margin > 0 ? Math.abs((holding.amount * crypto.price) / margin) : 1;
                         const entryPrice = margin > 0 && holding.amount !== 0 ? Math.abs((margin * leverage) / holding.amount) : crypto.price;
@@ -162,7 +177,6 @@ export const usePortfolioStore = create<PortfolioState>()(
 
                     } else {
                         // Selling a spot asset
-                        const usdGained = cryptoAmountToSell * crypto.price;
                         const newAmount = holding.amount - cryptoAmountToSell;
                         
                         const proportionSold = holding.amount > 0 ? cryptoAmountToSell / holding.amount : 1;
@@ -179,6 +193,19 @@ export const usePortfolioStore = create<PortfolioState>()(
                         toast({ title: 'Sale Successful', description: `Sold ${cryptoAmountToSell.toFixed(6)} ${crypto.symbol}.` });
                     }
                     
+                    // Add to transaction history
+                    useTransactionHistory.getState().addTransaction({
+                        type: 'SELL',
+                        asset: crypto.symbol,
+                        quantity: cryptoAmountToSell,
+                        priceAtTransaction: crypto.price,
+                        totalValue: usdGained * 83, // Assuming 1 USD = 83 INR for display
+                        date: new Date().toISOString(),
+                        blockchainId: Math.random().toString(36).substring(2, 10).toUpperCase(),
+                        brokerage: usdGained * 0.001 * 83, // 0.1% brokerage
+                        brokerageEarnedBack: usdGained * 0.0001 * 83, // 10% of brokerage
+                    });
+
                     return {
                         portfolio: {
                            ...state.portfolio,
