@@ -93,7 +93,6 @@ export default function WalletManagementPage() {
                                     </Button>
                                 </div>
                                 <p><span className="text-muted-foreground">Account:</span> {wallet.accountId}</p>
-                                <p><span className="text-muted-foreground">Type:</span> {wallet.type}</p>
                             </div>
                             
                             {!wallet.isPrimary && (
