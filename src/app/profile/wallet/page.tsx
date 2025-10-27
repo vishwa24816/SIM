@@ -67,22 +67,19 @@ export default function WalletPage() {
                   <AccordionItem value={wallet.id} className="border-b-0">
                     <CardContent className="p-4">
                         <div className="flex justify-between items-start">
-                           <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-bold">{wallet.name}</p>
-                                    {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                                </div>
-                                <p className="text-xs text-muted-foreground break-all">ID: {wallet.id}</p>
-                           </div>
-                           <div className="flex items-center gap-1">
-                                <AccordionTrigger>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
-                                </AccordionTrigger>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                          <AccordionTrigger className="p-0 text-left hover:no-underline">
+                              <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                      <p className="font-bold">{wallet.name}</p>
+                                      {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground break-all">{wallet.publicKey}</p>
+                              </div>
+                           </AccordionTrigger>
+                           <div className="flex items-center gap-1 pl-4">
+                               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWalletToRemove(wallet.id)}>
+                                   <Trash2 className="h-4 w-4 text-destructive" />
+                               </Button>
                            </div>
                         </div>
 
@@ -97,15 +94,6 @@ export default function WalletPage() {
                                                 <span>{word}</span>
                                             </div>
                                         ))}
-                                    </div>
-                                </div>
-                                <div>
-                                     <Label className="text-xs font-semibold">Public Key</Label>
-                                     <div className="flex items-center justify-between p-2 pl-3 bg-muted rounded-md">
-                                        <p className="text-sm text-foreground break-all">{wallet.publicKey}</p>
-                                        <Button variant="ghost" size="icon" onClick={() => handleCopy(wallet.publicKey, 'Public Key')} className="h-8 w-8">
-                                            <Copy className="h-4 w-4" />
-                                        </Button>
                                     </div>
                                 </div>
                            </div>
