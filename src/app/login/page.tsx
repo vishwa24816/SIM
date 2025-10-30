@@ -97,10 +97,8 @@ export default function LoginPage() {
     setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      if (result.user) {
-        router.push('/');
-      }
+      await signInWithPopup(auth, provider);
+      // The useEffect above will handle the redirect on user state change.
     } catch (error) {
       console.error("Error during Google sign-in:", error);
       setIsSigningIn(false);

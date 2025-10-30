@@ -1,6 +1,6 @@
 
 'use client';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
@@ -15,15 +15,20 @@ let app: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
 
-if (!getApps().length) {
+// Initialize Firebase only on the client side, and only once.
+if (typeof window !== 'undefined' && !getApps().length) {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   firestore = getFirestore(app);
 }
 
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
+  const value = useMemo(() => {
+    return { app, auth, firestore };
+  }, []);
+
   return (
-    <FirebaseProvider value={{ app, auth, firestore }}>
+    <FirebaseProvider value={value}>
       {children}
     </FirebaseProvider>
   );
