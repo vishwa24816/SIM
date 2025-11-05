@@ -26,83 +26,71 @@ const ALL_INITIAL_ASSETS: CryptoCurrency[] = [
 
 export function useMarketData() {
   const [loading, setLoading] = useState(true);
-  const [marketData, setMarketData] = useState<CryptoCurrency[]>([]);
+  const [marketData, setMarketData] = useState<CryptoCurrency[]>(() => {
+    const baseData = ALL_INITIAL_ASSETS;
+    const futuresData = baseData
+      .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
+      .map(crypto => ({
+        ...crypto,
+        symbol: `${crypto.symbol}-FUT`,
+        name: `${crypto.name} Futures`,
+        id: `${crypto.id}-fut`,
+        assetType: 'Futures' as const,
+      }));
+    return [...baseData, ...futuresData];
+  });
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
 
-  const fetchMarketData = async (isInitialLoad = false) => {
-    if (isInitialLoad) {
-        setLoading(true);
-    }
-    try {
-      const cryptoIds = INITIAL_CRYPTO_DATA.map(c => c.id);
-      const response = await fetch(`/api/market-data?ids=${cryptoIds.join(',')}`);
-      
-      if (!response.ok) {
-        console.error('Failed to fetch market data:', response.statusText);
-        if (isInitialLoad) {
-          setMarketData(ALL_INITIAL_ASSETS);
-        }
-        return;
-      }
-      
-      const liveData: CryptoCurrency[] = await response.json();
-      
-      const baseDataMap = new Map(ALL_INITIAL_ASSETS.map(d => [d.id, d]));
-
-      liveData.forEach(live => {
-        baseDataMap.set(live.id, { ...baseDataMap.get(live.id)!, ...live, assetType: 'Spot' });
-      });
-      
-      const combinedData = Array.from(baseDataMap.values());
-
-      const futuresData: CryptoCurrency[] = combinedData
-        .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
-        .map(crypto => ({
-          ...crypto,
-          price: crypto.price,
-          symbol: `${crypto.symbol}-FUT`,
-          name: `${crypto.name} Futures`,
-          id: `${crypto.id}-fut`,
-          assetType: 'Futures' as const,
-      }));
-
-      setMarketData([...combinedData, ...futuresData]);
-
-    } catch (error) {
-      console.error(error);
-      if (isInitialLoad) {
-        const futuresData: CryptoCurrency[] = ALL_INITIAL_ASSETS
-            .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
-            .map(crypto => ({
-            ...crypto,
-            price: crypto.price,
-            symbol: `${crypto.symbol}-FUT`,
-            name: `${crypto.name} Futures`,
-            id: `${crypto.id}-fut`,
-            assetType: 'Futures' as const,
-        }));
-        setMarketData([...ALL_INITIAL_ASSETS, ...futuresData]);
-      }
-    } finally {
-        if (isInitialLoad) {
-            setLoading(false);
-        }
-    }
-  };
-
-
   useEffect(() => {
-    fetchMarketData(true); // Initial fetch
-    const intervalId = setInterval(() => {
-      fetchMarketData(false);
-    }, 10000); // Poll every 10 seconds
+    const eventSource = new EventSource('/api/market-stream');
+    setLoading(false); // We have initial data, so we're not "loading" in a blocking sense
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    eventSource.onmessage = (event) => {
+      const update = JSON.parse(event.data);
+      const symbol = update.id.toUpperCase();
+
+      setMarketData(prevData => {
+        const newData = prevData.map(crypto => {
+          if (crypto.symbol.toLowerCase() === update.id.toLowerCase() && crypto.assetType === 'Spot') {
+            const oldPrice = crypto.price;
+            const newPrice = update.price;
+            const change24h = ((newPrice - oldPrice) / oldPrice) * 100 + crypto.change24h;
+            
+            const newHistory = [
+                ...crypto.priceHistory.slice(1),
+                { time: new Date().toISOString().split('T')[0], value: newPrice },
+            ];
+
+            return {
+              ...crypto,
+              price: newPrice,
+              change24h: isNaN(change24h) ? crypto.change24h : change24h,
+              priceHistory: newHistory,
+            };
+          }
+          // Update futures price based on spot price change
+          if (crypto.assetType === 'Futures' && crypto.id.startsWith(update.id)) {
+             return { ...crypto, price: update.price };
+          }
+          return crypto;
+        });
+        return newData;
+      });
+    };
+
+    eventSource.onerror = (err) => {
+      console.error("EventSource failed:", err);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   const selectedCrypto = useMemo(() => {
     return marketData.find(c => c.id === selectedCryptoId) || marketData[0] || defaultCrypto;
   }, [marketData, selectedCryptoId]);
 
-  return { loading, marketData, selectedCrypto, setSelectedCryptoId, fetchMarketData };
+  return { loading, marketData, selectedCrypto, setSelectedCryptoId };
 }

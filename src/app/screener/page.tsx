@@ -122,9 +122,9 @@ export default function ScreenerPage() {
         if (loading) return [];
         return marketData.map(crypto => {
             // A more stable way to calculate market cap if circulating_supply is not directly available
-            const circulatingSupply = crypto.volume24h > 0 && crypto.price > 0 ? (crypto.volume24h / crypto.price) * 10 : 1000000;
-            const marketCap = crypto.price * circulatingSupply;
-            return { ...crypto, marketCap };
+             const mockCirculatingSupply = (crypto.volume24h / crypto.price) * 10;
+            const marketCap = crypto.price * (isNaN(mockCirculatingSupply) ? 1000000 : mockCirculatingSupply) ;
+            return { ...crypto, marketCap: isNaN(marketCap) ? 0 : marketCap };
         });
     }, [marketData, loading]);
 
