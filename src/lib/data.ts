@@ -2,15 +2,28 @@ import { BitcoinIcon, DogecoinIcon, EthereumIcon } from "@/components/icons";
 import { CryptoCurrency, MutualFund, NewsArticle, CryptoETF } from "./types";
 import { Coins, Package } from "lucide-react";
 
-const generatePriceHistory = (base: number) => {
+const generatePriceHistory = (base: number, days = 365) => {
   const history = [];
   let currentPrice = base;
-  for (let i = 0; i < 30; i++) {
-    history.push({
-      time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      value: currentPrice,
-    });
-    currentPrice *= (1 + (Math.random() - 0.49) * 0.1); // Fluctuate by up to 10%
+  for (let i = 0; i < days; i++) {
+    const date = new Date(Date.now() - (days - 1 - i) * 24 * 60 * 60 * 1000);
+    // Add hourly fluctuations for the last day
+    if (i === days - 1) {
+      let hourlyPrice = history[history.length - 1]?.value || base * (1 + (Math.random() - 0.5) * 0.1);
+      for (let j = 0; j < 24; j++) {
+        history.push({
+          time: new Date(date.getTime() - (23 - j) * 60 * 60 * 1000).toISOString(),
+          value: hourlyPrice,
+        });
+        hourlyPrice *= (1 + (Math.random() - 0.49) * 0.02); // Tighter fluctuation for hours
+      }
+    } else {
+       history.push({
+        time: date.toISOString(),
+        value: currentPrice,
+      });
+      currentPrice *= (1 + (Math.random() - 0.49) * 0.1); // Fluctuate by up to 10% daily
+    }
   }
   return history;
 };
