@@ -26,6 +26,7 @@ import {
   ArrowLeft,
   Volume2,
   Copy,
+  Container,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -192,6 +193,7 @@ export default function ProfilePage() {
     { id: 'refer', icon: Gift, title: 'Refer and Earn', description: 'Refer your friends and earn rewards', href: '#' },
     { id: 'about', icon: Info, title: 'About SIM', description: 'Know more about our company and mission', href: '#' },
     { id: 'api', icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
+    { id: 'mcp', icon: Container, title: 'MCP', description: 'View details about your MCP', collapsible: true },
     { id: 'join', icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us', href: '#' },
     { id: 'theme', icon: Palette, title: 'Platform Colour', description: 'Choose your preferred color theme', collapsible: true },
     { id: 'language', icon: Languages, title: 'Platform Language', description: 'Select your display language', collapsible: true },
@@ -235,6 +237,12 @@ export default function ProfilePage() {
                           )}
                         </div>
                         <Button onClick={generateApiKey} className="w-full">Generate Key</Button>
+                      </div>
+                    ) : item.id === 'mcp' ? (
+                      <div className="pl-10 space-y-2 text-sm">
+                          <p><span className="font-semibold text-muted-foreground">MCP Status:</span> <span className="text-green-500">Active</span></p>
+                          <p><span className="font-semibold text-muted-foreground">Plan:</span> Pro Tier</p>
+                          <p><span className="font-semibold text-muted-foreground">Renewal Date:</span> 2024-12-31</p>
                       </div>
                     ) : item.id === 'theme' ? (
                         <div className="pl-10">
