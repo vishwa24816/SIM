@@ -15,6 +15,15 @@ export async function GET(req: NextRequest) {
 
   let ws: WebSocket;
 
+  const handleCleanup = () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.close();
+    }
+    if (!writable.locked) {
+      writer.close().catch(() => {});
+    }
+  };
+
   if (source === 'coinbase') {
     ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
 
@@ -35,7 +44,7 @@ export async function GET(req: NextRequest) {
       try {
         const parsedData = JSON.parse(message);
         if (parsedData.type === 'ticker' && parsedData.price) {
-          const cryptoId = parsedData.product_id.toLowerCase().replace('-usd', '');
+          const cryptoId = parsedData.product_id.split('-')[0].toLowerCase();
           const price = parseFloat(parsedData.price);
           const update = { id: cryptoId, price: price, source: 'coinbase' };
           writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
@@ -45,14 +54,37 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    ws.on('error', (error) => {
-      console.error('Coinbase WebSocket error:', error);
-      writer.close();
+  } else if (source === 'okx') {
+    ws = new WebSocket('wss://ws.okx.com:8443/ws/v5/public');
+
+    ws.on('open', () => {
+      const args = INITIAL_CRYPTO_DATA
+        .filter(crypto => crypto.assetType === 'Spot')
+        .map(crypto => ({
+          channel: "tickers",
+          instId: `${crypto.symbol.toUpperCase()}-USDT`
+        }));
+      
+      ws.send(JSON.stringify({
+        op: 'subscribe',
+        args: args,
+      }));
     });
 
-    ws.on('close', () => {
-      console.log('Coinbase WebSocket connection closed.');
-      writer.close();
+    ws.on('message', (data: WebSocket.Data) => {
+      const message = data.toString();
+      try {
+        const parsedData = JSON.parse(message);
+        if (parsedData.arg?.channel === 'tickers' && parsedData.data) {
+          const trade = parsedData.data[0];
+          const cryptoId = trade.instId.split('-')[0].toLowerCase();
+          const price = parseFloat(trade.last);
+          const update = { id: cryptoId, price: price, source: 'okx' };
+          writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+        }
+      } catch (e) {
+        console.error('Error parsing OKX WebSocket message:', e);
+      }
     });
 
   } else { // Default to Binance
@@ -78,20 +110,17 @@ export async function GET(req: NextRequest) {
         console.error('Error parsing Binance WebSocket message:', e);
       }
     });
-
-    ws.on('error', (error) => {
-      console.error('Binance WebSocket error:', error);
-      writer.close();
-    });
-
-    ws.on('close', () => {
-      console.log('Binance WebSocket connection closed.');
-      writer.close();
-    });
   }
 
-  // The client will close the connection when it's done.
-  // The server-side cleanup is handled by the 'close' and 'error' events.
+  ws.on('error', (error) => {
+    console.error(`${source} WebSocket error:`, error);
+    handleCleanup();
+  });
+
+  ws.on('close', () => {
+    console.log(`${source} WebSocket connection closed.`);
+    handleCleanup();
+  });
   
   return new Response(readable, {
     headers: {

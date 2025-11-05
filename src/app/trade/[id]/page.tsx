@@ -3,7 +3,7 @@
 'use client';
 
 import * as React from 'react';
-import { useMarketData } from '@/hooks/use-market-data';
+import { useMarketData, Exchange } from '@/hooks/use-market-data';
 import { PriceChart } from '@/components/dashboard/price-chart';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { OrderForm, type SPConfig, type HodlConfig, type GeneralOrderConfig } from '@/components/trade/order-form';
@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/button';
 import { useLimitOrders } from '@/hooks/use-limit-orders';
 import { useParams, useSearchParams } from 'next/navigation';
 import { usePortfolioStore } from '@/hooks/use-portfolio';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 export default function TradePage() {
   const params = useParams();
@@ -284,6 +286,20 @@ export default function TradePage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <OrderPageHeader crypto={crypto} />
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
+        <RadioGroup value={exchange} onValueChange={(value) => setExchange(value as Exchange)} className="flex space-x-4 mb-4 justify-center">
+            <div className="flex items-center space-x-2">
+                <RadioGroupItem value="binance" id="binance"/>
+                <Label htmlFor="binance">Binance</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+                <RadioGroupItem value="coinbase" id="coinbase"/>
+                <Label htmlFor="coinbase">Coinbase</Label>
+            </div>
+             <div className="flex items-center space-x-2">
+                <RadioGroupItem value="okx" id="okx"/>
+                <Label htmlFor="okx">OKX</Label>
+            </div>
+        </RadioGroup>
         <PriceChart crypto={crypto} loading={marketLoading} />
         <Separator className="bg-border/50" />
         <OrderForm
@@ -300,8 +316,6 @@ export default function TradePage() {
           onSPConfigChange={setSpConfig}
           onHodlConfigChange={setHodlConfig}
           onGeneralOrderConfigChange={setGeneralOrderConfig}
-          exchange={exchange}
-          setExchange={setExchange}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
