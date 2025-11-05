@@ -40,6 +40,7 @@ import { Input } from '@/components/ui/input';
 import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { McpDetails } from '@/components/profile/mcp-details';
 
 const ProfileItem = ({ icon, title, description, badge }: { icon: React.ElementType, title: string, description: string, badge?: { text: string, type: string } }) => {
   const Icon = icon;
@@ -239,24 +240,7 @@ export default function ProfilePage() {
                         <Button onClick={generateApiKey} className="w-full">Generate Key</Button>
                       </div>
                     ) : item.id === 'mcp' ? (
-                      <div className="pl-10 space-y-4 text-sm">
-                          <div className="flex justify-between items-center">
-                            <span className="font-semibold text-muted-foreground">Proxy Status:</span>
-                            <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Active</Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="font-semibold text-muted-foreground">Authentication:</span>
-                            <span className="font-medium">Credentials Added</span>
-                          </div>
-                           <div className="flex justify-between items-center">
-                            <span className="font-semibold text-muted-foreground">Rate Limiting:</span>
-                            <span className="font-medium">120 requests/min</span>
-                          </div>
-                           <div className="flex justify-between items-center">
-                            <span className="font-semibold text-muted-foreground">Caching:</span>
-                            <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">Enabled (TTL: 3600s)</Badge>
-                          </div>
-                      </div>
+                      <McpDetails />
                     ) : item.id === 'theme' ? (
                         <div className="pl-10">
                            <ThemeSelector />
@@ -293,3 +277,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
