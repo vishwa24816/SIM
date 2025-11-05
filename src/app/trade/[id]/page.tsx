@@ -23,7 +23,7 @@ import { usePortfolioStore } from '@/hooks/use-portfolio';
 export default function TradePage() {
   const params = useParams();
   const id = params.id as string;
-  const { marketData, loading: marketLoading } = useMarketData();
+  const { marketData, loading: marketLoading, exchange, setExchange } = useMarketData();
   const { buy, sell, portfolio } = usePortfolioStore();
   const { addPlan } = useSystematicPlans();
   const { addOrder: addHodlOrder } = useHodlOrders();
@@ -300,6 +300,8 @@ export default function TradePage() {
           onSPConfigChange={setSpConfig}
           onHodlConfigChange={setHodlConfig}
           onGeneralOrderConfigChange={setGeneralOrderConfig}
+          exchange={exchange}
+          setExchange={setExchange}
         />
         <Separator className="bg-border/50" />
         <MarketDepth 
@@ -327,5 +329,3 @@ export default function TradePage() {
     </div>
   );
 }
-
-    

@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { CryptoCurrency, SPFrequency, SystematicPlanType } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Exchange } from '@/hooks/use-market-data';
 
 export interface SPConfig {
   spPlanType: SystematicPlanType;
@@ -48,11 +49,14 @@ interface OrderFormProps {
     onSPConfigChange: (config: SPConfig | null) => void;
     onHodlConfigChange: (config: HodlConfig | null) => void;
     onGeneralOrderConfigChange: (config: GeneralOrderConfig | null) => void;
+    exchange: Exchange;
+    setExchange: (exchange: Exchange) => void;
 }
 
 export function OrderForm({ 
   crypto, price, setPrice, orderType, setOrderType, onCanAddToBasketChange, 
-  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange, onHodlConfigChange, onGeneralOrderConfigChange
+  quantity, setQuantity, investmentType, setInvestmentType, onSPConfigChange, onHodlConfigChange, onGeneralOrderConfigChange,
+  exchange, setExchange
 }: OrderFormProps) {
   const [stopLossEnabled, setStopLossEnabled] = React.useState(false);
   const [takeProfitEnabled, setTakeProfitEnabled] = React.useState(false);
@@ -157,6 +161,17 @@ export function OrderForm({
   return (
     <div>
         <div className="pt-6 p-6">
+            <RadioGroup value={exchange} onValueChange={(value) => setExchange(value as Exchange)} className="flex space-x-4 mb-4">
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="binance" id="binance"/>
+                    <Label htmlFor="binance">Binance</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="coinbase" id="coinbase"/>
+                    <Label htmlFor="coinbase">Coinbase</Label>
+                </div>
+            </RadioGroup>
+
             <RadioGroup value={investmentType} onValueChange={setInvestmentType} className="flex space-x-4 mb-4">
                 <div className="flex items-center space-x-2">
                     <RadioGroupItem value="delivery" id="delivery"/>
@@ -340,5 +355,3 @@ export function OrderForm({
     </div>
   );
 }
-
-    

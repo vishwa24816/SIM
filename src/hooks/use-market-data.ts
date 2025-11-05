@@ -1,11 +1,13 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { CryptoCurrency } from '@/lib/types';
 import { INITIAL_CRYPTO_DATA, CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/data';
 
 const defaultCrypto = INITIAL_CRYPTO_DATA[0];
+
+export type Exchange = 'binance' | 'coinbase';
 
 // Combine all initial data into one array
 const ALL_INITIAL_ASSETS: CryptoCurrency[] = [
@@ -40,20 +42,28 @@ export function useMarketData() {
     return [...baseData, ...futuresData];
   });
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
+  const [exchange, setExchange] = useState<Exchange>('binance');
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/market-stream');
-    setLoading(false); // We have initial data, so we're not "loading" in a blocking sense
+    // Close any existing connection
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
 
-    eventSource.onmessage = (event) => {
+    const newEventSource = new EventSource(`/api/market-stream?source=${exchange}`);
+    eventSourceRef.current = newEventSource;
+    setLoading(false);
+
+    newEventSource.onmessage = (event) => {
       const update = JSON.parse(event.data);
       
       setMarketData(prevData => {
         return prevData.map(crypto => {
           if (crypto.assetType === 'Spot' && crypto.symbol.toLowerCase() === update.id) {
-            const oldPrice = crypto.priceHistory[crypto.priceHistory.length -1].value;
+            const oldPrice = crypto.priceHistory[crypto.priceHistory.length - 1].value;
             const newPrice = update.price;
-            const change24h = ((newPrice - oldPrice) / oldPrice) * 100 + crypto.change24h;
+            const change24h = oldPrice > 0 ? ((newPrice - oldPrice) / oldPrice) * 100 + crypto.change24h : crypto.change24h;
             
             const newHistory = [
                 ...crypto.priceHistory.slice(1),
@@ -76,19 +86,19 @@ export function useMarketData() {
       });
     };
 
-    eventSource.onerror = (err) => {
+    newEventSource.onerror = (err) => {
       console.error("EventSource failed:", err);
-      eventSource.close();
+      newEventSource.close();
     };
 
     return () => {
-      eventSource.close();
+      newEventSource.close();
     };
-  }, []);
+  }, [exchange]);
 
   const selectedCrypto = useMemo(() => {
     return marketData.find(c => c.id === selectedCryptoId) || marketData[0] || defaultCrypto;
   }, [marketData, selectedCryptoId]);
 
-  return { loading, marketData, selectedCrypto, setSelectedCryptoId };
+  return { loading, marketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
 }
