@@ -38,26 +38,35 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
 
   const chartData = React.useMemo(() => {
     const now = new Date();
-    const fullHistory = crypto.priceHistory;
+    let history = crypto.priceHistory;
+    let startTime;
 
     switch (timeframe) {
       case '1H':
-        return fullHistory.filter(p => new Date(p.time) > new Date(now.getTime() - 1 * 60 * 60 * 1000));
+        startTime = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+        break;
       case '1D':
-        return fullHistory.filter(p => new Date(p.time) > new Date(now.getTime() - 24 * 60 * 60 * 1000));
+        startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
       case '1W':
-        return fullHistory.filter(p => new Date(p.time) > new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
+        startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
       case '1M':
-        return fullHistory.filter(p => new Date(p.time) > new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000));
+        startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
       case '1Y':
-        return fullHistory.filter(p => new Date(p.time) > new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000));
+        startTime = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
       default:
-        return fullHistory;
+        return history;
     }
+    
+    return history.filter(p => new Date(p.time) >= startTime);
+
   }, [crypto.priceHistory, timeframe]);
   
   const domain = React.useMemo(() => {
-    if (chartData.length === 0) return [0, 1];
+    if (chartData.length === 0) return ['auto', 'auto'];
     const values = chartData.map(p => p.value);
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -135,6 +144,7 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
                 axisLine={false}
                 tickMargin={8}
                 tickFormatter={formatTick}
+                interval="preserveStartEnd"
               />
               <YAxis
                   domain={domain}
