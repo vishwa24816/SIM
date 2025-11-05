@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -31,6 +31,15 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
 
   const lastPrice = crypto.priceHistory[crypto.priceHistory.length - 2]?.value ?? crypto.price;
   const isUp = crypto.price >= lastPrice;
+  
+  const domain = React.useMemo(() => {
+    const values = crypto.priceHistory.map(p => p.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = (max - min) * 0.1;
+    return [min - padding, max + padding];
+  }, [crypto.priceHistory]);
+
 
   return (
     <div>
@@ -68,12 +77,14 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
             </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-[250px] w-full">
-            <AreaChart
+            <LineChart
               accessibilityLayer
               data={crypto.priceHistory}
               margin={{
                 left: 12,
                 right: 12,
+                top: 5,
+                bottom: 5,
               }}
             >
               <CartesianGrid vertical={false} />
@@ -82,31 +93,27 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                tickFormatter={(value) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
               />
               <YAxis
-                  domain={['dataMin - (dataMin * 0.1)', 'dataMax + (dataMax * 0.1)']}
+                  domain={domain}
                   hide
               />
               <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
               <defs>
-                  <linearGradient id="fillGreen" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(142.1 76.2% 41.2%)" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="hsl(142.1 76.2% 41.2%)" stopOpacity={0.7}/>
-                  </linearGradient>
-                  <linearGradient id="fillRed" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(0 84.2% 60.2%)" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="hsl(0 84.2% 60.2%)" stopOpacity={0.7}/>
+                  <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="5%" stopColor={isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)"} stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor={isPositiveChange ? "hsl(217 91% 60%)" : "hsl(25 95% 53%)"} stopOpacity={0.8}/>
                   </linearGradient>
               </defs>
-              <Area
+              <Line
                 dataKey="value"
-                type="natural"
-                fill={isPositiveChange ? "url(#fillGreen)" : "url(#fillRed)"}
-                stroke={isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)"}
-                stackId="a"
+                type="monotone"
+                stroke="url(#lineGradient)"
+                strokeWidth={2}
+                dot={false}
               />
-            </AreaChart>
+            </LineChart>
           </ChartContainer>
         )}
       </div>

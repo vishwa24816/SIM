@@ -47,18 +47,17 @@ export function useMarketData() {
 
     eventSource.onmessage = (event) => {
       const update = JSON.parse(event.data);
-      const symbol = update.id.toUpperCase();
-
+      
       setMarketData(prevData => {
-        const newData = prevData.map(crypto => {
-          if (crypto.symbol.toLowerCase() === update.id.toLowerCase() && crypto.assetType === 'Spot') {
-            const oldPrice = crypto.price;
+        return prevData.map(crypto => {
+          if (crypto.assetType === 'Spot' && crypto.symbol.toLowerCase() === update.id) {
+            const oldPrice = crypto.priceHistory[crypto.priceHistory.length -1].value;
             const newPrice = update.price;
             const change24h = ((newPrice - oldPrice) / oldPrice) * 100 + crypto.change24h;
             
             const newHistory = [
                 ...crypto.priceHistory.slice(1),
-                { time: new Date().toISOString().split('T')[0], value: newPrice },
+                { time: new Date().toISOString(), value: newPrice },
             ];
 
             return {
@@ -68,13 +67,12 @@ export function useMarketData() {
               priceHistory: newHistory,
             };
           }
-          // Update futures price based on spot price change
+           // Update futures price based on spot price change
           if (crypto.assetType === 'Futures' && crypto.id.startsWith(update.id)) {
              return { ...crypto, price: update.price };
           }
           return crypto;
         });
-        return newData;
       });
     };
 
