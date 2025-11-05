@@ -1,9 +1,5 @@
-'use server';
-
 import { NextResponse } from 'next/server';
 import { INITIAL_CRYPTO_DATA } from '@/lib/data';
-
-export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const { readable, writable } = new TransformStream();
