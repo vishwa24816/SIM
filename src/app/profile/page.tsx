@@ -193,7 +193,7 @@ export default function ProfilePage() {
     { id: 'refer', icon: Gift, title: 'Refer and Earn', description: 'Refer your friends and earn rewards', href: '#' },
     { id: 'about', icon: Info, title: 'About SIM', description: 'Know more about our company and mission', href: '#' },
     { id: 'api', icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
-    { id: 'mcp', icon: Container, title: 'MCP', description: 'View details about your MCP', collapsible: true },
+    { id: 'mcp', icon: Container, title: 'MCP', description: 'Media Capability Passthrough details', collapsible: true },
     { id: 'join', icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us', href: '#' },
     { id: 'theme', icon: Palette, title: 'Platform Colour', description: 'Choose your preferred color theme', collapsible: true },
     { id: 'language', icon: Languages, title: 'Platform Language', description: 'Select your display language', collapsible: true },
@@ -239,10 +239,23 @@ export default function ProfilePage() {
                         <Button onClick={generateApiKey} className="w-full">Generate Key</Button>
                       </div>
                     ) : item.id === 'mcp' ? (
-                      <div className="pl-10 space-y-2 text-sm">
-                          <p><span className="font-semibold text-muted-foreground">MCP Status:</span> <span className="text-green-500">Active</span></p>
-                          <p><span className="font-semibold text-muted-foreground">Plan:</span> Pro Tier</p>
-                          <p><span className="font-semibold text-muted-foreground">Renewal Date:</span> 2024-12-31</p>
+                      <div className="pl-10 space-y-4 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-muted-foreground">Proxy Status:</span>
+                            <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Active</Badge>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-muted-foreground">Authentication:</span>
+                            <span className="font-medium">Credentials Added</span>
+                          </div>
+                           <div className="flex justify-between items-center">
+                            <span className="font-semibold text-muted-foreground">Rate Limiting:</span>
+                            <span className="font-medium">120 requests/min</span>
+                          </div>
+                           <div className="flex justify-between items-center">
+                            <span className="font-semibold text-muted-foreground">Caching:</span>
+                            <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">Enabled (TTL: 3600s)</Badge>
+                          </div>
                       </div>
                     ) : item.id === 'theme' ? (
                         <div className="pl-10">
