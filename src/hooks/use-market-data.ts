@@ -31,15 +31,11 @@ export function useMarketData() {
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
   const [exchange, setExchange] = useState<Exchange>('binance');
   const wsRef = useRef<WebSocket | null>(null);
-  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Close any existing connection
     if (wsRef.current) {
       wsRef.current.close();
-    }
-    if (pingIntervalRef.current) {
-      clearInterval(pingIntervalRef.current);
     }
     
     setLoading(false);
@@ -50,7 +46,10 @@ export function useMarketData() {
       const spotAssets = INITIAL_CRYPTO_DATA.filter(crypto => crypto.assetType === 'Spot');
 
       if (exchange === 'binance') {
+        // Limit symbols for Binance to avoid URL length issues
+        const binanceSymbols = ['BTC', 'ETH', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'AVAX', 'SHIB', 'DOT', 'MATIC'];
         const streamNames = spotAssets
+          .filter(c => binanceSymbols.includes(c.symbol))
           .map(crypto => `${crypto.symbol.toLowerCase()}usdt@trade`)
           .join('/');
         ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamNames}`);
@@ -79,13 +78,13 @@ export function useMarketData() {
         
         if (exchange === 'binance' && parsedData.e === 'trade') {
           const cryptoSymbol = parsedData.s.replace('USDT', '');
-          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toUpperCase() === cryptoSymbol);
+          const crypto = spotAssets.find(c => c.symbol.toUpperCase() === cryptoSymbol);
           if (crypto) {
             update = { id: crypto.id, price: parseFloat(parsedData.p) };
           }
         } else if (exchange === 'coinbase' && parsedData.type === 'ticker' && parsedData.price) {
            const cryptoSymbol = parsedData.product_id.split('-')[0];
-           const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toUpperCase() === cryptoSymbol);
+           const crypto = spotAssets.find(c => c.symbol.toUpperCase() === cryptoSymbol);
            if (crypto) {
              update = { id: crypto.id, price: parseFloat(parsedData.price) };
            }
@@ -105,7 +104,7 @@ export function useMarketData() {
                         ];
                         return { ...crypto, price: newPrice, change24h, priceHistory: newHistory };
                     }
-                    // Update corresponding future price if spot price changed
+                     // Update corresponding future price if spot price changed
                     if (crypto.assetType === 'Futures' && crypto.id === `${update!.id}-fut`) {
                       return { ...crypto, price: update!.price };
                     }
@@ -122,9 +121,6 @@ export function useMarketData() {
 
       ws.onclose = () => {
         console.log(`${exchange} WebSocket disconnected ❌`);
-        if (pingIntervalRef.current) {
-          clearInterval(pingIntervalRef.current);
-        }
       };
     };
 
@@ -134,15 +130,25 @@ export function useMarketData() {
       if (wsRef.current) {
         wsRef.current.close();
       }
-      if (pingIntervalRef.current) {
-        clearInterval(pingIntervalRef.current);
-      }
     };
   }, [exchange]);
 
-  const selectedCrypto = useMemo(() => {
-    return marketData.find(c => c.id === selectedCryptoId) || marketData[0] || defaultCrypto;
-  }, [marketData, selectedCryptoId]);
+  const futuresData = useMemo(() => marketData
+    .filter(crypto => crypto.assetType === 'Spot' && crypto.id !== 'tether' && crypto.id !== 'usd-coin')
+    .map(crypto => ({
+      ...crypto,
+      price: crypto.price, // Futures price tracks spot for this simulation
+      symbol: `${crypto.symbol}-FUT`,
+      name: `${crypto.name} Futures`,
+      id: `${crypto.id}-fut`,
+      assetType: 'Futures' as const,
+  })), [marketData]);
 
-  return { loading, marketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
+  const combinedMarketData = useMemo(() => [...marketData, ...futuresData], [marketData, futuresData]);
+
+  const selectedCrypto = useMemo(() => {
+    return combinedMarketData.find(c => c.id === selectedCryptoId) || combinedMarketData[0] || defaultCrypto;
+  }, [combinedMarketData, selectedCryptoId]);
+
+  return { loading, marketData: combinedMarketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
 }
