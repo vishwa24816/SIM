@@ -7,7 +7,7 @@ import { INITIAL_CRYPTO_DATA, CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/
 
 const defaultCrypto = INITIAL_CRYPTO_DATA[0];
 
-export type Exchange = 'binance' | 'coinbase' | 'bybit';
+export type Exchange = 'binance' | 'coinbase';
 
 const ALL_INITIAL_SPOT_ASSETS: CryptoCurrency[] = [
   ...INITIAL_CRYPTO_DATA,
@@ -58,8 +58,6 @@ export function useMarketData() {
         ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamNames}`);
       } else if (exchange === 'coinbase') {
         ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
-      } else if (exchange === 'bybit') {
-        ws = new WebSocket('wss://stream.bybit.com/v5/public/spot');
       }
 
       wsRef.current = ws;
@@ -75,17 +73,6 @@ export function useMarketData() {
             product_ids: productIds,
             channels: ['ticker'],
           }));
-        } else if (exchange === 'bybit') {
-          const args = INITIAL_CRYPTO_DATA
-            .filter(crypto => crypto.assetType === 'Spot')
-            .map(crypto => `tickers.${crypto.symbol.toUpperCase()}USDT`);
-          ws.send(JSON.stringify({ op: 'subscribe', args }));
-          
-          pingIntervalRef.current = setInterval(() => {
-            if (ws.readyState === WebSocket.OPEN) {
-              ws.send(JSON.stringify({ op: 'ping' }));
-            }
-          }, 20000);
         }
       };
 
@@ -105,12 +92,6 @@ export function useMarketData() {
            const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoSymbol);
            if (crypto) {
              update = { id: crypto.id, price: parseFloat(parsedData.price) };
-           }
-        } else if (exchange === 'bybit' && parsedData.topic?.startsWith('tickers') && parsedData.data) {
-           const trade = parsedData.data;
-           const crypto = INITIAL_CRYPTO_DATA.find(c => trade.symbol.startsWith(c.symbol.toUpperCase()));
-           if (crypto && trade.lastPrice) {
-             update = { id: crypto.id, price: parseFloat(trade.lastPrice) };
            }
         }
         

@@ -295,10 +295,6 @@ export default function TradePage() {
                 <RadioGroupItem value="coinbase" id="coinbase"/>
                 <Label htmlFor="coinbase">Coinbase</Label>
             </div>
-             <div className="flex items-center space-x-2">
-                <RadioGroupItem value="bybit" id="bybit"/>
-                <Label htmlFor="bybit">Bybit</Label>
-            </div>
         </RadioGroup>
         <PriceChart crypto={crypto} loading={marketLoading} />
         <Separator className="bg-border/50" />
