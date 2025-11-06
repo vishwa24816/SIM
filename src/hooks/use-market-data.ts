@@ -60,8 +60,8 @@ export function useMarketData() {
       
       setMarketData(prevData => {
         return prevData.map(crypto => {
-          if (crypto.assetType === 'Spot' && crypto.symbol.toLowerCase() === update.id) {
-            const oldPrice = crypto.priceHistory[crypto.priceHistory.length - 1].value;
+          if (crypto.id === update.id) {
+            const oldPrice = crypto.price;
             const newPrice = update.price;
             const change24h = oldPrice > 0 ? ((newPrice - oldPrice) / oldPrice) * 100 + crypto.change24h : crypto.change24h;
             

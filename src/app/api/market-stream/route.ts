@@ -23,8 +23,12 @@ export async function GET(req: NextRequest) {
     if (pingInterval) {
       clearInterval(pingInterval);
     }
-    if (!writable.locked) {
-      writer.close().catch(() => {});
+    try {
+      if (!writable.locked) {
+        writer.close();
+      }
+    } catch (e) {
+      // Ignore errors on cleanup
     }
   };
 
@@ -54,7 +58,7 @@ export async function GET(req: NextRequest) {
           writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
         }
       } catch (e) {
-        console.error('Error parsing Coinbase WebSocket message:', e);
+        // Errors are expected on initial messages, etc.
       }
     });
 
@@ -89,14 +93,14 @@ export async function GET(req: NextRequest) {
             trade.symbol.startsWith(c.symbol.toUpperCase())
           );
 
-          if (crypto) {
+          if (crypto && trade.lastPrice) {
             const price = parseFloat(trade.lastPrice);
             const update = { id: crypto.id, price: price, source: 'bybit' };
             writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
           }
         }
       } catch (e) {
-        console.error('Error parsing Bybit WebSocket message:', e);
+         // Errors are expected on initial messages, etc.
       }
     });
 
@@ -120,7 +124,7 @@ export async function GET(req: NextRequest) {
           writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
         }
       } catch (e) {
-        console.error('Error parsing Binance WebSocket message:', e);
+        // Errors are expected, especially on connection setup
       }
     });
   }
