@@ -25,6 +25,9 @@ const ALL_INITIAL_SPOT_ASSETS: CryptoCurrency[] = [
   })),
 ];
 
+// A smaller list for Binance to avoid URL length issues
+const BINANCE_SUB_LIST = ['BTC', 'ETH', 'DOGE', 'SHIB', 'XRP', 'TRX', 'BNB', 'ADA', 'SOL'];
+
 export function useMarketData() {
   const [loading, setLoading] = useState(true);
   const [marketData, setMarketData] = useState<CryptoCurrency[]>(ALL_INITIAL_SPOT_ASSETS);
@@ -49,7 +52,7 @@ export function useMarketData() {
     const connect = () => {
       if (exchange === 'binance') {
         const streamNames = INITIAL_CRYPTO_DATA
-          .filter(crypto => crypto.assetType === 'Spot')
+          .filter(crypto => crypto.assetType === 'Spot' && BINANCE_SUB_LIST.includes(crypto.symbol))
           .map(crypto => `${crypto.symbol.toLowerCase()}usdt@trade`)
           .join('/');
         ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamNames}`);
@@ -98,8 +101,8 @@ export function useMarketData() {
             update = { id: crypto.id, price: parseFloat(parsedData.p) };
           }
         } else if (exchange === 'coinbase' && parsedData.type === 'ticker' && parsedData.price) {
-           const cryptoId = parsedData.product_id.split('-')[0].toLowerCase();
-           const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoId);
+           const cryptoSymbol = parsedData.product_id.split('-')[0].toLowerCase();
+           const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoSymbol);
            if (crypto) {
              update = { id: crypto.id, price: parseFloat(parsedData.price) };
            }
@@ -124,6 +127,10 @@ export function useMarketData() {
                             { time: new Date().toISOString(), value: newPrice },
                         ];
                         return { ...crypto, price: newPrice, change24h, priceHistory: newHistory };
+                    }
+                    // Update corresponding future price if spot price changed
+                    if (crypto.assetType === 'Futures' && crypto.id === `${update!.id}-fut`) {
+                      return { ...crypto, price: update!.price };
                     }
                     return crypto;
                 });
@@ -156,26 +163,9 @@ export function useMarketData() {
     };
   }, [exchange]);
 
-  const combinedMarketData = useMemo(() => {
-      const futuresData = marketData
-      .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
-      .map(crypto => {
-        const spotPrice = marketData.find(c => c.id === crypto.id)?.price || crypto.price;
-        return {
-          ...crypto,
-          price: spotPrice, // Ensure futures price is synced with spot
-          symbol: `${crypto.symbol.toUpperCase()}-FUT`,
-          name: `${crypto.name} Futures`,
-          id: `${crypto.id}-fut`,
-          assetType: 'Futures' as const,
-        }
-      });
-      return [...marketData, ...futuresData];
-  }, [marketData]);
-
   const selectedCrypto = useMemo(() => {
-    return combinedMarketData.find(c => c.id === selectedCryptoId) || combinedMarketData[0] || defaultCrypto;
-  }, [combinedMarketData, selectedCryptoId]);
+    return marketData.find(c => c.id === selectedCryptoId) || marketData[0] || defaultCrypto;
+  }, [marketData, selectedCryptoId]);
 
-  return { loading, marketData: combinedMarketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
+  return { loading, marketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
 }
