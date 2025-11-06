@@ -34,7 +34,7 @@ export function useMarketData() {
       .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
       .map(crypto => ({
         ...crypto,
-        symbol: `${crypto.symbol}-FUT`,
+        symbol: `${crypto.symbol.toUpperCase()}-FUT`,
         name: `${crypto.name} Futures`,
         id: `${crypto.id}-fut`,
         assetType: 'Futures' as const,
@@ -60,6 +60,7 @@ export function useMarketData() {
       
       setMarketData(prevData => {
         return prevData.map(crypto => {
+          // Update Spot price
           if (crypto.id === update.id) {
             const oldPrice = crypto.price;
             const newPrice = update.price;
@@ -77,9 +78,13 @@ export function useMarketData() {
               priceHistory: newHistory,
             };
           }
-           // Update futures price based on spot price change
-          if (crypto.assetType === 'Futures' && crypto.id.startsWith(update.id)) {
-             return { ...crypto, price: update.price };
+           // Update corresponding futures price
+          if (crypto.assetType === 'Futures' && crypto.id === `${update.id}-fut`) {
+             const newHistory = [
+                ...crypto.priceHistory.slice(1),
+                { time: new Date().toISOString(), value: update.price },
+            ];
+             return { ...crypto, price: update.price, priceHistory: newHistory };
           }
           return crypto;
         });

@@ -53,9 +53,12 @@ export async function GET(req: NextRequest) {
         const parsedData = JSON.parse(message);
         if (parsedData.type === 'ticker' && parsedData.price) {
           const cryptoId = parsedData.product_id.split('-')[0].toLowerCase();
-          const price = parseFloat(parsedData.price);
-          const update = { id: cryptoId, price: price, source: 'coinbase' };
-          writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoId);
+          if (crypto) {
+            const price = parseFloat(parsedData.price);
+            const update = { id: crypto.id, price: price, source: 'coinbase' };
+            writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+          }
         }
       } catch (e) {
         // Errors are expected on initial messages, etc.
@@ -119,9 +122,12 @@ export async function GET(req: NextRequest) {
         const parsedData = JSON.parse(message);
         if (parsedData.e === 'trade') {
           const cryptoId = parsedData.s.toLowerCase().replace('usdt', '');
-          const price = parseFloat(parsedData.p);
-          const update = { id: cryptoId, price: price, source: 'binance' };
-          writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoId);
+           if (crypto) {
+             const price = parseFloat(parsedData.p);
+             const update = { id: crypto.id, price: price, source: 'binance' };
+             writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+           }
         }
       } catch (e) {
         // Errors are expected, especially on connection setup
