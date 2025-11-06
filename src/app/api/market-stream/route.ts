@@ -71,7 +71,6 @@ export async function GET(req: NextRequest) {
         args: args,
       }));
 
-      // Bybit requires a ping every 20 seconds to keep the connection alive
       pingInterval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify({ op: 'ping' }));
@@ -85,10 +84,10 @@ export async function GET(req: NextRequest) {
         const parsedData = JSON.parse(message);
         if (parsedData.topic?.startsWith('tickers') && parsedData.data) {
           const trade = parsedData.data;
-          const receivedSymbol = trade.symbol.replace('USDT', '');
           
-          // Find the matching crypto by symbol (case-insensitive)
-          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === receivedSymbol.toLowerCase());
+          const crypto = INITIAL_CRYPTO_DATA.find(c => 
+            trade.symbol.startsWith(c.symbol.toUpperCase())
+          );
 
           if (crypto) {
             const price = parseFloat(trade.lastPrice);
@@ -136,6 +135,11 @@ export async function GET(req: NextRequest) {
     handleCleanup();
   });
   
+  // This part is crucial for Next.js to not close the connection prematurely
+  req.signal.onabort = () => {
+    handleCleanup();
+  };
+
   return new Response(readable, {
     headers: {
       "Content-Type": "text/event-stream",
