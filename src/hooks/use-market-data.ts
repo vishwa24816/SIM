@@ -25,9 +25,6 @@ const ALL_INITIAL_SPOT_ASSETS: CryptoCurrency[] = [
   })),
 ];
 
-// A smaller list for Binance to avoid URL length issues
-const BINANCE_SUB_LIST = ['BTC', 'ETH', 'DOGE', 'SHIB', 'XRP', 'TRX', 'BNB', 'ADA', 'SOL'];
-
 export function useMarketData() {
   const [loading, setLoading] = useState(true);
   const [marketData, setMarketData] = useState<CryptoCurrency[]>(ALL_INITIAL_SPOT_ASSETS);
@@ -50,9 +47,10 @@ export function useMarketData() {
     let ws: WebSocket;
 
     const connect = () => {
+      const spotAssets = INITIAL_CRYPTO_DATA.filter(crypto => crypto.assetType === 'Spot');
+
       if (exchange === 'binance') {
-        const streamNames = INITIAL_CRYPTO_DATA
-          .filter(crypto => crypto.assetType === 'Spot' && BINANCE_SUB_LIST.includes(crypto.symbol))
+        const streamNames = spotAssets
           .map(crypto => `${crypto.symbol.toLowerCase()}usdt@trade`)
           .join('/');
         ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamNames}`);
@@ -65,9 +63,7 @@ export function useMarketData() {
       ws.onopen = () => {
         console.log(`Connected to ${exchange} WebSocket ✅`);
         if (exchange === 'coinbase') {
-          const productIds = INITIAL_CRYPTO_DATA
-            .filter(crypto => crypto.assetType === 'Spot')
-            .map(crypto => `${crypto.symbol.toUpperCase()}-USD`);
+          const productIds = spotAssets.map(crypto => `${crypto.symbol.toUpperCase()}-USD`);
           ws.send(JSON.stringify({
             type: 'subscribe',
             product_ids: productIds,
@@ -82,14 +78,14 @@ export function useMarketData() {
         let update: { id: string, price: number } | null = null;
         
         if (exchange === 'binance' && parsedData.e === 'trade') {
-          const cryptoId = parsedData.s.toLowerCase().replace('usdt', '');
-          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoId);
+          const cryptoSymbol = parsedData.s.replace('USDT', '');
+          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toUpperCase() === cryptoSymbol);
           if (crypto) {
             update = { id: crypto.id, price: parseFloat(parsedData.p) };
           }
         } else if (exchange === 'coinbase' && parsedData.type === 'ticker' && parsedData.price) {
-           const cryptoSymbol = parsedData.product_id.split('-')[0].toLowerCase();
-           const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === cryptoSymbol);
+           const cryptoSymbol = parsedData.product_id.split('-')[0];
+           const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toUpperCase() === cryptoSymbol);
            if (crypto) {
              update = { id: crypto.id, price: parseFloat(parsedData.price) };
            }
