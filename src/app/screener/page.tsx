@@ -113,18 +113,21 @@ export default function ScreenerPage() {
     const handleRunScreener = async () => {
         setIsAiLoading(true);
         setAiFilteredIds(null); // Clear previous results
-        const resultIds = await getAiScreenedCryptos(prompt, marketData);
+        const spotMarketData = marketData.filter(c => c.assetType !== 'Futures');
+        const resultIds = await getAiScreenedCryptos(prompt, spotMarketData);
         setAiFilteredIds(resultIds);
         setIsAiLoading(false);
     }
     
     const dataWithMarketCap = React.useMemo(() => {
         if (loading) return [];
-        return marketData.map(crypto => {
-            // A more stable way to calculate market cap if circulating_supply is not directly available
-             const mockCirculatingSupply = (crypto.volume24h / crypto.price) * 10;
-            const marketCap = crypto.price * (isNaN(mockCirculatingSupply) ? 1000000 : mockCirculatingSupply) ;
-            return { ...crypto, marketCap: isNaN(marketCap) ? 0 : marketCap };
+        return marketData
+            .filter(c => c.assetType !== 'Futures')
+            .map(crypto => {
+                // A more stable way to calculate market cap if circulating_supply is not directly available
+                const mockCirculatingSupply = (crypto.volume24h / crypto.price) * 10;
+                const marketCap = crypto.price * (isNaN(mockCirculatingSupply) ? 1000000 : mockCirculatingSupply) ;
+                return { ...crypto, marketCap: isNaN(marketCap) ? 0 : marketCap };
         });
     }, [marketData, loading]);
 
