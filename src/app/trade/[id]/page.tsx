@@ -296,8 +296,8 @@ export default function TradePage() {
                 <Label htmlFor="coinbase">Coinbase</Label>
             </div>
              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="okx" id="okx"/>
-                <Label htmlFor="okx">OKX</Label>
+                <RadioGroupItem value="bybit" id="bybit"/>
+                <Label htmlFor="bybit">Bybit</Label>
             </div>
         </RadioGroup>
         <PriceChart crypto={crypto} loading={marketLoading} />

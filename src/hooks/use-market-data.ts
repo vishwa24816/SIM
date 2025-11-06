@@ -7,7 +7,7 @@ import { INITIAL_CRYPTO_DATA, CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/
 
 const defaultCrypto = INITIAL_CRYPTO_DATA[0];
 
-export type Exchange = 'binance' | 'coinbase' | 'okx';
+export type Exchange = 'binance' | 'coinbase' | 'bybit';
 
 // Combine all initial data into one array
 const ALL_INITIAL_ASSETS: CryptoCurrency[] = [

@@ -54,16 +54,13 @@ export async function GET(req: NextRequest) {
       }
     });
 
-  } else if (source === 'okx') {
-    ws = new WebSocket('wss://ws.okx.com:8443/ws/v5/public');
+  } else if (source === 'bybit') {
+    ws = new WebSocket('wss://stream.bybit.com/v5/public/spot');
 
     ws.on('open', () => {
       const args = INITIAL_CRYPTO_DATA
         .filter(crypto => crypto.assetType === 'Spot')
-        .map(crypto => ({
-          channel: "tickers",
-          instId: `${crypto.symbol.toUpperCase()}-USDT`
-        }));
+        .map(crypto => `tickers.${crypto.symbol.toUpperCase()}USDT`);
       
       ws.send(JSON.stringify({
         op: 'subscribe',
@@ -75,15 +72,15 @@ export async function GET(req: NextRequest) {
       const message = data.toString();
       try {
         const parsedData = JSON.parse(message);
-        if (parsedData.arg?.channel === 'tickers' && parsedData.data) {
-          const trade = parsedData.data[0];
-          const cryptoId = trade.instId.split('-')[0].toLowerCase();
-          const price = parseFloat(trade.last);
-          const update = { id: cryptoId, price: price, source: 'okx' };
+        if (parsedData.topic?.startsWith('tickers') && parsedData.data) {
+          const trade = parsedData.data;
+          const cryptoId = trade.symbol.replace('USDT', '').toLowerCase();
+          const price = parseFloat(trade.lastPrice);
+          const update = { id: cryptoId, price: price, source: 'bybit' };
           writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
         }
       } catch (e) {
-        console.error('Error parsing OKX WebSocket message:', e);
+        console.error('Error parsing Bybit WebSocket message:', e);
       }
     });
 
