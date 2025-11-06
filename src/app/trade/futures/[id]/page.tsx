@@ -37,20 +37,9 @@ export default function FuturesTradePage() {
   
   const TABS = ['Technicals', 'Analysis'];
   
-  const futuresData = React.useMemo(() => marketData
-    .filter(crypto => crypto.assetType === 'Spot' && crypto.id !== 'tether' && crypto.id !== 'usd-coin')
-    .map(crypto => ({
-      ...crypto,
-      price: crypto.price,
-      symbol: `${crypto.symbol}-FUT`,
-      name: `${crypto.name} Futures`,
-      id: `${crypto.id}-fut`,
-      assetType: 'Futures' as const,
-  })), [marketData]);
-
   const crypto = React.useMemo(() => {
-    return futuresData.find(c => c.id === id);
-  }, [futuresData, id]);
+    return marketData.find(c => c.id === id);
+  }, [marketData, id]);
 
 
   const handlePriceSelect = (selectedPrice: number) => {

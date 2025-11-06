@@ -9,8 +9,8 @@ const defaultCrypto = INITIAL_CRYPTO_DATA[0];
 
 export type Exchange = 'binance' | 'coinbase' | 'bybit';
 
-// Combine all initial data into one array
-const ALL_INITIAL_ASSETS: CryptoCurrency[] = [
+// Combine all initial data into one array for non-futures assets
+const ALL_INITIAL_SPOT_ASSETS: CryptoCurrency[] = [
   ...INITIAL_CRYPTO_DATA,
   ...CRYPTO_ETFS_DATA.map(etf => ({ ...etf, assetType: 'Crypto ETF' as const })),
   ...MUTUAL_FUNDS_DATA.map(fund => ({
@@ -28,19 +28,7 @@ const ALL_INITIAL_ASSETS: CryptoCurrency[] = [
 
 export function useMarketData() {
   const [loading, setLoading] = useState(true);
-  const [marketData, setMarketData] = useState<CryptoCurrency[]>(() => {
-    const baseData = ALL_INITIAL_ASSETS;
-    const futuresData = baseData
-      .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
-      .map(crypto => ({
-        ...crypto,
-        symbol: `${crypto.symbol.toUpperCase()}-FUT`,
-        name: `${crypto.name} Futures`,
-        id: `${crypto.id}-fut`,
-        assetType: 'Futures' as const,
-      }));
-    return [...baseData, ...futuresData];
-  });
+  const [marketData, setMarketData] = useState<CryptoCurrency[]>(ALL_INITIAL_SPOT_ASSETS);
   const [selectedCryptoId, setSelectedCryptoId] = useState<string>(defaultCrypto.id);
   const [exchange, setExchange] = useState<Exchange>('binance');
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -60,7 +48,6 @@ export function useMarketData() {
       
       setMarketData(prevData => {
         return prevData.map(crypto => {
-          // Update Spot price
           if (crypto.id === update.id) {
             const oldPrice = crypto.price;
             const newPrice = update.price;
@@ -78,14 +65,6 @@ export function useMarketData() {
               priceHistory: newHistory,
             };
           }
-           // Update corresponding futures price
-          if (crypto.assetType === 'Futures' && crypto.id === `${update.id}-fut`) {
-             const newHistory = [
-                ...crypto.priceHistory.slice(1),
-                { time: new Date().toISOString(), value: update.price },
-            ];
-             return { ...crypto, price: update.price, priceHistory: newHistory };
-          }
           return crypto;
         });
       });
@@ -101,9 +80,22 @@ export function useMarketData() {
     };
   }, [exchange]);
 
-  const selectedCrypto = useMemo(() => {
-    return marketData.find(c => c.id === selectedCryptoId) || marketData[0] || defaultCrypto;
-  }, [marketData, selectedCryptoId]);
+  const combinedMarketData = useMemo(() => {
+      const futuresData = marketData
+      .filter(crypto => crypto.assetType === 'Spot' && !['tether', 'usd-coin'].includes(crypto.id))
+      .map(crypto => ({
+        ...crypto,
+        symbol: `${crypto.symbol.toUpperCase()}-FUT`,
+        name: `${crypto.name} Futures`,
+        id: `${crypto.id}-fut`,
+        assetType: 'Futures' as const,
+      }));
+      return [...marketData, ...futuresData];
+  }, [marketData]);
 
-  return { loading, marketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
+  const selectedCrypto = useMemo(() => {
+    return combinedMarketData.find(c => c.id === selectedCryptoId) || combinedMarketData[0] || defaultCrypto;
+  }, [combinedMarketData, selectedCryptoId]);
+
+  return { loading, marketData: combinedMarketData, selectedCrypto, setSelectedCryptoId, exchange, setExchange };
 }
