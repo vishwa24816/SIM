@@ -14,10 +14,14 @@ export async function GET(req: NextRequest) {
   const encoder = new TextEncoder();
 
   let ws: WebSocket;
+  let pingInterval: NodeJS.Timeout;
 
   const handleCleanup = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.close();
+    }
+    if (pingInterval) {
+      clearInterval(pingInterval);
     }
     if (!writable.locked) {
       writer.close().catch(() => {});
@@ -66,6 +70,13 @@ export async function GET(req: NextRequest) {
         op: 'subscribe',
         args: args,
       }));
+
+      // Bybit requires a ping every 20 seconds to keep the connection alive
+      pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ op: 'ping' }));
+        }
+      }, 20000);
     });
 
     ws.on('message', (data: WebSocket.Data) => {
@@ -74,10 +85,16 @@ export async function GET(req: NextRequest) {
         const parsedData = JSON.parse(message);
         if (parsedData.topic?.startsWith('tickers') && parsedData.data) {
           const trade = parsedData.data;
-          const cryptoId = trade.symbol.replace('USDT', '').toLowerCase();
-          const price = parseFloat(trade.lastPrice);
-          const update = { id: cryptoId, price: price, source: 'bybit' };
-          writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+          const receivedSymbol = trade.symbol.replace('USDT', '');
+          
+          // Find the matching crypto by symbol (case-insensitive)
+          const crypto = INITIAL_CRYPTO_DATA.find(c => c.symbol.toLowerCase() === receivedSymbol.toLowerCase());
+
+          if (crypto) {
+            const price = parseFloat(trade.lastPrice);
+            const update = { id: crypto.id, price: price, source: 'bybit' };
+            writer.write(encoder.encode(`data: ${JSON.stringify(update)}\n\n`));
+          }
         }
       } catch (e) {
         console.error('Error parsing Bybit WebSocket message:', e);
