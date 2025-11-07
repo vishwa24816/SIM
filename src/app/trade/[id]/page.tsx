@@ -47,6 +47,7 @@ export default function TradePage() {
     return marketData.find(c => c.id === id);
   }, [marketData, id]);
   
+  // The loading state for holdings is implicitly handled by portfolio updates
   const currentHolding = React.useMemo(() => {
     if (!crypto) return undefined;
     return portfolio.holdings.find(h => h.cryptoId === crypto.id);
@@ -281,6 +282,8 @@ export default function TradePage() {
   }
 
   const isComplexOrder = investmentType === 'sp' || investmentType === 'hodl';
+  const isSellButtonDisabled = !currentHolding || currentHolding.amount <= 0 || marketLoading;
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -325,14 +328,14 @@ export default function TradePage() {
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4 space-y-3">
          {isComplexOrder ? (
-             <Button size="lg" className="w-full font-bold text-lg" onClick={handleConfirm}>
+             <Button size="lg" className="w-full font-bold text-lg" onClick={handleConfirm} disabled={marketLoading}>
                 {investmentType === 'sp' ? 'Create Plan' : 
                 investmentType === 'hodl' ? 'Place HODL Order' : 'Confirm'}
              </Button>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell} disabled={!currentHolding || currentHolding.amount <= 0}>Sell</Button>
-            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy}>Buy</Button>
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell} disabled={isSellButtonDisabled}>Sell</Button>
+            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg" onClick={handleBuy} disabled={marketLoading}>Buy</Button>
           </div>
         )}
       </footer>
