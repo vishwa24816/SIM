@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const { profile, loading: isProfileLoading } = useUserProfile();
 
   const holdingsCollectionRef = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!user || !firestore) return null;
     return collection(firestore, 'users', user.uid, 'holdings');
   }, [firestore, user]);
 
