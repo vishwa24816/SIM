@@ -8,6 +8,8 @@ import { useTransactionHistory } from './use-transaction-history';
 import { doc, updateDoc, runTransaction, Firestore, serverTimestamp, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { CryptoCurrency, Holding, Portfolio } from '@/lib/types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface BuyOptions {
     stopLoss?: number;
@@ -74,8 +76,12 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             });
             toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
         } catch (e: any) {
-            console.error("Add funds transaction failed: ", e);
-            toast({ variant: 'destructive', title: 'Transaction Failed', description: typeof e === 'string' ? e : e.message });
+            const permissionError = new FirestorePermissionError({
+                path: userRef.path,
+                operation: 'update',
+                requestResourceData: { usdBalance: `(current balance) + ${amount}`},
+            });
+            errorEmitter.emit('permission-error', permissionError);
         }
     },
     withdrawUsd: async (user: User, firestore: Firestore, amount: number) => {
@@ -102,8 +108,12 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             });
             toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
         } catch (e: any) {
-            console.error("Withdraw funds transaction failed: ", e);
-            toast({ variant: 'destructive', title: 'Transaction Failed', description: typeof e === 'string' ? e : e.message });
+             const permissionError = new FirestorePermissionError({
+                path: userRef.path,
+                operation: 'update',
+                requestResourceData: { usdBalance: `(current balance) - ${amount}`},
+            });
+            errorEmitter.emit('permission-error', permissionError);
         }
     },
     buy: async (user: User, firestore: Firestore, crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
@@ -117,6 +127,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
+                // 1. All reads first
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
 
@@ -129,6 +140,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     throw new Error("Insufficient funds.");
                 }
                 
+                // 2. All writes second
                 const newBalance = currentBalance - usdAmount;
                 transaction.update(userRef, { usdBalance: newBalance });
                 
@@ -141,7 +153,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                         amount: newAmount,
                         margin: newMargin,
                     };
-
+                    
                     if (options?.stopLoss !== undefined) updatedHolding.stopLoss = options.stopLoss;
                     if (options?.takeProfit !== undefined) updatedHolding.takeProfit = options.takeProfit;
                     if (options?.trailingStopLoss !== undefined) updatedHolding.trailingStopLoss = options.trailingStopLoss;
@@ -158,7 +170,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     if (options?.stopLoss !== undefined) newHolding.stopLoss = options.stopLoss;
                     if (options?.takeProfit !== undefined) newHolding.takeProfit = options.takeProfit;
                     if (options?.trailingStopLoss !== undefined) newHolding.trailingStopLoss = options.trailingStopLoss;
-                    
+
                     transaction.set(holdingRef, newHolding);
                 }
             });
@@ -176,12 +188,20 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 brokerageEarnedBack: 0,
             });
         } catch (error: any) {
-            console.error('Buy transaction failed: ', error);
-            toast({
-                variant: 'destructive',
-                title: 'Buy Order Failed',
-                description: typeof error === 'string' ? error : error.message,
+            const isUpdate = (await getDoc(holdingRef)).exists();
+            const permissionError = new FirestorePermissionError({
+                path: holdingRef.path,
+                operation: isUpdate ? 'update' : 'create',
+                requestResourceData: {
+                    userId: user.uid,
+                    cryptoId: crypto.id,
+                    assetType: crypto.assetType,
+                    amount: quantity,
+                    margin: usdAmount,
+                    ...(options || {})
+                },
             });
+            errorEmitter.emit('permission-error', permissionError);
         }
     },
     sell: async (user: User, firestore: Firestore, crypto: CryptoCurrency, cryptoAmountToSell: number) => {
@@ -195,7 +215,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
-                // Perform all reads first
+                // 1. All reads first
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
     
@@ -211,7 +231,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     throw new Error("Insufficient holding amount to sell.");
                 }
     
-                // Now perform all writes
+                // 2. All writes second
                 const usdGained = cryptoAmountToSell * crypto.price;
                 const currentBalance = userDoc.data().usdBalance;
                 const newBalance = currentBalance + usdGained;
@@ -219,7 +239,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     
                 const newAmount = currentHolding.amount - cryptoAmountToSell;
     
-                if (newAmount < 0.000001) { // Use a small epsilon to handle floating point inaccuracies
+                if (newAmount < 0.000001) {
                     transaction.delete(holdingRef);
                 } else {
                     const proportionSold = currentHolding.amount > 0 ? cryptoAmountToSell / currentHolding.amount : 0;
@@ -243,12 +263,13 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 brokerageEarnedBack: 0,
             });
         } catch (error: any) {
-            console.error('Sell transaction failed: ', error);
-            toast({
-                variant: 'destructive',
-                title: 'Sell Order Failed',
-                description: typeof error === 'string' ? error : error.message,
+            const isDelete = (await getDoc(holdingRef)).data()?.amount - cryptoAmountToSell < 0.000001;
+            const permissionError = new FirestorePermissionError({
+                path: holdingRef.path,
+                operation: isDelete ? 'delete' : 'update',
+                requestResourceData: { amount: `(current amount) - ${cryptoAmountToSell}` },
             });
+            errorEmitter.emit('permission-error', permissionError);
         }
     },
 }));
