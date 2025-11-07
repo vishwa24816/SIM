@@ -36,22 +36,12 @@ export default function LoginPage() {
   }, [user, loading, router]);
 
   const handleGoogleSignIn = async () => {
-    if (!auth || !firestore) return;
+    if (!auth) return;
     setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Check if user document exists, if not, create it
-      const userRef = doc(firestore, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          id: user.uid,
-          usdBalance: 10000, // Initial balance
-        });
-      }
+      await signInWithPopup(auth, provider);
+      // The user document creation is now handled by the useUser hook.
       // The useEffect above will handle the redirect on user state change.
     } catch (error) {
       console.error("Error during Google sign-in:", error);
