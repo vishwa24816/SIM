@@ -132,27 +132,20 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 const newBalance = currentBalance - usdAmount;
                 transaction.update(userRef, { usdBalance: newBalance });
                 
-                const payload: Partial<Holding> = {
-                    userId: user.uid,
-                    cryptoId: crypto.id,
-                    assetType: crypto.assetType,
-                };
-                if (options?.stopLoss !== undefined) payload.stopLoss = options.stopLoss;
-                if (options?.takeProfit !== undefined) payload.takeProfit = options.takeProfit;
-                if (options?.trailingStopLoss !== undefined) payload.trailingStopLoss = options.trailingStopLoss;
-
-
                 if (holdingDoc.exists()) {
                     const currentHolding = holdingDoc.data() as Holding;
                     const newAmount = currentHolding.amount + quantity;
                     const newMargin = (currentHolding.margin || 0) + usdAmount;
                     
                     const updatedHolding: Partial<Holding> = {
-                        ...payload,
                         amount: newAmount,
                         margin: newMargin,
                     };
 
+                    if (options?.stopLoss !== undefined) updatedHolding.stopLoss = options.stopLoss;
+                    if (options?.takeProfit !== undefined) updatedHolding.takeProfit = options.takeProfit;
+                    if (options?.trailingStopLoss !== undefined) updatedHolding.trailingStopLoss = options.trailingStopLoss;
+                    
                     transaction.update(holdingRef, updatedHolding);
                 } else {
                      const newHolding: Holding = {
@@ -162,9 +155,9 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                         amount: quantity,
                         margin: usdAmount,
                     };
-                    if (options?.stopLoss) newHolding.stopLoss = options.stopLoss;
-                    if (options?.takeProfit) newHolding.takeProfit = options.takeProfit;
-                    if (options?.trailingStopLoss) newHolding.trailingStopLoss = options.trailingStopLoss;
+                    if (options?.stopLoss !== undefined) newHolding.stopLoss = options.stopLoss;
+                    if (options?.takeProfit !== undefined) newHolding.takeProfit = options.takeProfit;
+                    if (options?.trailingStopLoss !== undefined) newHolding.trailingStopLoss = options.trailingStopLoss;
                     
                     transaction.set(holdingRef, newHolding);
                 }

@@ -33,16 +33,12 @@ export default function DashboardPage() {
   const { data: holdings, isLoading: isHoldingsLoading } = useCollection<Holding>(holdingsCollectionRef);
 
   React.useEffect(() => {
-    if (profile) {
+    if (profile && holdings) {
+      setPortfolio({ usdBalance: profile.usdBalance, holdings: holdings });
+    } else if (profile) {
       setPortfolio({ ...portfolio, usdBalance: profile.usdBalance });
     }
-  }, [profile, setPortfolio]); // portfolio removed from deps
-
-  React.useEffect(() => {
-    if (holdings) {
-      setPortfolio({ ...portfolio, holdings });
-    }
-  }, [holdings, setPortfolio]); // portfolio removed from deps
+  }, [profile, holdings, setPortfolio]);
 
 
   React.useEffect(() => {
