@@ -4,6 +4,10 @@ import { type User as FirebaseUser } from 'firebase/auth';
 export interface User extends FirebaseUser {
     usdBalance?: number;
 }
+export interface UserProfile {
+  id: string;
+  usdBalance: number;
+}
 export interface CryptoCurrency {
   id: string;
   name: string;

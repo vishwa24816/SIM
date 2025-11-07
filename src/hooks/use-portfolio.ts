@@ -25,6 +25,10 @@ interface PortfolioState {
   portfolio: Portfolio;
   setPortfolio: (portfolio: Portfolio) => void;
   getPortfolioValue: (marketData: CryptoCurrency[]) => number;
+  addUsd: (amount: number) => Promise<void>;
+  withdrawUsd: (amount: number) => Promise<void>;
+  buy: (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => Promise<void>;
+  sell: (crypto: CryptoCurrency, cryptoAmountToSell: number) => Promise<void>;
 }
 
 const usePortfolioStoreInternal = create<PortfolioState>((set, get) => ({
@@ -53,11 +57,20 @@ const usePortfolioStoreInternal = create<PortfolioState>((set, get) => ({
             }, 0);
             
         return portfolio.usdBalance + holdingsValue + futuresValue;
-    }
+    },
+    addUsd: async (amount: number) => {},
+    withdrawUsd: async (amount: number) => {},
+    buy: async (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {},
+    sell: async (crypto: CryptoCurrency, cryptoAmountToSell: number) => {},
 }));
 
 
-export const usePortfolioStore = () => {
+export const usePortfolioStore = (): Omit<PortfolioState, 'addUsd' | 'withdrawUsd' | 'buy' | 'sell'> & {
+    addUsd: (amount: number) => Promise<void>;
+    withdrawUsd: (amount: number) => Promise<void>;
+    buy: (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => Promise<void>;
+    sell: (crypto: CryptoCurrency, cryptoAmountToSell: number) => Promise<void>;
+} => {
     const { user } = useUser();
     const firestore = useFirestore();
     const { portfolio, setPortfolio, getPortfolioValue } = usePortfolioStoreInternal();
@@ -102,7 +115,7 @@ export const usePortfolioStore = () => {
             await runTransaction(firestore, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) {
-                    throw "User document does not exist!";
+                    throw 'User document does not exist!';
                 }
                 const currentBalance = userDoc.data().usdBalance || 0;
                 if (amount > currentBalance) {
@@ -261,5 +274,5 @@ export const usePortfolioStore = () => {
     };
 
 
-    return { portfolio, setPortfolio, addUsd, withdrawUsd, buy, sell, getPortfolioValue };
+    return { portfolio, setPortfolio, getPortfolioValue, addUsd, withdrawUsd, buy, sell };
 };

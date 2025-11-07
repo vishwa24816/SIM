@@ -7,20 +7,23 @@ import { NewsFeed } from "@/components/dashboard/news-feed";
 import { PortfolioView } from "@/components/dashboard/portfolio-view";
 import { useMarketData } from "@/hooks/use-market-data";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
-import { CryptoCurrency, Holding } from "@/lib/types";
+import { CryptoCurrency, Holding, UserProfile } from "@/lib/types";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { CryptoPositions } from "@/components/dashboard/crypto-positions";
 import { useRouter } from "next/navigation";
-import { useUser, useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useUser, useCollection, useMemoFirebase, useFirestore } from "@/firebase";
 import { Loader2 } from "lucide-react";
 import { collection } from "firebase/firestore";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const { marketData, loading: marketLoading } = useMarketData();
-  const { portfolio, addUsd, withdrawUsd, getPortfolioValue, setPortfolio } = usePortfolioStore();
+  const { portfolio, setPortfolio, getPortfolioValue } = usePortfolioStore();
   const router = useRouter();
+
+  const { profile, loading: isProfileLoading } = useUserProfile();
 
   const holdingsCollectionRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -28,6 +31,12 @@ export default function DashboardPage() {
   }, [firestore, user]);
 
   const { data: holdings, isLoading: isHoldingsLoading } = useCollection<Holding>(holdingsCollectionRef);
+
+  React.useEffect(() => {
+    if (profile) {
+      setPortfolio({ ...portfolio, usdBalance: profile.usdBalance });
+    }
+  }, [profile, setPortfolio]);
 
   React.useEffect(() => {
     if (holdings) {
@@ -42,7 +51,7 @@ export default function DashboardPage() {
     }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading || marketLoading || isHoldingsLoading) {
+  if (isUserLoading || marketLoading || isHoldingsLoading || isProfileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -64,8 +73,6 @@ export default function DashboardPage() {
           portfolio={portfolio}
           marketData={marketData}
           totalPortfolioValue={totalPortfolioValue}
-          addUsd={addUsd}
-          withdrawUsd={withdrawUsd}
         />
         
         <CryptoPositions portfolio={portfolio} marketData={marketData} />

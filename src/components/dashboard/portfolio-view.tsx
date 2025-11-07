@@ -17,13 +17,12 @@ import QRCode from 'qrcode.react';
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useWallets } from "@/hooks/use-wallets";
 import { Skeleton } from "../ui/skeleton";
+import { usePortfolioStore } from "@/hooks/use-portfolio";
 
 interface PortfolioViewProps {
     portfolio: Portfolio;
     marketData: CryptoCurrency[];
     totalPortfolioValue: number;
-    addUsd: (amount: number) => void;
-    withdrawUsd: (amount: number) => void;
 }
 
 
@@ -164,6 +163,7 @@ const ReceiveCryptoForm = ({ portfolio, marketData, onCancel }: { portfolio: Por
 
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={onCancel} className="w-full">Close</Button>
+
                     <Button onClick={handleCopy} className="w-full">
                         <Copy className="mr-2 h-4 w-4" /> Copy Address
                     </Button>
@@ -174,7 +174,8 @@ const ReceiveCryptoForm = ({ portfolio, marketData, onCancel }: { portfolio: Por
 };
 
 
-export function PortfolioView({ portfolio, marketData, totalPortfolioValue, addUsd, withdrawUsd }: PortfolioViewProps) {
+export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: PortfolioViewProps) {
+  const { addUsd, withdrawUsd } = usePortfolioStore();
   const [isManageFundsOpen, setIsManageFundsOpen] = React.useState(false);
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
   const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
