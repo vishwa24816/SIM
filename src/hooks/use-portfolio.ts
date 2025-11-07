@@ -103,15 +103,20 @@ export const usePortfolioStore = () => {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
         }
-        await runTransaction(firestore, async (transaction) => {
-            const userDoc = await transaction.get(userRef);
-            if (!userDoc.exists()) {
-                throw "User document does not exist!";
-            }
-            const newBalance = (userDoc.data().usdBalance || 0) + amount;
-            transaction.update(userRef, { usdBalance: newBalance });
-        });
-        toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
+        try {
+            await runTransaction(firestore, async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                if (!userDoc.exists()) {
+                    throw "User document does not exist!";
+                }
+                const newBalance = (userDoc.data().usdBalance || 0) + amount;
+                transaction.update(userRef, { usdBalance: newBalance });
+            });
+            toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
+        } catch (e: any) {
+            console.error("Add funds transaction failed: ", e);
+            toast({ variant: 'destructive', title: 'Transaction Failed', description: typeof e === 'string' ? e : e.message });
+        }
     };
 
     const withdrawUsd = async (amount: number) => {
@@ -120,19 +125,24 @@ export const usePortfolioStore = () => {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
         }
-        await runTransaction(firestore, async (transaction) => {
-            const userDoc = await transaction.get(userRef);
-            if (!userDoc.exists()) {
-                throw "User document does not exist!";
-            }
-            const currentBalance = userDoc.data().usdBalance || 0;
-            if (amount > currentBalance) {
-                throw 'Insufficient Funds';
-            }
-            const newBalance = currentBalance - amount;
-            transaction.update(userRef, { usdBalance: newBalance });
-        });
-        toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
+        try {
+            await runTransaction(firestore, async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                if (!userDoc.exists()) {
+                    throw "User document does not exist!";
+                }
+                const currentBalance = userDoc.data().usdBalance || 0;
+                if (amount > currentBalance) {
+                    throw 'Insufficient Funds';
+                }
+                const newBalance = currentBalance - amount;
+                transaction.update(userRef, { usdBalance: newBalance });
+            });
+            toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
+        } catch (e: any) {
+            console.error("Withdraw funds transaction failed: ", e);
+            toast({ variant: 'destructive', title: 'Transaction Failed', description: typeof e === 'string' ? e : e.message });
+        }
     };
 
     const buy = async (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
