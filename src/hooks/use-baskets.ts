@@ -11,7 +11,7 @@ export const useBaskets = () => {
     const firestore = useFirestore();
 
     const basketsCollection = useMemoFirebase(() => {
-        if (!user) return null;
+        if (!user || !firestore) return null;
         return collection(firestore, `users/${user.uid}/baskets`);
     }, [firestore, user]);
 

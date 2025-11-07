@@ -10,7 +10,7 @@ export const useHodlOrders = () => {
     const firestore = useFirestore();
 
     const ordersCollection = useMemoFirebase(() => {
-        if (!user) return null;
+        if (!user || !firestore) return null;
         return collection(firestore, `users/${user.uid}/hodlOrders`);
     }, [firestore, user]);
 

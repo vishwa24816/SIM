@@ -10,7 +10,7 @@ export const useLimitOrders = () => {
     const firestore = useFirestore();
 
     const ordersCollection = useMemoFirebase(() => {
-        if (!user) return null;
+        if (!user || !firestore) return null;
         return collection(firestore, `users/${user.uid}/limitOrders`);
     }, [firestore, user]);
 

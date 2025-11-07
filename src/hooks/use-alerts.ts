@@ -19,7 +19,7 @@ export const useAlerts = () => {
     const firestore = useFirestore();
 
     const alertsCollection = useMemoFirebase(() => {
-        if (!user) return null;
+        if (!user || !firestore) return null;
         return collection(firestore, `users/${user.uid}/alerts`);
     }, [firestore, user]);
 

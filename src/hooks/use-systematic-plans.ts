@@ -10,7 +10,7 @@ export const useSystematicPlans = () => {
     const firestore = useFirestore();
 
     const plansCollection = useMemoFirebase(() => {
-        if (!user) return null;
+        if (!user || !firestore) return null;
         return collection(firestore, `users/${user.uid}/systematicPlans`);
     }, [firestore, user]);
 
