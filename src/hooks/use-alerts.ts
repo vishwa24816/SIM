@@ -1,9 +1,8 @@
 
 'use client';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useMemo } from 'react';
 
 export interface Alert {
     id: string;
@@ -19,7 +18,7 @@ export const useAlerts = () => {
     const { user } = useUser();
     const firestore = useFirestore();
 
-    const alertsCollection = useMemo(() => {
+    const alertsCollection = useMemoFirebase(() => {
         if (!user) return null;
         return collection(firestore, `users/${user.uid}/alerts`);
     }, [firestore, user]);
@@ -27,10 +26,10 @@ export const useAlerts = () => {
     const { data: alerts, isLoading, error } = useCollection<Alert>(alertsCollection);
 
     const addAlert = async (alert: Omit<Alert, 'id' | 'userId' | 'createdAt'>) => {
-        if (!alertsCollection) return;
+        if (!alertsCollection || !user) return;
         await addDoc(alertsCollection, {
             ...alert,
-            userId: user?.uid,
+            userId: user.uid,
             createdAt: new Date().toISOString(),
         });
     };

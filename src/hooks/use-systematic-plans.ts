@@ -1,16 +1,15 @@
 
 'use client';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useMemo } from 'react';
 import { SystematicPlan } from '@/lib/types';
 
 export const useSystematicPlans = () => {
     const { user } = useUser();
     const firestore = useFirestore();
 
-    const plansCollection = useMemo(() => {
+    const plansCollection = useMemoFirebase(() => {
         if (!user) return null;
         return collection(firestore, `users/${user.uid}/systematicPlans`);
     }, [firestore, user]);

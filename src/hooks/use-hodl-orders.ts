@@ -1,16 +1,15 @@
 
 'use client';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
-import { useMemo } from 'react';
 import { HodlOrder } from '@/lib/types';
 
 export const useHodlOrders = () => {
     const { user } = useUser();
     const firestore = useFirestore();
 
-    const ordersCollection = useMemo(() => {
+    const ordersCollection = useMemoFirebase(() => {
         if (!user) return null;
         return collection(firestore, `users/${user.uid}/hodlOrders`);
     }, [firestore, user]);

@@ -1,9 +1,8 @@
 
 'use client';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { useMemo } from 'react';
 import { Basket, BasketItem } from '@/lib/types';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
@@ -11,7 +10,7 @@ export const useBaskets = () => {
     const { user } = useUser();
     const firestore = useFirestore();
 
-    const basketsCollection = useMemo(() => {
+    const basketsCollection = useMemoFirebase(() => {
         if (!user) return null;
         return collection(firestore, `users/${user.uid}/baskets`);
     }, [firestore, user]);
@@ -19,10 +18,10 @@ export const useBaskets = () => {
     const { data: baskets, isLoading, error } = useCollection<Basket>(basketsCollection);
 
     const addBasket = async (basketName: string, item: BasketItem) => {
-        if (!basketsCollection) return;
+        if (!basketsCollection || !user) return;
         const newBasket: Omit<Basket, 'id'> = {
             name: basketName,
-            userId: user!.uid,
+            userId: user.uid,
             items: [item],
             createdAt: new Date().toISOString()
         };
