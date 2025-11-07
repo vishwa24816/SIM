@@ -62,25 +62,12 @@ export const usePortfolioStore = () => {
     const firestore = useFirestore();
     const { portfolio, setPortfolio, getPortfolioValue } = usePortfolioStoreInternal();
 
-    const userDocRef = React.useMemo(() => {
-        if (!user) return null;
-        return doc(firestore, 'users', user.uid);
-    }, [user, firestore]);
-
-    React.useEffect(() => {
-        if (!userDocRef) return;
-        const unsub = onSnapshot(userDocRef, (snap) => {
-            if (snap.exists()) {
-                const data = snap.data();
-                setPortfolio({ ...portfolio, usdBalance: data.usdBalance });
-            }
-        });
-        return () => unsub();
-    }, [userDocRef, portfolio, setPortfolio]);
-
-
     const addUsd = async (amount: number) => {
-        if (!userDocRef) return;
+        if (!user) {
+            toast({ variant: 'destructive', title: 'Not signed in', description: 'You must be signed in to add funds.' });
+            return;
+        }
+        const userDocRef = doc(firestore, 'users', user.uid);
         if (amount <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
@@ -102,7 +89,11 @@ export const usePortfolioStore = () => {
     };
 
     const withdrawUsd = async (amount: number) => {
-        if (!userDocRef) return;
+        if (!user) {
+            toast({ variant: 'destructive', title: 'Not signed in', description: 'You must be signed in to withdraw funds.' });
+            return;
+        }
+        const userDocRef = doc(firestore, 'users', user.uid);
         if (amount <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
@@ -128,7 +119,8 @@ export const usePortfolioStore = () => {
     };
 
     const buy = async (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
-        if (!user || !userDocRef) return;
+        if (!user) return;
+        const userDocRef = doc(firestore, 'users', user.uid);
          if (usdAmount <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
@@ -198,7 +190,8 @@ export const usePortfolioStore = () => {
     };
     
     const sell = async (crypto: CryptoCurrency, cryptoAmountToSell: number) => {
-        if (!user || !userDocRef) return;
+        if (!user) return;
+        const userDocRef = doc(firestore, 'users', user.uid);
         if (cryptoAmountToSell <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
@@ -221,6 +214,7 @@ export const usePortfolioStore = () => {
 
                 const usdGained = cryptoAmountToSell * crypto.price;
                 const userDoc = await transaction.get(userDocRef);
+                if (!userDoc.exists()) throw "User document does not exist!";
                 const currentBalance = userDoc.data()?.usdBalance || 0;
                 let newBalance = currentBalance + usdGained;
 
