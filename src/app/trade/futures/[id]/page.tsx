@@ -18,6 +18,7 @@ import { useParams } from 'next/navigation';
 import { usePortfolioStore } from '@/hooks/use-portfolio';
 import { GeneralOrderConfig } from '@/components/trade/order-form';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
+import { useUser, useFirestore } from '@/firebase';
 
 export default function FuturesTradePage() {
   const params = useParams();
@@ -25,6 +26,8 @@ export default function FuturesTradePage() {
   const { marketData, loading: marketLoading } = useMarketData();
   const { buy } = usePortfolioStore();
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('market');
@@ -48,6 +51,7 @@ export default function FuturesTradePage() {
   };
 
   const handleTrade = (action: 'buy' | 'sell') => {
+    if (!user || !firestore) return;
     const qty = parseFloat(quantity);
     if (!crypto || !qty || qty <= 0) {
       toast({ variant: 'destructive', title: 'Invalid Quantity', description: 'Please enter a valid quantity.' });
@@ -86,7 +90,7 @@ export default function FuturesTradePage() {
       }
     }
 
-    buy(crypto, margin, tradeQuantity, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
+    buy(user, firestore, crypto, margin, tradeQuantity, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
   }
 
   React.useEffect(() => {

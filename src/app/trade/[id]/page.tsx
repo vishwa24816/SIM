@@ -21,6 +21,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { usePortfolioStore } from '@/hooks/use-portfolio';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useUser, useFirestore } from '@/firebase';
 
 export default function TradePage() {
   const params = useParams();
@@ -32,6 +33,8 @@ export default function TradePage() {
   const { addLimitOrder } = useLimitOrders();
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const { user } = useUser();
+  const firestore = useFirestore();
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('market');
@@ -77,6 +80,7 @@ export default function TradePage() {
   }
 
   const handleBuy = () => {
+    if (!user || !firestore) return;
     const qty = parseFloat(quantity);
     if (!crypto || !qty || qty <= 0) {
         toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity.' });
@@ -136,21 +140,22 @@ export default function TradePage() {
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order
         const margin = qty * crypto.price;
-        buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
+        buy(user, firestore, crypto, margin, qty, { stopLoss: sl, takeProfit: tp, trailingStopLoss: tsl });
     }
   };
   
   const handleSell = () => {
+      if (!user || !firestore) return;
       const qty = parseFloat(quantity);
       if (!crypto || !qty || qty <= 0) {
           toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity.' });
           return;
       }
-      sell(crypto, qty);
+      sell(user, firestore, crypto, qty);
   }
   
   const handleCreateHodl = () => {
-    if (!hodlConfig || !crypto) return;
+    if (!hodlConfig || !crypto || !user || !firestore) return;
     const { months, years } = hodlConfig;
     const qty = parseFloat(quantity);
     const prc = parseFloat(price) || crypto.price;
@@ -183,7 +188,7 @@ export default function TradePage() {
 
 
     // Execute the buy order first
-    buy(crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
+    buy(user, firestore, crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
 
     // Then create the HODL order record
     addHodlOrder({

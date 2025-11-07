@@ -18,6 +18,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useWallets } from "@/hooks/use-wallets";
 import { Skeleton } from "../ui/skeleton";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
+import { useUser, useFirestore } from "@/firebase";
 
 interface PortfolioViewProps {
     portfolio: Portfolio;
@@ -181,6 +182,8 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
   const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
   const { wallets } = useWallets();
   const [isClient, setIsClient] = React.useState(false);
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   React.useEffect(() => {
     setIsClient(true);
@@ -197,10 +200,11 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
   }
 
   const handleConfirmManageFunds = (amount: number) => {
+    if (!user || !firestore) return;
     if (dialogAction === 'add') {
-      addUsd(amount);
+      addUsd(user, firestore, amount);
     } else {
-      withdrawUsd(amount);
+      withdrawUsd(user, firestore, amount);
     }
     setIsManageFundsOpen(false);
   }

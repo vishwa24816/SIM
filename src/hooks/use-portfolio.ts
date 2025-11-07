@@ -5,15 +5,9 @@ import * as React from 'react';
 import { create } from 'zustand';
 import { toast } from './use-toast';
 import { useTransactionHistory } from './use-transaction-history';
-import { doc, updateDoc, runTransaction, collection, getDocs, writeBatch, getDoc, onSnapshot, DocumentReference, Firestore, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore';
-import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { useCollection } from '@/firebase/firestore/use-collection';
-import { CryptoCurrency, Holding } from '@/lib/types';
-
-interface Portfolio {
-  usdBalance: number;
-  holdings: Holding[];
-}
+import { doc, updateDoc, runTransaction, Firestore, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore';
+import { User } from 'firebase/auth';
+import { CryptoCurrency, Holding, Portfolio } from '@/lib/types';
 
 interface BuyOptions {
     stopLoss?: number;
@@ -24,24 +18,16 @@ interface BuyOptions {
 interface PortfolioState {
   portfolio: Portfolio;
   setPortfolio: (portfolio: Portfolio) => void;
-  getFirebaseInstances: () => { user: any; firestore: Firestore | null };
   getPortfolioValue: (marketData: CryptoCurrency[]) => number;
-  addUsd: (amount: number) => Promise<void>;
-  withdrawUsd: (amount: number) => Promise<void>;
-  buy: (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => Promise<void>;
-  sell: (crypto: CryptoCurrency, cryptoAmountToSell: number) => Promise<void>;
+  addUsd: (user: User, firestore: Firestore, amount: number) => Promise<void>;
+  withdrawUsd: (user: User, firestore: Firestore, amount: number) => Promise<void>;
+  buy: (user: User, firestore: Firestore, crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => Promise<void>;
+  sell: (user: User, firestore: Firestore, crypto: CryptoCurrency, cryptoAmountToSell: number) => Promise<void>;
 }
 
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     portfolio: { usdBalance: 0, holdings: [] },
     setPortfolio: (portfolio) => set({ portfolio }),
-
-    getFirebaseInstances: () => {
-        // This is a bit of a hack to get around Zustand's limitations with hooks
-        const { user } = useUser.getState();
-        const firestore = useFirestore.getState();
-        return { user, firestore };
-    },
 
     getPortfolioValue: (marketData) => {
         const { portfolio } = get();
@@ -68,10 +54,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
         return portfolio.usdBalance + holdingsValue + futuresValue;
     },
     
-    addUsd: async (amount) => {
-        const { user } = useUser.getState();
-        const firestore = useFirestore.getState();
-
+    addUsd: async (user: User, firestore: Firestore, amount: number) => {
         if (!user || !firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
@@ -95,10 +78,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             toast({ variant: 'destructive', title: 'Transaction Failed', description: typeof e === 'string' ? e : e.message });
         }
     },
-    withdrawUsd: async (amount) => {
-        const { user } = useUser.getState();
-        const firestore = useFirestore.getState();
-        
+    withdrawUsd: async (user: User, firestore: Firestore, amount: number) => {
         if (!user || !firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
@@ -126,9 +106,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             toast({ variant: 'destructive', title: 'Transaction Failed', description: typeof e === 'string' ? e : e.message });
         }
     },
-    buy: async (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
-        const { user } = useUser.getState();
-        const firestore = useFirestore.getState();
+    buy: async (user: User, firestore: Firestore, crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
         if (!user || !firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
@@ -192,9 +170,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             });
         }
     },
-    sell: async (crypto: CryptoCurrency, cryptoAmountToSell: number) => {
-         const { user } = useUser.getState();
-        const firestore = useFirestore.getState();
+    sell: async (user: User, firestore: Firestore, crypto: CryptoCurrency, cryptoAmountToSell: number) => {
         if (!user || !firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
