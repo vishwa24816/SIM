@@ -117,15 +117,18 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
+                // --- READS FIRST ---
                 const userDoc = await transaction.get(userRef);
+                const holdingDoc = await transaction.get(holdingRef);
+
                 if (!userDoc.exists()) throw "User document does not exist!";
                 
                 const currentBalance = userDoc.data().usdBalance;
                 if (currentBalance < usdAmount) throw "Insufficient funds.";
-
+                
+                // --- WRITES SECOND ---
                 transaction.update(userRef, { usdBalance: currentBalance - usdAmount });
 
-                const holdingDoc = await transaction.get(holdingRef);
                 if (holdingDoc.exists()) {
                     // Update existing holding
                     const currentHolding = holdingDoc.data() as Holding;
@@ -181,6 +184,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
+                // --- READS FIRST ---
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
 
@@ -190,6 +194,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 const currentHolding = holdingDoc.data() as Holding;
                 if (currentHolding.amount < cryptoAmountToSell) throw "Insufficient holding amount to sell.";
                 
+                // --- WRITES SECOND ---
                 const usdGained = cryptoAmountToSell * crypto.price;
                 const newBalance = userDoc.data().usdBalance + usdGained;
                 transaction.update(userRef, { usdBalance: newBalance });
