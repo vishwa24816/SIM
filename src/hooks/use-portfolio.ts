@@ -5,8 +5,8 @@ import * as React from 'react';
 import { create } from 'zustand';
 import { toast } from './use-toast';
 import { useTransactionHistory } from './use-transaction-history';
-import { doc, updateDoc, runTransaction, collection, getDocs, writeBatch, getDoc } from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { doc, updateDoc, runTransaction, collection, getDocs, writeBatch, getDoc, onSnapshot } from 'firebase/firestore';
+import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { CryptoCurrency, Holding } from '@/lib/types';
 
@@ -70,12 +70,12 @@ export const usePortfolioStore = () => {
     const firestore = useFirestore();
     const { portfolio, setPortfolio, getPortfolioValue } = usePortfolioStoreInternal();
 
-    const userRef = React.useMemo(() => {
+    const userRef = useMemoFirebase(() => {
         if (!user) return null;
         return doc(firestore, 'users', user.uid);
     }, [firestore, user]);
 
-    const holdingsCollectionRef = React.useMemo(() => {
+    const holdingsCollectionRef = useMemoFirebase(() => {
         if (!user) return null;
         return collection(firestore, `users/${user.uid}/holdings`);
     }, [firestore, user]);
