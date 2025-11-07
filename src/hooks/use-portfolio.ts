@@ -5,7 +5,7 @@ import * as React from 'react';
 import { create } from 'zustand';
 import { toast } from './use-toast';
 import { useTransactionHistory } from './use-transaction-history';
-import { doc, updateDoc, runTransaction, collection, getDocs, writeBatch, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, runTransaction, collection, getDocs, writeBatch, getDoc, onSnapshot, DocumentReference, Firestore, serverTimestamp } from 'firebase/firestore';
 import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { CryptoCurrency, Holding } from '@/lib/types';
@@ -24,20 +24,12 @@ interface BuyOptions {
 interface PortfolioState {
   portfolio: Portfolio;
   setPortfolio: (portfolio: Portfolio) => void;
-  addUsd: (amount: number) => void;
-  withdrawUsd: (amount: number) => void;
-  buy: (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => void;
-  sell: (crypto: CryptoCurrency, cryptoAmount: number) => void;
   getPortfolioValue: (marketData: CryptoCurrency[]) => number;
 }
 
 const usePortfolioStoreInternal = create<PortfolioState>((set, get) => ({
     portfolio: { usdBalance: 0, holdings: [] },
     setPortfolio: (portfolio) => set({ portfolio }),
-    addUsd: (amount) => { /* To be implemented with Firestore */ },
-    withdrawUsd: (amount) => { /* To be implemented with Firestore */ },
-    buy: (crypto, usdAmount, quantity, options) => { /* To be implemented with Firestore */ },
-    sell: (crypto, cryptoAmount) => { /* To be implemented with Firestore */ },
     getPortfolioValue: (marketData) => {
         const { portfolio } = get();
         const holdingsValue = portfolio.holdings.reduce((total, holding) => {
@@ -70,47 +62,37 @@ export const usePortfolioStore = () => {
     const firestore = useFirestore();
     const { portfolio, setPortfolio, getPortfolioValue } = usePortfolioStoreInternal();
 
-    const userRef = useMemoFirebase(() => {
+    const userDocRef = React.useMemo(() => {
         if (!user) return null;
         return doc(firestore, 'users', user.uid);
-    }, [firestore, user]);
+    }, [user, firestore]);
 
-    const holdingsCollectionRef = useMemoFirebase(() => {
-        if (!user) return null;
-        return collection(firestore, `users/${user.uid}/holdings`);
-    }, [firestore, user]);
-
-    const { data: holdingsData, isLoading: isHoldingsLoading } = useCollection<Holding>(holdingsCollectionRef);
-    
     React.useEffect(() => {
-        if (userRef) {
-            const unsub = onSnapshot(userRef, (doc) => {
-                const data = doc.data();
-                if (data) {
-                    setPortfolio({
-                        usdBalance: data.usdBalance,
-                        holdings: holdingsData || [],
-                    });
-                }
-            });
-            return () => unsub();
-        }
-    }, [userRef, holdingsData, setPortfolio]);
+        if (!userDocRef) return;
+        const unsub = onSnapshot(userDocRef, (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                setPortfolio({ ...portfolio, usdBalance: data.usdBalance });
+            }
+        });
+        return () => unsub();
+    }, [userDocRef, portfolio, setPortfolio]);
+
 
     const addUsd = async (amount: number) => {
-        if (!userRef) return;
+        if (!userDocRef) return;
         if (amount <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
         }
         try {
             await runTransaction(firestore, async (transaction) => {
-                const userDoc = await transaction.get(userRef);
+                const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) {
                     throw "User document does not exist!";
                 }
                 const newBalance = (userDoc.data().usdBalance || 0) + amount;
-                transaction.update(userRef, { usdBalance: newBalance });
+                transaction.update(userDocRef, { usdBalance: newBalance });
             });
             toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
         } catch (e: any) {
@@ -120,14 +102,14 @@ export const usePortfolioStore = () => {
     };
 
     const withdrawUsd = async (amount: number) => {
-        if (!userRef) return;
+        if (!userDocRef) return;
         if (amount <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
         }
         try {
             await runTransaction(firestore, async (transaction) => {
-                const userDoc = await transaction.get(userRef);
+                const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) {
                     throw "User document does not exist!";
                 }
@@ -136,7 +118,7 @@ export const usePortfolioStore = () => {
                     throw 'Insufficient Funds';
                 }
                 const newBalance = currentBalance - amount;
-                transaction.update(userRef, { usdBalance: newBalance });
+                transaction.update(userDocRef, { usdBalance: newBalance });
             });
             toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
         } catch (e: any) {
@@ -146,21 +128,23 @@ export const usePortfolioStore = () => {
     };
 
     const buy = async (crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
-        if (!userRef || !holdingsCollectionRef) return;
+        if (!user || !userDocRef) return;
          if (usdAmount <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
         }
         
         try {
+            const holdingsCollectionRef = collection(firestore, `users/${user.uid}/holdings`);
+
             await runTransaction(firestore, async (transaction) => {
-                const userDoc = await transaction.get(userRef);
+                const userDoc = await transaction.get(userDocRef);
                 if (!userDoc.exists()) throw "User document does not exist!";
 
                 const currentBalance = userDoc.data().usdBalance || 0;
                 if (currentBalance < usdAmount) throw "Insufficient Funds";
 
-                transaction.update(userRef, { usdBalance: currentBalance - usdAmount });
+                transaction.update(userDocRef, { usdBalance: currentBalance - usdAmount });
                 
                 const holdingDocRef = doc(holdingsCollectionRef, crypto.id);
                 const holdingDoc = await transaction.get(holdingDocRef);
@@ -214,13 +198,15 @@ export const usePortfolioStore = () => {
     };
     
     const sell = async (crypto: CryptoCurrency, cryptoAmountToSell: number) => {
-        if (!userRef || !holdingsCollectionRef) return;
+        if (!user || !userDocRef) return;
         if (cryptoAmountToSell <= 0) {
             toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a positive amount.' });
             return;
         }
 
         try {
+            const holdingsCollectionRef = collection(firestore, `users/${user.uid}/holdings`);
+
             await runTransaction(firestore, async (transaction) => {
                 const holdingDocRef = doc(holdingsCollectionRef, crypto.id);
                 const holdingDoc = await transaction.get(holdingDocRef);
@@ -234,7 +220,7 @@ export const usePortfolioStore = () => {
                 }
 
                 const usdGained = cryptoAmountToSell * crypto.price;
-                const userDoc = await transaction.get(userRef);
+                const userDoc = await transaction.get(userDocRef);
                 const currentBalance = userDoc.data()?.usdBalance || 0;
                 let newBalance = currentBalance + usdGained;
 
@@ -260,7 +246,7 @@ export const usePortfolioStore = () => {
                     toast({ title: 'Sale Successful', description: `Sold ${cryptoAmountToSell.toFixed(6)} ${crypto.symbol}.` });
                 }
 
-                transaction.update(userRef, { usdBalance: newBalance });
+                transaction.update(userDocRef, { usdBalance: newBalance });
 
                 useTransactionHistory.getState().addTransaction({
                     type: 'SELL',
@@ -281,5 +267,5 @@ export const usePortfolioStore = () => {
     };
 
 
-    return { portfolio, addUsd, withdrawUsd, buy, sell, getPortfolioValue, isLoading: isHoldingsLoading };
+    return { portfolio, setPortfolio, addUsd, withdrawUsd, buy, sell, getPortfolioValue };
 };

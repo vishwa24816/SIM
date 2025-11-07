@@ -7,18 +7,34 @@ import { NewsFeed } from "@/components/dashboard/news-feed";
 import { PortfolioView } from "@/components/dashboard/portfolio-view";
 import { useMarketData } from "@/hooks/use-market-data";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
-import { CryptoCurrency } from "@/lib/types";
+import { CryptoCurrency, Holding } from "@/lib/types";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { CryptoPositions } from "@/components/dashboard/crypto-positions";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/firebase";
+import { useUser, useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Loader2 } from "lucide-react";
+import { collection } from "firebase/firestore";
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
   const { marketData, loading: marketLoading } = useMarketData();
-  const { portfolio, addUsd, withdrawUsd, getPortfolioValue } = usePortfolioStore();
+  const { portfolio, addUsd, withdrawUsd, getPortfolioValue, setPortfolio } = usePortfolioStore();
   const router = useRouter();
+
+  const holdingsCollectionRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return collection(firestore, 'users', user.uid, 'holdings');
+  }, [firestore, user]);
+
+  const { data: holdings, isLoading: isHoldingsLoading } = useCollection<Holding>(holdingsCollectionRef);
+
+  React.useEffect(() => {
+    if (holdings) {
+      setPortfolio({ ...portfolio, holdings });
+    }
+  }, [holdings, setPortfolio]);
+
 
   React.useEffect(() => {
     if (!isUserLoading && !user) {
@@ -26,7 +42,7 @@ export default function DashboardPage() {
     }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading || marketLoading) {
+  if (isUserLoading || marketLoading || isHoldingsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
