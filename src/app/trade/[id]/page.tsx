@@ -123,7 +123,6 @@ export default function TradePage() {
 
     if (orderType === 'limit') {
         addLimitOrder({
-            id: `${crypto.id}-limit-${Date.now()}`,
             instrumentId: crypto.id,
             instrumentName: crypto.name,
             instrumentSymbol: crypto.symbol,

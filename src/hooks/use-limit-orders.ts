@@ -18,11 +18,20 @@ export const useLimitOrders = () => {
 
     const addLimitOrder = async (order: Omit<LimitOrder, 'id' | 'userId' | 'createdAt'>) => {
         if (!ordersCollection || !user) return;
-        await addDoc(ordersCollection, {
+        
+        const newOrder: any = {
             ...order,
             userId: user.uid,
             createdAt: new Date().toISOString(),
-        });
+        };
+
+        // Remove undefined fields to prevent Firestore errors
+        if (newOrder.stopLoss === undefined) delete newOrder.stopLoss;
+        if (newOrder.takeProfit === undefined) delete newOrder.takeProfit;
+        if (newOrder.trailingStopLoss === undefined) delete newOrder.trailingStopLoss;
+
+
+        await addDoc(ordersCollection, newOrder);
     };
 
     const removeLimitOrder = async (orderId: string) => {
