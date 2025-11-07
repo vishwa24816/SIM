@@ -36,7 +36,7 @@ export default function DashboardPage() {
     if (profile && holdings) {
       setPortfolio({ usdBalance: profile.usdBalance, holdings: holdings });
     } else if (profile) {
-      setPortfolio({ ...portfolio, usdBalance: profile.usdBalance });
+      setPortfolio({ ...portfolio, usdBalance: profile.usdBalance, holdings: portfolio.holdings || [] });
     }
   }, [profile, holdings, setPortfolio]);
 

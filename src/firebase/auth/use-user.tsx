@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -12,7 +13,8 @@ export const useUser = () => {
 
   useEffect(() => {
     if (!auth || !firestore) {
-      setLoading(false);
+      // Services not yet available
+      setLoading(true);
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

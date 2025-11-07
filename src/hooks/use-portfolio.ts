@@ -5,7 +5,7 @@ import * as React from 'react';
 import { create } from 'zustand';
 import { toast } from './use-toast';
 import { useTransactionHistory } from './use-transaction-history';
-import { doc, updateDoc, runTransaction, Firestore, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, runTransaction, Firestore, serverTimestamp, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { CryptoCurrency, Holding, Portfolio } from '@/lib/types';
 
@@ -107,7 +107,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
         }
     },
     buy: async (user: User, firestore: Firestore, crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
-        if (!user || !firestore) {
+         if (!user || !firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
         }
@@ -195,36 +195,38 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
+                // Perform all reads first
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
-
+    
                 if (!userDoc.exists()) {
                     throw new Error("User document does not exist!");
                 }
                 if (!holdingDoc.exists()) {
                     throw new Error("No holding found for this asset.");
                 }
-
+    
                 const currentHolding = holdingDoc.data() as Holding;
                 if (currentHolding.amount < cryptoAmountToSell) {
                     throw new Error("Insufficient holding amount to sell.");
                 }
-                
+    
+                // Now perform all writes
                 const usdGained = cryptoAmountToSell * crypto.price;
                 const currentBalance = userDoc.data().usdBalance;
                 const newBalance = currentBalance + usdGained;
                 transaction.update(userRef, { usdBalance: newBalance });
-
+    
                 const newAmount = currentHolding.amount - cryptoAmountToSell;
-
-                if (newAmount < 0.000001) { 
+    
+                if (newAmount < 0.000001) { // Use a small epsilon to handle floating point inaccuracies
                     transaction.delete(holdingRef);
                 } else {
                     const proportionSold = currentHolding.amount > 0 ? cryptoAmountToSell / currentHolding.amount : 0;
                     const newMargin = (currentHolding.margin || 0) * (1 - proportionSold);
                     transaction.update(holdingRef, {
                         amount: newAmount,
-                        margin: newMargin
+                        margin: newMargin,
                     });
                 }
             });

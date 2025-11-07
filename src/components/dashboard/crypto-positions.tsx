@@ -16,6 +16,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
 import { Badge } from "../ui/badge";
+import { useUser, useFirestore } from "@/firebase";
 
 interface CryptoPositionsProps {
   portfolio: Portfolio;
@@ -24,6 +25,8 @@ interface CryptoPositionsProps {
 
 const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
   const { sell } = usePortfolioStore();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   if (holdings.length === 0) {
     return (
@@ -42,6 +45,11 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
         case 'Spot': return `/trade/${item.id}`;
         default: return `/crypto/${item.id}`;
     }
+  }
+
+  const handleSell = (crypto: CryptoCurrency, amount: number) => {
+    if (!user || !firestore) return;
+    sell(user, firestore, crypto, amount);
   }
 
   return (
@@ -113,7 +121,7 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                       <Link href={`${getAssetPath(holding.crypto)}?modify=true`} passHref className="w-full">
                           <Button size="sm" variant="outline" className="w-full">Modify</Button>
                       </Link>
-                      <Button size="sm" variant="destructive" className="w-full" onClick={() => sell(holding.crypto, holding.amount)}>Square Off</Button>
+                      <Button size="sm" variant="destructive" className="w-full" onClick={() => handleSell(holding.crypto, holding.amount)}>Square Off</Button>
                   </div>
               </div>
             </AccordionContent>
@@ -127,6 +135,8 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
 
 const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketData: CryptoCurrency[] }) => {
     const { sell } = usePortfolioStore();
+    const { user } = useUser();
+    const firestore = useFirestore();
 
     if (positions.length === 0) {
         return (
@@ -142,13 +152,13 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
     
     const handleSquareOff = (position: any) => {
         const baseAsset = marketData.find(c => c.id === position.crypto.id.replace('-fut', ''));
-        if (!baseAsset) return;
+        if (!baseAsset || !user || !firestore) return;
 
         // Create a temporary crypto object for the sell action
         const cryptoToSell = { ...baseAsset, id: position.crypto.id, assetType: 'Futures' as const };
         
         // We "sell" the absolute amount to close the position
-        sell(cryptoToSell, Math.abs(position.amount));
+        sell(user, firestore, cryptoToSell, Math.abs(position.amount));
     }
 
 
