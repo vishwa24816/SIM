@@ -111,49 +111,56 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
         }
-
+        
         const userRef = doc(firestore, 'users', user.uid);
         const holdingRef = doc(firestore, `users/${user.uid}/holdings/${crypto.id}`);
 
         try {
             await runTransaction(firestore, async (transaction) => {
-                // --- READS FIRST ---
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
 
-                if (!userDoc.exists()) throw "User document does not exist!";
+                if (!userDoc.exists()) {
+                    throw new Error("User document does not exist!");
+                }
                 
-                const currentBalance = userDoc.data().usdBalance;
-                if (currentBalance < usdAmount) throw "Insufficient funds.";
+                const currentBalance = userDoc.data().usdBalance || 0;
+                if (currentBalance < usdAmount) {
+                    throw new Error("Insufficient funds.");
+                }
                 
-                // --- WRITES SECOND ---
                 transaction.update(userRef, { usdBalance: currentBalance - usdAmount });
 
+                const payload: any = {};
+                if (options?.stopLoss) payload.stopLoss = options.stopLoss;
+                if (options?.takeProfit) payload.takeProfit = options.takeProfit;
+                if (options?.trailingStopLoss) payload.trailingStopLoss = options.trailingStopLoss;
+
+
                 if (holdingDoc.exists()) {
-                    // Update existing holding
                     const currentHolding = holdingDoc.data() as Holding;
                     const newAmount = currentHolding.amount + quantity;
                     const newMargin = (currentHolding.margin || 0) + usdAmount;
                     transaction.update(holdingRef, {
                         amount: newAmount,
                         margin: newMargin,
-                        ...options
+                        ...payload
                     });
                 } else {
-                    // Create new holding
                     const newHolding: Holding = {
                         userId: user.uid,
                         cryptoId: crypto.id,
                         amount: quantity,
                         margin: usdAmount,
                         assetType: crypto.assetType,
-                        ...options
+                        ...payload
                     };
                     transaction.set(holdingRef, newHolding);
                 }
             });
+
             toast({ title: 'Buy Order Successful', description: `Successfully purchased ${quantity.toFixed(6)} ${crypto.symbol}` });
-             useTransactionHistory.getState().addTransaction({
+            useTransactionHistory.getState().addTransaction({
                 type: 'BUY',
                 asset: crypto.symbol,
                 quantity: quantity,
@@ -184,27 +191,23 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
-                // --- READS FIRST ---
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
 
-                if (!userDoc.exists()) throw "User document does not exist!";
-                if (!holdingDoc.exists()) throw "No holding found for this asset.";
+                if (!userDoc.exists()) throw new Error("User document does not exist!");
+                if (!holdingDoc.exists()) throw new Error("No holding found for this asset.");
 
                 const currentHolding = holdingDoc.data() as Holding;
-                if (currentHolding.amount < cryptoAmountToSell) throw "Insufficient holding amount to sell.";
+                if (currentHolding.amount < cryptoAmountToSell) throw new Error("Insufficient holding amount to sell.");
                 
-                // --- WRITES SECOND ---
                 const usdGained = cryptoAmountToSell * crypto.price;
                 const newBalance = userDoc.data().usdBalance + usdGained;
                 transaction.update(userRef, { usdBalance: newBalance });
 
                 const newAmount = currentHolding.amount - cryptoAmountToSell;
-                if (newAmount < 0.000001) { // Floating point precision
-                    // If selling all, delete the holding
+                if (newAmount < 0.000001) { 
                     transaction.delete(holdingRef);
                 } else {
-                    // Otherwise, update the holding
                     const proportionSold = cryptoAmountToSell / currentHolding.amount;
                     const newMargin = (currentHolding.margin || 0) * (1 - proportionSold);
                     transaction.update(holdingRef, {
