@@ -117,7 +117,6 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
-                // All reads must come before writes
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
 
@@ -130,17 +129,17 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     throw new Error("Insufficient funds.");
                 }
                 
-                // This is a write, so it will come after reads
                 const newBalance = currentBalance - usdAmount;
-
+                transaction.update(userRef, { usdBalance: newBalance });
+                
                 const payload: Partial<Holding> = {
                     userId: user.uid,
                     cryptoId: crypto.id,
                     assetType: crypto.assetType,
                 };
-                if (options?.stopLoss) payload.stopLoss = options.stopLoss;
-                if (options?.takeProfit) payload.takeProfit = options.takeProfit;
-                if (options?.trailingStopLoss) payload.trailingStopLoss = options.trailingStopLoss;
+                if (options?.stopLoss !== undefined) payload.stopLoss = options.stopLoss;
+                if (options?.takeProfit !== undefined) payload.takeProfit = options.takeProfit;
+                if (options?.trailingStopLoss !== undefined) payload.trailingStopLoss = options.trailingStopLoss;
 
 
                 if (holdingDoc.exists()) {
@@ -148,19 +147,18 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     const newAmount = currentHolding.amount + quantity;
                     const newMargin = (currentHolding.margin || 0) + usdAmount;
                     
-                    transaction.update(userRef, { usdBalance: newBalance });
-                    transaction.update(holdingRef, {
+                    const updatedHolding = {
+                        ...payload,
                         amount: newAmount,
                         margin: newMargin,
-                        ...payload
-                    });
+                    };
+                    transaction.update(holdingRef, updatedHolding);
                 } else {
                     const newHolding: Holding = {
                         ...payload,
                         amount: quantity,
                         margin: usdAmount,
                     } as Holding;
-                    transaction.update(userRef, { usdBalance: newBalance });
                     transaction.set(holdingRef, newHolding);
                 }
             });
@@ -197,7 +195,6 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
         try {
             await runTransaction(firestore, async (transaction) => {
-                // All reads must come before writes
                 const userDoc = await transaction.get(userRef);
                 const holdingDoc = await transaction.get(holdingRef);
 
@@ -216,16 +213,14 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 const usdGained = cryptoAmountToSell * crypto.price;
                 const currentBalance = userDoc.data().usdBalance;
                 const newBalance = currentBalance + usdGained;
+                transaction.update(userRef, { usdBalance: newBalance });
 
                 const newAmount = currentHolding.amount - cryptoAmountToSell;
 
-                // All writes happen after reads
-                transaction.update(userRef, { usdBalance: newBalance });
-
-                if (newAmount < 0.000001) { // Use a small epsilon for float comparison
+                if (newAmount < 0.000001) { 
                     transaction.delete(holdingRef);
                 } else {
-                    const proportionSold = cryptoAmountToSell / currentHolding.amount;
+                    const proportionSold = currentHolding.amount > 0 ? cryptoAmountToSell / currentHolding.amount : 0;
                     const newMargin = (currentHolding.margin || 0) * (1 - proportionSold);
                     transaction.update(holdingRef, {
                         amount: newAmount,
