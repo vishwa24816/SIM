@@ -35,12 +35,12 @@ const generateOrders = (basePrice: number) => {
         
         buyOrders.push({
             total: Math.floor(Math.random() * 200) + 50,
-            price: buyPrice,
+            price: Math.round(buyPrice),
         });
         
         sellOrders.push({
             total: Math.floor(Math.random() * 200) + 50,
-            price: sellPrice,
+            price: Math.round(sellPrice),
         });
     }
     return { buyOrders, sellOrders };
