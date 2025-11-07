@@ -13,7 +13,8 @@ service cloud.firestore {
 
     match /users/{userId}/{collection}/{docId} {
       allow get, list: if isOwner(userId);
-      allow create, update, delete: if isOwner(userId) && request.resource.data.userId == userId;
+      allow create, update: if isOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isOwner(userId);
     }
   }
 }
