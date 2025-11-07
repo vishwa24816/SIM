@@ -36,13 +36,13 @@ export default function DashboardPage() {
     if (profile) {
       setPortfolio({ ...portfolio, usdBalance: profile.usdBalance });
     }
-  }, [profile]); // Removed portfolio from dependencies
+  }, [profile, setPortfolio]); // portfolio removed from deps
 
   React.useEffect(() => {
     if (holdings) {
       setPortfolio({ ...portfolio, holdings });
     }
-  }, [holdings]); // Removed portfolio from dependencies
+  }, [holdings, setPortfolio]); // portfolio removed from deps
 
 
   React.useEffect(() => {

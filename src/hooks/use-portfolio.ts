@@ -147,18 +147,25 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     const newAmount = currentHolding.amount + quantity;
                     const newMargin = (currentHolding.margin || 0) + usdAmount;
                     
-                    const updatedHolding = {
+                    const updatedHolding: Partial<Holding> = {
                         ...payload,
                         amount: newAmount,
                         margin: newMargin,
                     };
+
                     transaction.update(holdingRef, updatedHolding);
                 } else {
-                    const newHolding: Holding = {
-                        ...payload,
+                     const newHolding: Holding = {
+                        userId: user.uid,
+                        cryptoId: crypto.id,
+                        assetType: crypto.assetType,
                         amount: quantity,
                         margin: usdAmount,
-                    } as Holding;
+                    };
+                    if (options?.stopLoss) newHolding.stopLoss = options.stopLoss;
+                    if (options?.takeProfit) newHolding.takeProfit = options.takeProfit;
+                    if (options?.trailingStopLoss) newHolding.trailingStopLoss = options.trailingStopLoss;
+                    
                     transaction.set(holdingRef, newHolding);
                 }
             });
