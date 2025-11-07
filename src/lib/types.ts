@@ -1,7 +1,9 @@
 
+import { type User as FirebaseUser } from 'firebase/auth';
 
-
-
+export interface User extends FirebaseUser {
+    usdBalance?: number;
+}
 export interface CryptoCurrency {
   id: string;
   name: string;
@@ -15,6 +17,8 @@ export interface CryptoCurrency {
 }
 
 export interface Holding {
+  id?: string; // Firestore document ID
+  userId: string;
   cryptoId: string;
   amount: number;
   margin?: number; // Margin used for futures or total cost for spot
@@ -92,6 +96,7 @@ export interface CryptoETF {
 
 export interface Alert {
     id: string;
+    userId: string;
     cryptoId: string;
     cryptoSymbol: string;
     price: number;
@@ -111,8 +116,11 @@ export interface BasketItem {
 }
 
 export interface Basket {
+  id?: string;
+  userId: string;
   name: string;
   items: BasketItem[];
+  createdAt: string;
 }
 
 export type SystematicPlanType = 'sip' | 'swp';
@@ -121,6 +129,7 @@ export type SPFrequency = 'daily' | 'weekly' | 'monthly' | 'annually';
 
 export interface SystematicPlan {
   id: string;
+  userId: string;
   instrumentId: string;
   instrumentName: string;
   instrumentSymbol: string;
@@ -135,6 +144,7 @@ export interface SystematicPlan {
 
 export interface HodlOrder {
   id: string;
+  userId: string;
   instrumentId: string;
   instrumentName: string;
   instrumentSymbol: string;
@@ -154,6 +164,7 @@ export interface HodlOrder {
 
 export interface LimitOrder {
     id: string;
+    userId: string;
     instrumentId: string;
     instrumentName: string;
     instrumentSymbol: string;
@@ -168,6 +179,7 @@ export interface LimitOrder {
     trailingStopLoss?: {
       percentage: number;
     };
+    createdAt: string;
 }
 
 export interface Nominee {

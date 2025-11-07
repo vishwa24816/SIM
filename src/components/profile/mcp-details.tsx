@@ -58,7 +58,7 @@ export function McpDetails() {
                         <CheckCircle className="w-5 h-5"/>
                         <div>
                             <p className="font-semibold">Connection Successful</p>
-                            <p className="text-xs">MCP Server `sim-exchange` is active.</p>
+                            <p className="text-xs">MCP Server 'sim-exchange' is active.</p>
                         </div>
                     </div>
                      <div>
@@ -71,5 +71,3 @@ export function McpDetails() {
         </div>
     )
 }
-
-    

@@ -1,38 +1,42 @@
 
 'use client';
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { useCollection, useFirestore, useUser } from '@/firebase';
+import { collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { useMemo } from 'react';
 import { LimitOrder } from '@/lib/types';
 
-interface LimitOrdersState {
-    limitOrders: LimitOrder[];
-    addLimitOrder: (order: LimitOrder) => void;
-    removeLimitOrder: (orderId: string) => void;
-    updateLimitOrderStatus: (orderId: string, status: LimitOrder['status']) => void;
-}
+export const useLimitOrders = () => {
+    const { user } = useUser();
+    const firestore = useFirestore();
 
-export const useLimitOrders = create<LimitOrdersState>()(
-    persist(
-        (set) => ({
-            limitOrders: [],
-            addLimitOrder: (order) => set((state) => ({
-                limitOrders: [...state.limitOrders, order]
-            })),
-            removeLimitOrder: (orderId) => set((state) => ({
-                limitOrders: state.limitOrders.filter((order) => order.id !== orderId)
-            })),
-            updateLimitOrderStatus: (orderId, status) => set((state) => ({
-                limitOrders: state.limitOrders.map((order) =>
-                    order.id === orderId ? { ...order, status } : order
-                )
-            })),
-        }),
-        {
-            name: 'crypto-limit-orders-storage',
-            storage: createJSONStorage(() => localStorage),
-        }
-    )
-);
+    const ordersCollection = useMemo(() => {
+        if (!user) return null;
+        return collection(firestore, `users/${user.uid}/limitOrders`);
+    }, [firestore, user]);
 
-    
+    const { data: limitOrders, isLoading, error } = useCollection<LimitOrder>(ordersCollection);
+
+    const addLimitOrder = async (order: Omit<LimitOrder, 'id' | 'userId' | 'createdAt'>) => {
+        if (!ordersCollection || !user) return;
+        await addDoc(ordersCollection, {
+            ...order,
+            userId: user.uid,
+            createdAt: new Date().toISOString(),
+        });
+    };
+
+    const removeLimitOrder = async (orderId: string) => {
+        if (!ordersCollection) return;
+        const orderDoc = doc(ordersCollection, orderId);
+        await deleteDoc(orderDoc);
+    };
+
+    const updateLimitOrderStatus = async (orderId: string, status: LimitOrder['status']) => {
+        if (!ordersCollection) return;
+        const orderDoc = doc(ordersCollection, orderId);
+        await updateDoc(orderDoc, { status });
+    };
+
+    return { limitOrders: limitOrders || [], addLimitOrder, removeLimitOrder, updateLimitOrderStatus, isLoading, error };
+};

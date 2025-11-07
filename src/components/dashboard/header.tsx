@@ -11,19 +11,25 @@ import { Separator } from '../ui/separator';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { setTheme, theme } = useTheme();
   const router = useRouter();
+  const auth = useAuth();
 
   const handleNavigation = (path: string) => {
     setIsMenuOpen(false);
     router.push(path);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsMenuOpen(false);
+    if (auth) {
+      await signOut(auth);
+    }
     router.push('/login');
   };
 

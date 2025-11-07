@@ -463,7 +463,7 @@ export default function OrdersPage() {
                                           <span>{basket.name}</span>
                                           <div className="flex items-center gap-2">
                                             <span className='text-muted-foreground text-sm'>{basket.items.length} items</span>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setBasketToDelete(basket.name); }}>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setBasketToDelete(basket.id!); }}>
                                                 <Trash2 className="h-4 w-4 text-destructive" />
                                             </Button>
                                           </div>
@@ -541,7 +541,7 @@ export default function OrdersPage() {
             <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-                This action will permanently delete the basket "{basketToDelete}". You cannot undo this action.
+                This action will permanently delete this basket. You cannot undo this action.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -573,7 +573,3 @@ export default function OrdersPage() {
     </>
   );
 }
-
-    
-
-

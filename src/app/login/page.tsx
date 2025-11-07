@@ -6,13 +6,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
+import { useUser } from '@/firebase/auth/use-user';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>
@@ -23,65 +22,9 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-const DeveloperLoginDialog = ({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) => {
-    const router = useRouter();
-
-    const handleLogin = () => {
-        router.push('/');
-    };
-    
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Developer Login</DialogTitle>
-                    <DialogDescription>
-                        Use mock credentials to sign in to a simulation or real account.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                    <Tabs defaultValue="simulation" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="simulation">Simulation</TabsTrigger>
-                            <TabsTrigger value="real">Real</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="simulation" className="mt-6">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="ucc">UCC</Label>
-                                    <Input id="ucc" defaultValue="DEMO123" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="pin">PIN</Label>
-                                    <Input id="pin" type="password" defaultValue="1234" />
-                                </div>
-                                <Button className="w-full" onClick={handleLogin}>Login</Button>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="real">
-                             <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="ucc-real">UCC</Label>
-                                    <Input id="ucc-real" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="pin-real">PIN</Label>
-                                    <Input id="pin-real" type="password" />
-                                </div>
-                                <Button className="w-full" onClick={handleLogin}>Login</Button>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
-};
-
-
 export default function LoginPage() {
-  const [isDevLoginOpen, setIsDevLoginOpen] = React.useState(false);
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, loading } = useUser();
   const router = useRouter();
   const [isSigningIn, setIsSigningIn] = React.useState(false);
@@ -93,11 +36,22 @@ export default function LoginPage() {
   }, [user, loading, router]);
 
   const handleGoogleSignIn = async () => {
-    if (!auth) return;
+    if (!auth || !firestore) return;
     setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user document exists, if not, create it
+      const userRef = doc(firestore, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          id: user.uid,
+          usdBalance: 10000, // Initial balance
+        });
+      }
       // The useEffect above will handle the redirect on user state change.
     } catch (error) {
       console.error("Error during Google sign-in:", error);
@@ -135,13 +89,9 @@ export default function LoginPage() {
               )}
               Sign in with Google
             </Button>
-             <Button variant="link" className="w-full" onClick={() => setIsDevLoginOpen(true)}>
-              Developer Login
-            </Button>
           </CardContent>
         </Card>
       </div>
-      <DeveloperLoginDialog open={isDevLoginOpen} onOpenChange={setIsDevLoginOpen} />
     </>
   );
 }

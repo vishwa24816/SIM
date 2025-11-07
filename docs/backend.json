@@ -6,609 +6,163 @@
       "type": "object",
       "description": "Represents a user's holding of a specific cryptocurrency.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Holding entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Holding)"
-        },
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency symbol (e.g., BTC, ETH)."
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The amount of the cryptocurrency held."
-        },
-        "averageCost": {
-          "type": "number",
-          "description": "The average cost at which the cryptocurrency was acquired."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the holding was created or updated.",
-          "format": "date-time"
-        }
+        "userId": { "type": "string" },
+        "cryptoId": { "type": "string" },
+        "amount": { "type": "number" },
+        "margin": { "type": "number" },
+        "assetType": { "type": "string" },
+        "stopLoss": { "type": "number" },
+        "takeProfit": { "type": "number" },
+        "trailingStopLoss": { "type": "object", "properties": { "percentage": { "type": "number" } } }
       },
-      "required": [
-        "id",
-        "userId",
-        "symbol",
-        "quantity",
-        "averageCost",
-        "timestamp"
-      ]
+      "required": ["userId", "cryptoId", "amount", "assetType"]
     },
-    "Position": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Position",
-      "type": "object",
-      "description": "Represents a user's open position in a cryptocurrency pair.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Position entity."
+    "LimitOrder": {
+        "title": "LimitOrder",
+        "type": "object",
+        "description": "Represents a limit order set by a user.",
+        "properties": {
+            "userId": { "type": "string" },
+            "instrumentId": { "type": "string" },
+            "instrumentName": { "type": "string" },
+            "instrumentSymbol": { "type": "string" },
+            "assetType": { "type": "string" },
+            "action": { "type": "string", "enum": ["BUY", "SELL"] },
+            "orderType": { "type": "string", "enum": ["limit"] },
+            "price": { "type": "number" },
+            "quantity": { "type": "number" },
+            "status": { "type": "string", "enum": ["Open", "Executed", "Cancelled"] },
+            "stopLoss": { "type": "number" },
+            "takeProfit": { "type": "number" },
+            "trailingStopLoss": { "type": "object", "properties": { "percentage": { "type": "number" } } },
+            "createdAt": { "type": "string", "format": "date-time" }
         },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Position)"
-        },
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency pair symbol (e.g., BTCUSD)."
-        },
-        "side": {
-          "type": "string",
-          "description": "Whether the position is long (buy) or short (sell)."
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The quantity of the cryptocurrency in the position."
-        },
-        "entryPrice": {
-          "type": "number",
-          "description": "The price at which the position was opened."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the position was opened.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "symbol",
-        "side",
-        "quantity",
-        "entryPrice",
-        "timestamp"
-      ]
+        "required": ["userId", "instrumentId", "instrumentName", "instrumentSymbol", "assetType", "action", "orderType", "price", "quantity", "status", "createdAt"]
     },
-    "Limit": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Limit",
-      "type": "object",
-      "description": "Represents a limit order set by a user.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Limit entity."
+    "HodlOrder": {
+        "title": "HodlOrder",
+        "type": "object",
+        "description": "Represents a user's long-term cryptocurrency holdings.",
+        "properties": {
+            "userId": { "type": "string" },
+            "instrumentId": { "type": "string" },
+            "instrumentName": { "type": "string" },
+            "instrumentSymbol": { "type": "string" },
+            "assetType": { "type": "string" },
+            "quantity": { "type": "number" },
+            "price": { "type": "number" },
+            "orderType": { "type": "string", "enum": ["limit", "market"] },
+            "period": { "type": "object", "properties": { "months": { "type": "number" }, "years": { "type": "number" } } },
+            "margin": { "type": "number" },
+            "stopLoss": { "type": "number" },
+            "takeProfit": { "type": "number" },
+            "createdAt": { "type": "string", "format": "date-time" }
         },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Limit)"
-        },
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency pair symbol (e.g., BTCUSD)."
-        },
-        "limitPrice": {
-          "type": "number",
-          "description": "The price at which the limit order will be triggered."
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The quantity of the cryptocurrency to be traded."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type of limit order (e.g., buy, sell)."
-        },
-        "status": {
-          "type": "string",
-          "description": "The status of the limit order (e.g., open, filled, canceled)."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the limit order was created.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "symbol",
-        "limitPrice",
-        "quantity",
-        "type",
-        "status",
-        "timestamp"
-      ]
+        "required": ["userId", "instrumentId", "instrumentName", "instrumentSymbol", "assetType", "quantity", "price", "orderType", "period", "margin", "createdAt"]
     },
-    "Hodl": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Hodl",
-      "type": "object",
-      "description": "Represents a user's long-term cryptocurrency holdings.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Hodl entity."
+    "SystematicPlan": {
+        "title": "SystematicPlan",
+        "type": "object",
+        "description": "Represents a user's Staking Program participation.",
+        "properties": {
+            "userId": { "type": "string" },
+            "instrumentId": { "type": "string" },
+            "instrumentName": { "type": "string" },
+            "instrumentSymbol": { "type": "string" },
+            "planType": { "type": "string", "enum": ["sip", "swp"] },
+            "investmentType": { "type": "string", "enum": ["amount", "qty"] },
+            "amount": { "type": "number" },
+            "lumpsumAmount": { "type": "number" },
+            "frequency": { "type": "string", "enum": ["daily", "weekly", "monthly", "annually"] },
+            "status": { "type": "string", "enum": ["active", "paused", "cancelled"] },
+            "createdAt": { "type": "string", "format": "date-time" }
         },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Hodl)"
-        },
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency symbol (e.g., BTC, ETH)."
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The amount of the cryptocurrency held long-term."
-        },
-        "purchasePrice": {
-          "type": "number",
-          "description": "The initial purchase price of the hodled cryptocurrency."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the hodl was initiated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "symbol",
-        "quantity",
-        "purchasePrice",
-        "timestamp"
-      ]
-    },
-    "SP": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "SP",
-      "type": "object",
-      "description": "Represents a user's Staking Program participation.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the SP entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N SP)"
-        },
-        "programName": {
-          "type": "string",
-          "description": "The name of the staking program."
-        },
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency symbol being staked."
-        },
-        "amountStaked": {
-          "type": "number",
-          "description": "The amount of the cryptocurrency staked."
-        },
-        "apy": {
-          "type": "number",
-          "description": "Annual Percentage Yield of the staking program."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the staking program participation was initiated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "programName",
-        "symbol",
-        "amountStaked",
-        "apy",
-        "timestamp"
-      ]
+        "required": ["userId", "instrumentId", "instrumentName", "instrumentSymbol", "planType", "investmentType", "amount", "frequency", "status", "createdAt"]
     },
     "Basket": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Basket",
-      "type": "object",
-      "description": "Represents a user's custom basket of cryptocurrencies.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Basket entity."
+        "title": "Basket",
+        "type": "object",
+        "description": "Represents a user's custom basket of cryptocurrencies.",
+        "properties": {
+            "userId": { "type": "string" },
+            "name": { "type": "string" },
+            "items": { 
+                "type": "array", 
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "symbol": { "type": "string" },
+                        "assetType": { "type": "string" },
+                        "quantity": { "type": "number" },
+                        "price": { "type": "number" },
+                        "orderType": { "type": "string" },
+                        "investmentType": { "type": "string" }
+                    },
+                    "required": ["id", "name", "symbol", "assetType", "quantity", "price", "orderType", "investmentType"]
+                } 
+            },
+            "createdAt": { "type": "string", "format": "date-time" }
         },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Basket)"
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the custom basket."
-        },
-        "description": {
-          "type": "string",
-          "description": "A description of the basket strategy."
-        },
-        "components": {
-          "type": "array",
-          "description": "A list of the basket's components.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the basket was created.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "name",
-        "description",
-        "components",
-        "timestamp"
-      ]
+        "required": ["userId", "name", "items", "createdAt"]
     },
     "Alert": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Alert",
       "type": "object",
       "description": "Represents a price alert set by a user.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Alert entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Alert)"
-        },
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency pair symbol (e.g., BTCUSD)."
-        },
-        "priceTarget": {
-          "type": "number",
-          "description": "The price target for the alert."
-        },
-        "alertType": {
-          "type": "string",
-          "description": "The type of alert (e.g., above, below)."
-        },
-        "status": {
-          "type": "string",
-          "description": "The status of the alert (e.g., active, triggered, inactive)."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the alert was created.",
-          "format": "date-time"
-        }
+        "userId": { "type": "string" },
+        "cryptoId": { "type": "string" },
+        "cryptoSymbol": { "type": "string" },
+        "price": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "triggered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "userId",
-        "symbol",
-        "priceTarget",
-        "alertType",
-        "status",
-        "timestamp"
-      ]
+      "required": ["userId", "cryptoId", "cryptoSymbol", "price", "status", "createdAt"]
     },
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the application.  Note:  Authentication data is assumed to be managed externally.",
+      "description": "Represents a user of the application.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the User entity."
-        },
-        "username": {
-          "type": "string",
-          "description": "The user's username."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address.",
-          "format": "email"
-        },
-        "registrationDate": {
-          "type": "string",
-          "description": "Timestamp indicating when the user registered.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "usdBalance": { "type": "number" }
       },
-      "required": [
-        "id",
-        "username",
-        "email",
-        "registrationDate"
-      ]
-    },
-    "YahooFinanceData": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "YahooFinanceData",
-      "type": "object",
-      "description": "Represents real-time cryptocurrency market data sourced from Yahoo Finance.",
-      "properties": {
-        "symbol": {
-          "type": "string",
-          "description": "The cryptocurrency pair symbol (e.g., BTCUSD)."
-        },
-        "price": {
-          "type": "number",
-          "description": "The current price of the cryptocurrency."
-        },
-        "volume": {
-          "type": "number",
-          "description": "The trading volume of the cryptocurrency."
-        },
-        "change": {
-          "type": "number",
-          "description": "The change in price since the last day."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the data was retrieved.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "symbol",
-        "price",
-        "volume",
-        "change",
-        "timestamp"
-      ]
-    },
-    "MarketNews": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MarketNews",
-      "type": "object",
-      "description": "Represents a news article related to cryptocurrency markets.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the news article."
-        },
-        "title": {
-          "type": "string",
-          "description": "The title of the news article."
-        },
-        "url": {
-          "type": "string",
-          "description": "The URL of the news article.",
-          "format": "uri"
-        },
-        "source": {
-          "type": "string",
-          "description": "The source of the news article (e.g., CoinDesk, Bloomberg)."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Timestamp indicating when the news article was published.",
-          "format": "date-time"
-        },
-        "tags": {
-          "type": "array",
-          "description": "Tags associated with the news articles.  e.g. ['Bitcoin', 'Ethereum']",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "title",
-        "url",
-        "source",
-        "timestamp"
-      ]
+      "required": ["id", "usdBalance"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password", "anonymous", "google.com"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}/holdings/{holdingId}",
-        "definition": {
-          "entityName": "Holding",
-          "schema": {
-            "$ref": "#/backend/entities/Holding"
-          },
-          "description": "Stores a user's cryptocurrency holdings. Path-based ownership ensures only the user can access their own holdings.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the holding."
-            },
-            {
-              "name": "holdingId",
-              "description": "The ID of the holding."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/positions/{positionId}",
-        "definition": {
-          "entityName": "Position",
-          "schema": {
-            "$ref": "#/backend/entities/Position"
-          },
-          "description": "Stores a user's open positions in cryptocurrency pairs. Path-based ownership ensures only the user can access their own positions.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the position."
-            },
-            {
-              "name": "positionId",
-              "description": "The ID of the position."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/limits/{limitId}",
-        "definition": {
-          "entityName": "Limit",
-          "schema": {
-            "$ref": "#/backend/entities/Limit"
-          },
-          "description": "Stores a user's limit orders. Path-based ownership ensures only the user can access their own limits.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the limit."
-            },
-            {
-              "name": "limitId",
-              "description": "The ID of the limit order."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/hodls/{hodlId}",
-        "definition": {
-          "entityName": "Hodl",
-          "schema": {
-            "$ref": "#/backend/entities/Hodl"
-          },
-          "description": "Stores a user's long-term cryptocurrency holdings (hodls). Path-based ownership ensures only the user can access their own hodls.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the hodl."
-            },
-            {
-              "name": "hodlId",
-              "description": "The ID of the hodl."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/sps/{spId}",
-        "definition": {
-          "entityName": "SP",
-          "schema": {
-            "$ref": "#/backend/entities/SP"
-          },
-          "description": "Stores a user's Staking Program (SP) participation data. Path-based ownership ensures only the user can access their own SP data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the SP data."
-            },
-            {
-              "name": "spId",
-              "description": "The ID of the SP data."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/baskets/{basketId}",
-        "definition": {
-          "entityName": "Basket",
-          "schema": {
-            "$ref": "#/backend/entities/Basket"
-          },
-          "description": "Stores a user's custom baskets of cryptocurrencies. Path-based ownership ensures only the user can access their own baskets.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the basket."
-            },
-            {
-              "name": "basketId",
-              "description": "The ID of the basket."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/alerts/{alertId}",
-        "definition": {
-          "entityName": "Alert",
-          "schema": {
-            "$ref": "#/backend/entities/Alert"
-          },
-          "description": "Stores a user's price alerts. Path-based ownership ensures only the user can access their own alerts.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user who owns the alert."
-            },
-            {
-              "name": "alertId",
-              "description": "The ID of the alert."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/market_news/{marketNewsId}",
-        "definition": {
-          "entityName": "MarketNews",
-          "schema": {
-            "$ref": "#/backend/entities/MarketNews"
-          },
-          "description": "Stores global market news articles, accessible to all users.",
-          "params": [
-            {
-              "name": "marketNewsId",
-              "description": "The ID of the market news article."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profiles.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The ID of the user."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, Clarity of Intent, and support secure list operations (QAPs). Each user's data (holdings, positions, limits, hodls, sp, basket, alerts) is stored under their own user ID, enabling path-based ownership for private data. This structure avoids hierarchical authorization dependencies, crucial for atomic operations and debuggability. Market News is stored at the root level as it's global data and not user specific.\n\nAuthorization Independence is achieved because access control relies solely on `request.auth.uid` and the path. There is no need to `get()` parent documents to validate access.\n\nQAPs are supported through structural segregation. Each collection is homogeneous, containing only documents with identical security requirements, enabling simple and secure list operations based on path ownership."
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profile information, including their USD balance."
+    },
+    "/users/{userId}/holdings/{holdingId}": {
+      "schema": { "$ref": "#/entities/Holding" },
+      "description": "Stores a user's cryptocurrency holdings. Path-based ownership ensures only the user can access their own holdings."
+    },
+    "/users/{userId}/limitOrders/{limitOrderId}": {
+        "schema": { "$ref": "#/entities/LimitOrder" },
+        "description": "Stores a user's limit orders."
+    },
+    "/users/{userId}/hodlOrders/{hodlOrderId}": {
+        "schema": { "$ref": "#/entities/HodlOrder" },
+        "description": "Stores a user's HODL orders."
+    },
+    "/users/{userId}/systematicPlans/{planId}": {
+        "schema": { "$ref": "#/entities/SystematicPlan" },
+        "description": "Stores a user's systematic investment plans (SIP/SWP)."
+    },
+    "/users/{userId}/baskets/{basketId}": {
+        "schema": { "$ref": "#/entities/Basket" },
+        "description": "Stores a user's custom baskets of cryptocurrencies."
+    },
+    "/users/{userId}/alerts/{alertId}": {
+      "schema": { "$ref": "#/entities/Alert" },
+      "description": "Stores a user's price alerts."
+    }
   }
 }
