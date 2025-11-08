@@ -248,7 +248,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
   const holdingsWithValue = portfolio.holdings
     .map(holding => {
       const crypto = marketData.find(c => c.id === holding.cryptoId);
-      if (!crypto || crypto.assetType === 'Futures') return null;
+      if (!crypto || crypto.assetType === 'Futures' || holding.assetType === 'Futures') return null;
       if (!holding.margin) return null;
       
       const value = holding.amount * crypto.price;

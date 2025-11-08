@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/dashboard/header';
-import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle, RotateCcw, Clock } from 'lucide-react';
+import { Search, BarChart2, Trash2, PauseCircle, PlayCircle, XCircle, RotateCcw, Clock, ArrowUp, ArrowDown } from 'lucide-react';
 import { useAlerts, Alert } from '@/hooks/use-alerts';
 import { cn } from '@/lib/utils';
 import { useMarketData } from '@/hooks/use-market-data';
@@ -26,7 +27,7 @@ import { usePortfolioStore } from '@/hooks/use-portfolio';
 import { useToast } from '@/hooks/use-toast';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { useSystematicPlans } from '@/hooks/use-systematic-plans';
-import { SystematicPlan, HodlOrder, LimitOrder } from '@/lib/types';
+import { SystematicPlan, HodlOrder, LimitOrder, CryptoCurrency } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { useHodlOrders } from '@/hooks/use-hodl-orders';
 import { useLimitOrders } from '@/hooks/use-limit-orders';
@@ -108,7 +109,7 @@ const LimitOrderCard = ({ order, onCancel }: { order: LimitOrder, onCancel: (id:
     );
 };
 
-const HodlOrderCard = ({ order, onCancelClick }: { order: HodlOrder, onCancelClick: (order: HodlOrder) => void }) => {
+const HodlOrderCard = ({ order, crypto, onCancelClick }: { order: HodlOrder, crypto?: CryptoCurrency, onCancelClick: (order: HodlOrder) => void }) => {
     
     const getAssetPath = (item: { assetType?: string, id: string }) => {
         switch (item.assetType) {
@@ -119,6 +120,29 @@ const HodlOrderCard = ({ order, onCancelClick }: { order: HodlOrder, onCancelCli
             case 'Spot': return `/trade/${item.id}`;
             default: return `/crypto/${item.id}`;
         }
+    }
+    
+    const currentValue = crypto ? order.quantity * crypto.price : 0;
+    const pnl = currentValue - order.margin;
+    const pnlPercent = order.margin > 0 ? (pnl / order.margin) * 100 : 0;
+
+    if (!crypto) {
+        return (
+             <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <CardTitle className="text-lg">{order.instrumentName} <span className="text-sm text-muted-foreground">({order.instrumentSymbol})</span></CardTitle>
+                            <p className="text-xs text-muted-foreground uppercase">{order.assetType} - {order.orderType}</p>
+                        </div>
+                        <Badge variant="outline" className="border-blue-500 text-blue-500">HODL</Badge>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <p>Loading market data...</p>
+                </CardContent>
+            </Card>
+        )
     }
 
     return (
@@ -133,17 +157,27 @@ const HodlOrderCard = ({ order, onCancelClick }: { order: HodlOrder, onCancelCli
                 </div>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
+                 <div className="text-right">
+                  <div className="font-mono font-semibold">
+                    ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                  <div className={cn("text-sm flex items-center justify-end gap-1", pnl >= 0 ? "text-green-500" : "text-red-500")}>
+                     {pnl >= 0 ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>}
+                     <span>{pnl.toFixed(2)} ({pnlPercent.toFixed(2)}%)</span>
+                  </div>
+                </div>
+
                  <div className="grid grid-cols-3 gap-4">
                     <div>
                         <p className="text-muted-foreground">Qty.</p>
                         <p className="font-semibold">{order.quantity.toFixed(6)}</p>
                     </div>
                     <div>
-                        <p className="text-muted-foreground">Price</p>
+                        <p className="text-muted-foreground">Avg. Buy Price</p>
                         <p className="font-semibold">${order.price.toLocaleString()}</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-muted-foreground">Margin</p>
+                        <p className="text-muted-foreground">Investment</p>
                         <p className="font-semibold">${order.margin.toLocaleString()}</p>
                     </div>
                 </div>
@@ -303,7 +337,7 @@ export default function OrdersPage() {
   const { orders: hodlOrders, removeOrder: removeHodlOrder } = useHodlOrders();
   const { limitOrders, removeLimitOrder } = useLimitOrders();
   const [basketToDelete, setBasketToDelete] = React.useState<string | null>(null);
-  const { buy, sell } = usePortfolioStore();
+  const { buy, sell, addUsd } = usePortfolioStore();
   const { toast } = useToast();
   const [hodlToCancel, setHodlToCancel] = React.useState<HodlOrder | null>(null);
 
@@ -361,8 +395,7 @@ export default function OrdersPage() {
         }
         const amountToReturn = hodlToCancel.margin + profit - penalty;
         
-        // This is a simplified simulation. A real implementation would be more complex.
-        buy(asset, -amountToReturn, -hodlToCancel.quantity);
+        addUsd(amountToReturn);
       }
 
       removeHodlOrder(hodlToCancel.id);
@@ -423,9 +456,10 @@ export default function OrdersPage() {
                 )
               )}
               {activeTab === 'HODL' && (
-                  hodlOrders.length > 0 ? hodlOrders.map(order => (
-                    <HodlOrderCard key={order.id} order={order} onCancelClick={setHodlToCancel} />
-                  )) : (
+                  hodlOrders.length > 0 ? hodlOrders.map(order => {
+                    const crypto = marketData.find(c => c.id === order.instrumentId);
+                    return <HodlOrderCard key={order.id} order={order} crypto={crypto} onCancelClick={setHodlToCancel} />
+                  }) : (
                       <div className="text-center text-muted-foreground py-10">
                           <p>You have no active HODL orders.</p>
                           <p className="text-sm">You can create HODL orders from the trade screen.</p>

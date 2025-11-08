@@ -27,7 +27,7 @@ export default function TradePage() {
   const params = useParams();
   const id = params.id as string;
   const { marketData, loading: marketLoading, exchange, setExchange } = useMarketData();
-  const { buy, sell, portfolio } = usePortfolioStore();
+  const { buy, sell, portfolio, withdrawUsd } = usePortfolioStore();
   const { addPlan } = useSystematicPlans();
   const { addOrder: addHodlOrder } = useHodlOrders();
   const { addLimitOrder } = useLimitOrders();
@@ -164,6 +164,10 @@ export default function TradePage() {
         toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity for your HODL order.' });
         return;
     }
+    if (portfolio.usdBalance < margin) {
+      toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Not enough USD balance to place HODL order.' });
+      return;
+    }
     
     let sl: number | undefined;
     let tp: number | undefined;
@@ -186,10 +190,8 @@ export default function TradePage() {
     }
 
 
-    // Execute the buy order first
-    buy(user, firestore, crypto, margin, qty, { stopLoss: sl, takeProfit: tp });
-
-    // Then create the HODL order record
+    // Deduct funds and create the HODL order record
+    withdrawUsd(user, firestore, margin);
     addHodlOrder({
       id: `${crypto.id}-hodl-${Date.now()}`,
       instrumentId: crypto.id,
@@ -203,7 +205,6 @@ export default function TradePage() {
       margin,
       stopLoss: sl,
       takeProfit: tp,
-      createdAt: new Date().toISOString(),
     });
 
     toast({ title: 'HODL Order Placed', description: `Your HODL order for ${crypto.name} has been set.`});
