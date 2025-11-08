@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -217,7 +218,11 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     )}
 
                     <div className="mb-6">
-                        <SwipeToConfirm onConfirm={handleSwipeConfirm} text={investmentType === 'sp' ? 'Start Plan' : 'Swipe to Invest'} />
+                        <SwipeToConfirm 
+                          onConfirm={handleSwipeConfirm} 
+                          text={investmentType === 'sp' ? 'Swipe to Start Plan' : 'Swipe to Invest'} 
+                          confirmedText={investmentType === 'sp' ? 'Plan Started' : 'Investment Confirmed'} 
+                        />
                     </div>
 
 

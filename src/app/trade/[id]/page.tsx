@@ -22,6 +22,7 @@ import { usePortfolioStore } from '@/hooks/use-portfolio';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useUser, useFirestore } from '@/firebase';
+import { SwipeToConfirm } from '@/components/ui/swipe-to-confirm';
 
 export default function TradePage() {
   const params = useParams();
@@ -53,7 +54,7 @@ export default function TradePage() {
   // The loading state for holdings is implicitly handled by portfolio updates
   const currentHolding = React.useMemo(() => {
     if (!crypto) return undefined;
-    return portfolio.holdings.find(h => h.cryptoId === crypto.id);
+    return portfolio.holdings.find(h => h.cryptoId === crypto.id && h.assetType === 'Spot');
   }, [portfolio.holdings, crypto]);
 
   React.useEffect(() => {
@@ -333,10 +334,11 @@ export default function TradePage() {
       </main>
       <footer className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4 space-y-3">
          {isComplexOrder ? (
-             <Button size="lg" className="w-full font-bold text-lg" onClick={handleConfirm} disabled={marketLoading}>
-                {investmentType === 'sp' ? 'Create Plan' : 
-                investmentType === 'hodl' ? 'Place HODL Order' : 'Confirm'}
-             </Button>
+              <SwipeToConfirm 
+                onConfirm={handleConfirm}
+                text={investmentType === 'sp' ? 'Swipe to Create Plan' : 'Swipe to HODL'}
+                confirmedText={investmentType === 'sp' ? 'Plan Created' : 'Order Placed'}
+              />
         ) : (
           <div className="grid grid-cols-2 gap-4">
             <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg" onClick={handleSell} disabled={isSellButtonDisabled}>Sell</Button>
