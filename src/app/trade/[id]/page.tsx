@@ -70,41 +70,44 @@ export default function TradePage() {
   
   const handleCreateHodl = () => {
     if (!hodlConfig || !crypto || !user || !firestore) return;
-    const { months, years } = hodlConfig;
+    
     const qty = parseFloat(quantity);
-    const prc = parseFloat(price) || crypto.price;
-    const margin = qty * prc;
-
     if (!qty || qty <= 0) {
         toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity for your HODL order.' });
         return;
     }
+
+    const prc = orderType === 'limit' && price ? parseFloat(price) : crypto.price;
+    if (!prc || prc <= 0) {
+        toast({ variant: 'destructive', title: 'Invalid price', description: 'Could not determine a valid price for the order.' });
+        return;
+    }
+    
+    const margin = qty * prc;
+
     if (portfolio.usdBalance < margin) {
       toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Not enough USD balance to place HODL order.' });
       return;
     }
+    
+    withdrawUsd(user, firestore, margin);
     
     let sl: number | undefined;
     let tp: number | undefined;
 
     if (generalOrderConfig?.stopLoss) {
         const slValue = parseFloat(generalOrderConfig.stopLoss);
-        if (generalOrderConfig.stopLossType === 'percentage') {
-            sl = prc * (1 - slValue / 100);
-        } else {
-            sl = slValue;
+        if (!isNaN(slValue) && slValue > 0) {
+            sl = generalOrderConfig.stopLossType === 'percentage' ? prc * (1 - slValue / 100) : slValue;
         }
     }
     if (generalOrderConfig?.takeProfit) {
         const tpValue = parseFloat(generalOrderConfig.takeProfit);
-        if (generalOrderConfig.takeProfitType === 'percentage') {
-            tp = prc * (1 + tpValue / 100);
-        } else {
-            tp = tpValue;
+         if (!isNaN(tpValue) && tpValue > 0) {
+            tp = generalOrderConfig.takeProfitType === 'percentage' ? prc * (1 + tpValue / 100) : tpValue;
         }
     }
 
-    withdrawUsd(user, firestore, margin);
     addHodlOrder({
       instrumentId: crypto.id,
       instrumentName: crypto.name,
@@ -113,7 +116,7 @@ export default function TradePage() {
       quantity: qty,
       price: prc,
       orderType: orderType as 'limit' | 'market',
-      period: { months: parseInt(months) || 0, years: parseInt(years) || 0 },
+      period: { months: parseInt(hodlConfig.months) || 0, years: parseInt(hodlConfig.years) || 0 },
       margin,
       stopLoss: sl,
       takeProfit: tp,
@@ -123,7 +126,7 @@ export default function TradePage() {
   }
   
   const handleCreateSP = () => {
-    if (!spConfig || !crypto) return;
+    if (!spConfig || !crypto || !user) return;
 
     const { spPlanType, spAmount, swpLumpsum, sipInvestmentType, swpWithdrawalType, spFrequency } = spConfig;
     
@@ -133,7 +136,7 @@ export default function TradePage() {
       return;
     }
 
-    let plan: Omit<SystematicPlan, 'id' | 'userId' | 'createdAt' | 'status'> = {
+    const plan: Omit<SystematicPlan, 'id' | 'userId' | 'createdAt' | 'status'> = {
         instrumentId: crypto.id,
         instrumentName: crypto.name,
         instrumentSymbol: crypto.symbol,
@@ -155,9 +158,7 @@ export default function TradePage() {
         plan.investmentType = swpWithdrawalType;
     }
     
-    addPlan({
-        ...plan,
-    });
+    addPlan(plan);
 
     toast({ title: 'Systematic Plan Created', description: `Your ${spPlanType.toUpperCase()} for ${crypto.name} has been set up.`});
   }
