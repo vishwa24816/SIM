@@ -51,7 +51,6 @@ export default function TradePage() {
     return marketData.find(c => c.id === id);
   }, [marketData, id]);
   
-  // The loading state for holdings is implicitly handled by portfolio updates
   const currentHolding = React.useMemo(() => {
     if (!crypto) return undefined;
     return portfolio.holdings.find(h => h.cryptoId === crypto.id && h.assetType === 'Spot');
@@ -69,6 +68,101 @@ export default function TradePage() {
     setOrderType('limit');
   };
   
+  const handleCreateHodl = () => {
+    if (!hodlConfig || !crypto || !user || !firestore) return;
+    const { months, years } = hodlConfig;
+    const qty = parseFloat(quantity);
+    const prc = parseFloat(price) || crypto.price;
+    const margin = qty * prc;
+
+    if (!qty || qty <= 0) {
+        toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity for your HODL order.' });
+        return;
+    }
+    if (portfolio.usdBalance < margin) {
+      toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Not enough USD balance to place HODL order.' });
+      return;
+    }
+    
+    let sl: number | undefined;
+    let tp: number | undefined;
+
+    if (generalOrderConfig?.stopLoss) {
+        const slValue = parseFloat(generalOrderConfig.stopLoss);
+        if (generalOrderConfig.stopLossType === 'percentage') {
+            sl = prc * (1 - slValue / 100);
+        } else {
+            sl = slValue;
+        }
+    }
+    if (generalOrderConfig?.takeProfit) {
+        const tpValue = parseFloat(generalOrderConfig.takeProfit);
+        if (generalOrderConfig.takeProfitType === 'percentage') {
+            tp = prc * (1 + tpValue / 100);
+        } else {
+            tp = tpValue;
+        }
+    }
+
+
+    withdrawUsd(user, firestore, margin);
+    addHodlOrder({
+      instrumentId: crypto.id,
+      instrumentName: crypto.name,
+      instrumentSymbol: crypto.symbol,
+      assetType: crypto.assetType,
+      quantity: qty,
+      price: prc,
+      orderType: orderType as 'limit' | 'market',
+      period: { months: parseInt(months) || 0, years: parseInt(years) || 0 },
+      margin,
+      stopLoss: sl,
+      takeProfit: tp,
+    });
+
+    toast({ title: 'HODL Order Placed', description: `Your HODL order for ${crypto.name} has been set.`});
+  }
+  
+  const handleCreateSP = () => {
+    if (!spConfig || !crypto) return;
+
+    const { spPlanType, spAmount, swpLumpsum, sipInvestmentType, swpWithdrawalType, spFrequency } = spConfig;
+    
+    const numericAmount = parseFloat(spAmount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      toast({ variant: 'destructive', title: 'Invalid Amount', description: `Please enter a valid ${spPlanType === 'sip' ? 'investment' : 'withdrawal'} amount.`});
+      return;
+    }
+
+    let plan: Omit<SystematicPlan, 'id' | 'createdAt' | 'status'> = {
+        instrumentId: crypto.id,
+        instrumentName: crypto.name,
+        instrumentSymbol: crypto.symbol,
+        planType: spPlanType,
+        amount: numericAmount,
+        frequency: spFrequency,
+        investmentType: 'amount'
+    };
+
+    if (spPlanType === 'sip') {
+        plan.investmentType = sipInvestmentType;
+    } else { // swp
+        const numericLumpsum = parseFloat(swpLumpsum);
+        if (isNaN(numericLumpsum) || numericLumpsum <= 0) {
+            toast({ variant: 'destructive', title: 'Invalid Lumpsum', description: 'Please enter a valid lumpsum amount for SWP.'});
+            return;
+        }
+        plan.lumpsumAmount = numericLumpsum;
+        plan.investmentType = swpWithdrawalType;
+    }
+    
+    addPlan({
+        ...plan,
+    });
+
+    toast({ title: 'Systematic Plan Created', description: `Your ${spPlanType.toUpperCase()} for ${crypto.name} has been set up.`});
+  }
+
   const handleConfirm = () => {
     if (investmentType === 'sp') {
       handleCreateSP();
@@ -152,102 +246,6 @@ export default function TradePage() {
           return;
       }
       sell(user, firestore, crypto, qty);
-  }
-  
-  const handleCreateHodl = () => {
-    if (!hodlConfig || !crypto || !user || !firestore) return;
-    const { months, years } = hodlConfig;
-    const qty = parseFloat(quantity);
-    const prc = parseFloat(price) || crypto.price;
-    const margin = qty * prc;
-
-    if (!qty || qty <= 0) {
-        toast({ variant: 'destructive', title: 'Invalid quantity', description: 'Please enter a valid quantity for your HODL order.' });
-        return;
-    }
-    if (portfolio.usdBalance < margin) {
-      toast({ variant: 'destructive', title: 'Insufficient Funds', description: 'Not enough USD balance to place HODL order.' });
-      return;
-    }
-    
-    let sl: number | undefined;
-    let tp: number | undefined;
-
-    if (generalOrderConfig?.stopLoss) {
-        const slValue = parseFloat(generalOrderConfig.stopLoss);
-        if (generalOrderConfig.stopLossType === 'percentage') {
-            sl = prc * (1 - slValue / 100);
-        } else {
-            sl = slValue;
-        }
-    }
-    if (generalOrderConfig?.takeProfit) {
-        const tpValue = parseFloat(generalOrderConfig.takeProfit);
-        if (generalOrderConfig.takeProfitType === 'percentage') {
-            tp = prc * (1 + tpValue / 100);
-        } else {
-            tp = tpValue;
-        }
-    }
-
-
-    // Deduct funds and create the HODL order record
-    withdrawUsd(user, firestore, margin);
-    addHodlOrder({
-      instrumentId: crypto.id,
-      instrumentName: crypto.name,
-      instrumentSymbol: crypto.symbol,
-      assetType: crypto.assetType,
-      quantity: qty,
-      price: prc,
-      orderType: orderType as 'limit' | 'market',
-      period: { months: parseInt(months) || 0, years: parseInt(years) || 0 },
-      margin,
-      stopLoss: sl,
-      takeProfit: tp,
-    });
-
-    toast({ title: 'HODL Order Placed', description: `Your HODL order for ${crypto.name} has been set.`});
-  }
-
-  const handleCreateSP = () => {
-    if (!spConfig || !crypto) return;
-
-    const { spPlanType, spAmount, swpLumpsum, sipInvestmentType, swpWithdrawalType, spFrequency } = spConfig;
-    
-    const numericAmount = parseFloat(spAmount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid Amount', description: `Please enter a valid ${spPlanType === 'sip' ? 'investment' : 'withdrawal'} amount.`});
-      return;
-    }
-
-    let plan: Omit<SystematicPlan, 'id' | 'createdAt' | 'status'> = {
-        instrumentId: crypto.id,
-        instrumentName: crypto.name,
-        instrumentSymbol: crypto.symbol,
-        planType: spPlanType,
-        amount: numericAmount,
-        frequency: spFrequency,
-        investmentType: 'amount'
-    };
-
-    if (spPlanType === 'sip') {
-        plan.investmentType = sipInvestmentType;
-    } else { // swp
-        const numericLumpsum = parseFloat(swpLumpsum);
-        if (isNaN(numericLumpsum) || numericLumpsum <= 0) {
-            toast({ variant: 'destructive', title: 'Invalid Lumpsum', description: 'Please enter a valid lumpsum amount for SWP.'});
-            return;
-        }
-        plan.lumpsumAmount = numericLumpsum;
-        plan.investmentType = swpWithdrawalType;
-    }
-    
-    addPlan({
-        ...plan,
-    });
-
-    toast({ title: 'Systematic Plan Created', description: `Your ${spPlanType.toUpperCase()} for ${crypto.name} has been set up.`});
   }
 
   React.useEffect(() => {

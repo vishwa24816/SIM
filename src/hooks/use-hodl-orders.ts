@@ -16,7 +16,7 @@ export const useHodlOrders = () => {
 
     const { data: orders, isLoading, error } = useCollection<HodlOrder>(ordersCollection);
 
-    const addOrder = async (order: Omit<HodlOrder, 'userId' | 'createdAt'>) => {
+    const addOrder = async (order: Omit<HodlOrder, 'id' | 'userId' | 'createdAt'>) => {
         if (!ordersCollection || !user) return;
         
         const newOrder: any = {
@@ -25,7 +25,6 @@ export const useHodlOrders = () => {
             createdAt: new Date().toISOString(),
         };
 
-        // Remove undefined fields to prevent Firestore errors
         if (newOrder.stopLoss === undefined) delete newOrder.stopLoss;
         if (newOrder.takeProfit === undefined) delete newOrder.takeProfit;
 
