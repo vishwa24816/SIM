@@ -46,14 +46,13 @@ export function useMarketData() {
       const spotAssets = INITIAL_CRYPTO_DATA.filter(crypto => crypto.assetType === 'Spot');
 
       if (exchange === 'binance') {
-        // Limit symbols for Binance to avoid URL length issues
         const binanceSymbols = ['BTC', 'ETH', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'AVAX', 'SHIB', 'DOT', 'MATIC'];
         const streamNames = spotAssets
           .filter(c => binanceSymbols.includes(c.symbol))
-          .map(crypto => `${crypto.symbol.toLowerCase()}usdt@trade`)
+          .map(crypto => `${crypto.symbol.toLowerCase()}usdt@kline_1m`)
           .join('/');
         ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamNames}`);
-      } else if (exchange === 'coinbase') {
+      } else { // Coinbase
         ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
       }
 
@@ -74,19 +73,20 @@ export function useMarketData() {
       ws.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
         
-        let update: { id: string, price: number } | null = null;
+        let update: { id: string, price: number, time: string } | null = null;
         
-        if (exchange === 'binance' && parsedData.e === 'trade') {
+        if (exchange === 'binance' && parsedData.e === 'kline') {
+          const candle = parsedData.k;
           const cryptoSymbol = parsedData.s.replace('USDT', '');
           const crypto = spotAssets.find(c => c.symbol.toUpperCase() === cryptoSymbol);
           if (crypto) {
-            update = { id: crypto.id, price: parseFloat(parsedData.p) };
+            update = { id: crypto.id, price: parseFloat(candle.c), time: new Date(candle.t).toISOString() };
           }
         } else if (exchange === 'coinbase' && parsedData.type === 'ticker' && parsedData.price) {
            const cryptoSymbol = parsedData.product_id.split('-')[0];
            const crypto = spotAssets.find(c => c.symbol.toUpperCase() === cryptoSymbol);
            if (crypto) {
-             update = { id: crypto.id, price: parseFloat(parsedData.price) };
+             update = { id: crypto.id, price: parseFloat(parsedData.price), time: parsedData.time };
            }
         }
         
@@ -95,12 +95,13 @@ export function useMarketData() {
                 return prevData.map(crypto => {
                     if (crypto.id === update!.id) {
                         const newPrice = update!.price;
-                        const oldPrice = crypto.price;
-                        const change24h = oldPrice > 0 ? ((newPrice - oldPrice) / oldPrice) * 100 + crypto.change24h : crypto.change24h;
+                        // Find the last price point to calculate change
+                        const lastPrice = crypto.priceHistory.length > 0 ? crypto.priceHistory[crypto.priceHistory.length -1].value : newPrice;
+                        const change24h = lastPrice > 0 ? ((newPrice - lastPrice) / lastPrice) * 100 + crypto.change24h : crypto.change24h;
 
                         const newHistory = [
                             ...crypto.priceHistory.slice(1),
-                            { time: new Date().toISOString(), value: newPrice },
+                            { time: update!.time, value: newPrice },
                         ];
                         return { ...crypto, price: newPrice, change24h, priceHistory: newHistory };
                     }
@@ -121,6 +122,7 @@ export function useMarketData() {
 
       ws.onclose = () => {
         console.log(`${exchange} WebSocket disconnected ❌`);
+        // Optional: attempt to reconnect
       };
     };
 

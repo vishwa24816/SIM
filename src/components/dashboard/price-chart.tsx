@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
 
 import {
   ChartContainer,
@@ -33,12 +33,12 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
     },
   }
 
-  const lastPrice = crypto.priceHistory[crypto.priceHistory.length - 2]?.value ?? crypto.price;
+  const lastPrice = crypto.priceHistory.length > 1 ? crypto.priceHistory[crypto.priceHistory.length - 2]?.value ?? crypto.price : crypto.price;
   const isUp = crypto.price >= lastPrice;
 
   const chartData = React.useMemo(() => {
+    if (!crypto.priceHistory) return [];
     const now = new Date();
-    let history = crypto.priceHistory;
     let startTime;
 
     switch (timeframe) {
@@ -58,15 +58,15 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
         startTime = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
         break;
       default:
-        return history;
+        return crypto.priceHistory;
     }
     
-    return history.filter(p => new Date(p.time) >= startTime);
+    return crypto.priceHistory.filter(p => new Date(p.time) >= startTime);
 
   }, [crypto.priceHistory, timeframe]);
   
   const domain = React.useMemo(() => {
-    if (chartData.length === 0) return ['auto', 'auto'];
+    if (!chartData || chartData.length === 0) return ['auto', 'auto'];
     const values = chartData.map(p => p.value);
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -121,7 +121,7 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
         </div>
       </div>
       <div className="p-6 pt-0">
-        {loading ? (
+        {loading || !chartData || chartData.length === 0 ? (
             <div className="h-[250px] w-full">
               <Skeleton className="h-full w-full" />
             </div>
@@ -150,7 +150,12 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
                   domain={domain}
                   hide
               />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+              <Tooltip 
+                content={<ChartTooltipContent 
+                    indicator="dot" 
+                    formatter={(value) => (typeof value === 'number' ? value.toLocaleString(undefined, {style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2}) : value)}
+                />} 
+              />
               <defs>
                   <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="5%" stopColor={isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)"} stopOpacity={0.8}/>
