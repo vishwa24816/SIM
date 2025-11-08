@@ -28,9 +28,12 @@ export const useBaskets = () => {
         await addDoc(basketsCollection, newBasket);
     };
 
-    const addToBasket = async (basketId: string, item: BasketItem) => {
-        if (!basketsCollection) return;
-        const basketDoc = doc(basketsCollection, basketId);
+    const addToBasket = async (basketName: string, item: BasketItem) => {
+        if (!basketsCollection || !baskets) return;
+        const basket = baskets.find(b => b.name === basketName);
+        if (!basket || !basket.id) return;
+        
+        const basketDoc = doc(basketsCollection, basket.id);
         await updateDoc(basketDoc, {
             items: arrayUnion(item)
         });
@@ -41,7 +44,7 @@ export const useBaskets = () => {
         
         const existingBasket = baskets?.find(b => b.name === basketName);
 
-        if (existingBasket) {
+        if (existingBasket && existingBasket.id) {
             const basketDoc = doc(basketsCollection, existingBasket.id);
             await updateDoc(basketDoc, {
                 items: arrayUnion(item)
