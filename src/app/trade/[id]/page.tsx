@@ -104,7 +104,6 @@ export default function TradePage() {
         }
     }
 
-
     withdrawUsd(user, firestore, margin);
     addHodlOrder({
       instrumentId: crypto.id,
@@ -134,7 +133,7 @@ export default function TradePage() {
       return;
     }
 
-    let plan: Omit<SystematicPlan, 'id' | 'createdAt' | 'status'> = {
+    let plan: Omit<SystematicPlan, 'id' | 'userId' | 'createdAt' | 'status'> = {
         instrumentId: crypto.id,
         instrumentName: crypto.name,
         instrumentSymbol: crypto.symbol,

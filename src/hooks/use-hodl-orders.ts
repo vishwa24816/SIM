@@ -25,6 +25,7 @@ export const useHodlOrders = () => {
             createdAt: new Date().toISOString(),
         };
 
+        // Explicitly remove undefined fields before sending to Firestore
         if (newOrder.stopLoss === undefined) delete newOrder.stopLoss;
         if (newOrder.takeProfit === undefined) delete newOrder.takeProfit;
 
