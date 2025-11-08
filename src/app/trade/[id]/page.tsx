@@ -75,9 +75,6 @@ export default function TradePage() {
     } else if (investmentType === 'hodl') {
       handleCreateHodl();
     }
-    else {
-      handleBuy();
-    }
   }
 
   const handleBuy = () => {
@@ -123,7 +120,7 @@ export default function TradePage() {
 
 
     if (orderType === 'limit') {
-        addLimitOrder({
+        const orderData: any = {
             instrumentId: crypto.id,
             instrumentName: crypto.name,
             instrumentSymbol: crypto.symbol,
@@ -133,10 +130,13 @@ export default function TradePage() {
             price: executionPrice,
             quantity: qty,
             status: 'Open',
-            stopLoss: sl,
-            takeProfit: tp,
-            trailingStopLoss: tsl,
-        });
+        };
+
+        if (sl) orderData.stopLoss = sl;
+        if (tp) orderData.takeProfit = tp;
+        if (tsl) orderData.trailingStopLoss = tsl;
+
+        addLimitOrder(orderData);
         toast({ title: 'Limit Order Placed', description: `Your limit order to buy ${crypto.name} has been placed.`});
     } else { // market order
         const margin = qty * crypto.price;
@@ -194,7 +194,6 @@ export default function TradePage() {
     // Deduct funds and create the HODL order record
     withdrawUsd(user, firestore, margin);
     addHodlOrder({
-      id: `${crypto.id}-hodl-${Date.now()}`,
       instrumentId: crypto.id,
       instrumentName: crypto.name,
       instrumentSymbol: crypto.symbol,
@@ -246,10 +245,7 @@ export default function TradePage() {
     
     addPlan({
         ...plan,
-        id: `${crypto.id}-${spPlanType}-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        status: 'active'
-    } as SystematicPlan);
+    });
 
     toast({ title: 'Systematic Plan Created', description: `Your ${spPlanType.toUpperCase()} for ${crypto.name} has been set up.`});
   }
