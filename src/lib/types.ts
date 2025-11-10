@@ -18,6 +18,7 @@ export interface CryptoCurrency {
   volume24h: number;
   priceHistory: { time: string; value: number }[];
   assetType: 'Spot' | 'Futures' | 'Mutual Fund' | 'Crypto ETF' | 'Web3';
+  marketCap?: number;
 }
 
 export interface Holding {
