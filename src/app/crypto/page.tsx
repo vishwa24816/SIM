@@ -15,6 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoList } from '@/components/dashboard/crypto-list';
 import { Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { TopPairsList } from '@/components/dashboard/top-pairs-list';
+import { spotPairs, futuresPairs } from '@/lib/pairs';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -209,12 +211,16 @@ export default function CryptoPage() {
                             </div>
                         </div>
 
-                        <div className="p-4">
-                            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2"><Eye /> Top {tradeType}</h2>
-                            <div className="divide-y">
-                                {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topCrypto} />}
-                            </div>
-                        </div>
+                        {tradeType === 'Spot' && (
+                           <div className="p-4">
+                                <TopPairsList title="Top Spot Pairs" pairs={spotPairs} />
+                           </div>
+                        )}
+                        {tradeType === 'Futures' && (
+                           <div className="p-4">
+                                <TopPairsList title="Top Futures Pairs" pairs={futuresPairs} />
+                           </div>
+                        )}
                     </>
                 )}
 
