@@ -1,7 +1,8 @@
+
 'use client';
 
 import * as React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TradingPair } from '@/lib/pairs';
 import { useMarketData } from '@/hooks/use-market-data';
 import { Skeleton } from '../ui/skeleton';
@@ -32,7 +33,6 @@ const PairRow = ({ pair, price }: { pair: TradingPair, price?: number }) => {
 
 export function TopPairsList({ title, pairs }: TopPairsListProps) {
     const { marketData, loading } = useMarketData();
-    const [isOpen, setIsOpen] = React.useState(false);
     
     const baseAssets = React.useMemo(() => new Set(pairs.map(p => p.baseAsset)), [pairs]);
     
@@ -48,38 +48,36 @@ export function TopPairsList({ title, pairs }: TopPairsListProps) {
 
 
     return (
-        <Accordion type="single" collapsible value={isOpen ? 'item-1' : ''} onValueChange={(value) => setIsOpen(!!value)}>
-            <AccordionItem value="item-1" className="border-b-0">
-                <AccordionTrigger className="p-4 bg-card rounded-lg border hover:no-underline">
-                    <h2 className="text-lg font-semibold">{title}</h2>
-                </AccordionTrigger>
-                <AccordionContent className="pt-2">
-                    <div className="p-2 bg-card border rounded-lg">
-                        <div className="flex items-center justify-between py-2 px-4 text-xs font-medium text-muted-foreground border-b">
-                           <div className="flex-1">Pair</div>
-                           <div className="flex-1 text-center">Asset</div>
-                           <div className="flex-1 text-center">Price</div>
-                           <div className="flex-1 text-right">Status</div>
-                        </div>
-                        <div className="divide-y">
-                            {loading ? (
-                                Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="flex items-center justify-between py-2 px-4">
-                                        <Skeleton className="h-4 w-20" />
-                                        <Skeleton className="h-4 w-10" />
-                                        <Skeleton className="h-4 w-24" />
-                                        <Skeleton className="h-6 w-16" />
-                                    </div>
-                                ))
-                            ) : (
-                                pairs.map(pair => (
-                                    <PairRow key={`${pair.exchange}-${pair.pair}`} pair={pair} price={priceMap.get(pair.baseAsset)} />
-                                ))
-                            )}
-                        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="p-2 border rounded-lg">
+                    <div className="flex items-center justify-between py-2 px-4 text-xs font-medium text-muted-foreground border-b">
+                        <div className="flex-1">Pair</div>
+                        <div className="flex-1 text-center">Asset</div>
+                        <div className="flex-1 text-center">Price</div>
+                        <div className="flex-1 text-right">Status</div>
                     </div>
-                </AccordionContent>
-            </AccordionItem>
-        </Accordion>
+                    <div className="divide-y">
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                                <div key={i} className="flex items-center justify-between py-2 px-4">
+                                    <Skeleton className="h-4 w-20" />
+                                    <Skeleton className="h-4 w-10" />
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-6 w-16" />
+                                </div>
+                            ))
+                        ) : (
+                            pairs.map(pair => (
+                                <PairRow key={`${pair.exchange}-${pair.pair}`} pair={pair} price={priceMap.get(pair.baseAsset)} />
+                            ))
+                        )}
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
