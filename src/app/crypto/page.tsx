@@ -15,7 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoList } from '@/components/dashboard/crypto-list';
 import { Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { TopPairsList } from '@/components/dashboard/top-pairs-list';
 import { spotPairs, futuresPairs } from '@/lib/pairs';
 
 const CryptoListSkeleton = () => (
@@ -84,6 +83,16 @@ export default function CryptoPage() {
     const allSpotCryptos = React.useMemo(() => {
         return spotData.sort((a, b) => (b.price * b.volume24h) - (a.price * a.volume24h));
     }, [spotData]);
+
+    const topSpotPairs = React.useMemo(() => {
+        const pairSymbols = new Set(spotPairs.map(p => p.baseAsset));
+        return marketData.filter(c => pairSymbols.has(c.symbol));
+    }, [marketData]);
+
+    const topFuturesPairs = React.useMemo(() => {
+        const pairSymbols = new Set(futuresPairs.map(p => p.baseAsset));
+        return futuresData.filter(c => pairSymbols.has(c.symbol.replace('-FUT', '')));
+    }, [futuresData]);
 
     const gainers = [...displayData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
     const losers = [...displayData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
@@ -230,12 +239,18 @@ export default function CryptoPage() {
 
                         {tradeType === 'Spot' && (
                            <div className="p-4">
-                                <TopPairsList title="Top Spot Pairs" pairs={spotPairs} />
+                                <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Coins className="text-primary" /> Top Spot Pairs</h2>
+                                <div className="divide-y">
+                                    {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topSpotPairs} />}
+                                </div>
                            </div>
                         )}
                         {tradeType === 'Futures' && (
                            <div className="p-4">
-                                <TopPairsList title="Top Futures Pairs" pairs={futuresPairs} />
+                                <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Coins className="text-primary" /> Top Futures Pairs</h2>
+                                <div className="divide-y">
+                                    {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topFuturesPairs} />}
+                                </div>
                            </div>
                         )}
                     </>
