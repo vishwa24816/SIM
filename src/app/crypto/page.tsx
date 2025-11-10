@@ -80,6 +80,10 @@ export default function CryptoPage() {
     const topCrypto = [...displayData]
       .sort((a,b) => (b.price * b.volume24h) - (a.price * a.volume24h))
       .slice(0, 8);
+    
+    const allSpotCryptos = React.useMemo(() => {
+        return spotData.sort((a, b) => (b.price * b.volume24h) - (a.price * a.volume24h));
+    }, [spotData]);
 
     const gainers = [...displayData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
     const losers = [...displayData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
@@ -116,15 +120,18 @@ export default function CryptoPage() {
     }, [searchTerm, displayData]);
 
     const activeWatchlistCryptos = React.useMemo(() => {
+        if (activeWatchlist === 'All') {
+            return allSpotCryptos;
+        }
         if (activeWatchlist === 'Top watchlist') {
             return topCrypto;
         }
         const currentWatchlistIds = watchlists[activeWatchlist] || [];
         return displayData.filter(crypto => currentWatchlistIds.includes(crypto.id));
-    }, [activeWatchlist, watchlists, displayData, topCrypto]);
+    }, [activeWatchlist, watchlists, displayData, topCrypto, allSpotCryptos]);
 
 
-    const isCustomWatchlist = activeWatchlist !== 'Top watchlist';
+    const isCustomWatchlist = activeWatchlist !== 'Top watchlist' && activeWatchlist !== 'All';
 
     return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -143,6 +150,9 @@ export default function CryptoPage() {
             <div className="border-b border-border">
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                        <Button variant="ghost" size="sm" onClick={() => setActiveWatchlist('All')} className={cn("px-3", activeWatchlist === 'All' && 'text-primary')}>
+                            All
+                        </Button>
                         {watchlistNames.map(watchlist => (
                             <Button
                                 key={watchlist}
@@ -195,7 +205,14 @@ export default function CryptoPage() {
 
             <div className="p-4 space-y-6">
                 
-                {isCustomWatchlist ? (
+                {activeWatchlist === 'All' ? (
+                     <div className="p-4">
+                        <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> All Cryptos</h2>
+                        <div className="divide-y">
+                            {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeWatchlistCryptos} />}
+                        </div>
+                    </div>
+                ) : isCustomWatchlist ? (
                      <div className="p-4">
                         <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> {activeWatchlist}</h2>
                         <div className="divide-y">
@@ -283,3 +300,5 @@ export default function CryptoPage() {
     </div>
   );
 }
+
+    
