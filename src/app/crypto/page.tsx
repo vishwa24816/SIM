@@ -84,14 +84,14 @@ export default function CryptoPage() {
         return spotData.sort((a, b) => (b.price * b.volume24h) - (a.price * a.volume24h));
     }, [spotData]);
 
+    const topPairIds = ['bitcoin', 'ethereum', 'solana', 'cardano', 'ripple', 'dogecoin'];
+
     const topSpotPairs = React.useMemo(() => {
-        const pairSymbols = new Set(spotPairs.map(p => p.baseAsset));
-        return marketData.filter(c => pairSymbols.has(c.symbol));
-    }, [marketData]);
+        return spotData.filter(c => topPairIds.includes(c.id));
+    }, [spotData]);
 
     const topFuturesPairs = React.useMemo(() => {
-        const pairSymbols = new Set(futuresPairs.map(p => p.baseAsset));
-        return futuresData.filter(c => pairSymbols.has(c.symbol.replace('-FUT', '')));
+        return futuresData.filter(c => topPairIds.includes(c.id.replace('-fut', '')));
     }, [futuresData]);
 
     const gainers = [...displayData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
