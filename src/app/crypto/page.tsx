@@ -16,6 +16,7 @@ import { CryptoList } from '@/components/dashboard/crypto-list';
 import { Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { spotPairs, futuresPairs } from '@/lib/pairs';
+import { ADDITIONAL_FUNDS_ETFS_DATA } from '@/lib/data';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -63,7 +64,8 @@ export default function CryptoPage() {
 
     const fundsAndETFsData: CryptoCurrency[] = React.useMemo(() => {
         if (loading) return [];
-        return marketData.filter(c => c.assetType === 'Mutual Fund' || c.assetType === 'Crypto ETF');
+        const existingFunds = marketData.filter(c => c.assetType === 'Mutual Fund' || c.assetType === 'Crypto ETF');
+        return [...existingFunds, ...ADDITIONAL_FUNDS_ETFS_DATA.map(f => ({ ...f, assetType: 'Crypto ETF' as const}))];
     }, [marketData, loading]);
 
     const displayData = tradeType === 'Spot' 
@@ -83,6 +85,10 @@ export default function CryptoPage() {
     const allSpotCryptos = React.useMemo(() => {
         return spotData.sort((a, b) => (b.price * b.volume24h) - (a.price * a.volume24h));
     }, [spotData]);
+
+    const allFundsData = React.useMemo(() => {
+        return fundsAndETFsData.sort((a, b) => (b.price * b.volume24h) - (a.price * a.volume24h));
+    }, [fundsAndETFsData]);
 
     const topPairIds = ['bitcoin', 'ethereum', 'solana', 'cardano', 'ripple', 'dogecoin'];
 
@@ -130,14 +136,14 @@ export default function CryptoPage() {
 
     const activeWatchlistCryptos = React.useMemo(() => {
         if (activeWatchlist === 'All') {
-            return allSpotCryptos;
+            return tradeType === 'Mutual Fund' ? allFundsData : allSpotCryptos;
         }
         if (activeWatchlist === 'Top watchlist') {
             return topCrypto;
         }
         const currentWatchlistIds = watchlists[activeWatchlist] || [];
         return displayData.filter(crypto => currentWatchlistIds.includes(crypto.id));
-    }, [activeWatchlist, watchlists, displayData, topCrypto, allSpotCryptos]);
+    }, [activeWatchlist, watchlists, displayData, topCrypto, allSpotCryptos, allFundsData, tradeType]);
 
 
     const isCustomWatchlist = activeWatchlist !== 'Top watchlist' && activeWatchlist !== 'All';
@@ -151,7 +157,7 @@ export default function CryptoPage() {
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button onClick={() => setTradeType('Spot')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Spot' && 'text-primary')}>Spot</Button>
                         <Button onClick={() => setTradeType('Futures')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Futures' && 'text-primary')}>Futures</Button>
-                        <Button onClick={() => setTradeType('Mutual Fund')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Mutual Fund' && 'text-primary')}>Funds & ETFs</Button>
+                        <Button onClick={() => setTradeType('Mutual Fund')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Mutual Fund' && 'text-primary')}>Funds &amp; ETFs</Button>
                     </div>
                 </div>
             </div>
@@ -216,7 +222,9 @@ export default function CryptoPage() {
                 
                 {activeWatchlist === 'All' ? (
                      <div className="p-4">
-                        <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Eye /> All Cryptos</h2>
+                        <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+                            <Eye /> {tradeType === 'Mutual Fund' ? 'All Funds' : 'All Cryptos'}
+                        </h2>
                         <div className="divide-y">
                             {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={activeWatchlistCryptos} />}
                         </div>
