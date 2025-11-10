@@ -34,8 +34,8 @@ export function useMarketData() {
   const binanceWsRef = useRef<WebSocket | null>(null);
   const coinbaseWsRef = useRef<WebSocket | null>(null);
 
-  const binanceSymbols = useMemo(() => Array.from(new Set(spotPairs.concat(futuresPairs).filter(p => p.exchange === 'Binance').map(p => p.baseAsset))), []);
-  const coinbaseProductIds = useMemo(() => Array.from(new Set(spotPairs.concat(futuresPairs).filter(p => p.exchange === 'Coinbase').map(p => p.pair))), []);
+  const binanceSymbols = useMemo(() => Array.from(new Set(spotPairs.map(p => p.baseAsset))), []);
+  const coinbaseProductIds = useMemo(() => Array.from(new Set(spotPairs.filter(p => p.exchange === 'Coinbase').map(p => p.pair))), []);
 
   const connectToBinance = () => {
     if (binanceWsRef.current) binanceWsRef.current.close();
