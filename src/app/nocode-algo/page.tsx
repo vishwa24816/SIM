@@ -160,7 +160,7 @@ export default function NoCodeAlgoPage() {
                 </div>
             </header>
         
-            <main className="flex-1 p-4 dot-grid">
+            <main className="flex-1 dot-grid">
                 <Droppable droppableId="strategyCanvas">
                     {(provided, snapshot) => (
                         <div
@@ -168,12 +168,12 @@ export default function NoCodeAlgoPage() {
                             {...provided.droppableProps} 
                             className={cn(
                                 "h-full w-full rounded-lg transition-colors p-4", 
-                                snapshot.isDraggingOver && "bg-muted/50"
+                                snapshot.isDraggingOver && "bg-primary/10"
                             )}
                         >
                             {strategyNodes.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center text-center h-full">
-                                    <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
+                                    <p className="text-muted-foreground p-8 rounded-lg bg-background/80 backdrop-blur-sm">Drag and drop blocks here to build your strategy.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
