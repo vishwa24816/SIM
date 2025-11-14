@@ -167,7 +167,7 @@ export default function NoCodeAlgoPage() {
                             ref={provided.innerRef} 
                             {...provided.droppableProps} 
                             className={cn(
-                                "h-full w-full rounded-lg transition-colors p-4", 
+                                "h-full w-full transition-colors p-4", 
                                 snapshot.isDraggingOver && "bg-primary/10"
                             )}
                         >
