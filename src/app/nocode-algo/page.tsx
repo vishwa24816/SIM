@@ -131,67 +131,67 @@ export default function NoCodeAlgoPage() {
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="h-6 w-6" />
-                </Button>
-                <h1 className="text-xl font-bold">No-Code Algo Builder</h1>
-            </div>
-             <Sheet open={isBlocksPanelOpen} onOpenChange={setIsBlocksPanelOpen}>
-                <SheetTrigger asChild>
-                     <Button variant="outline">
-                        <Menu className="mr-2 h-5 w-5" />
-                        Building Blocks
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[320px] p-0">
-                     <SheetHeader className="p-4 border-b">
-                        <SheetTitle>Building Blocks</SheetTitle>
-                    </SheetHeader>
-                    <BuildingBlocksPanel />
-                </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </header>
+       {isClient && (
+        <DragDropContext onDragEnd={onDragEnd}>
+            <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16 gap-4">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                            <ArrowLeft className="h-6 w-6" />
+                        </Button>
+                        <h1 className="text-xl font-bold">No-Code Algo Builder</h1>
+                    </div>
+                    <Sheet open={isBlocksPanelOpen} onOpenChange={setIsBlocksPanelOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline">
+                                <Menu className="mr-2 h-5 w-5" />
+                                Building Blocks
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[320px] p-0">
+                            <SheetHeader className="p-4 border-b">
+                                <SheetTitle>Building Blocks</SheetTitle>
+                            </SheetHeader>
+                            <BuildingBlocksPanel />
+                        </SheetContent>
+                    </Sheet>
+                </div>
+                </div>
+            </header>
         
-        {isClient && (
-            <DragDropContext onDragEnd={onDragEnd}>
-                <main className="flex-1 p-4">
-                    <Droppable droppableId="strategyCanvas">
-                        {(provided, snapshot) => (
-                            <Card 
-                                ref={provided.innerRef} 
-                                {...provided.droppableProps} 
-                                className={cn("h-full w-full transition-colors p-4", snapshot.isDraggingOver ? "bg-muted" : "bg-muted/30")}
-                            >
-                                {strategyNodes.length === 0 ? (
-                                     <div className="flex flex-col items-center justify-center text-center h-full border-2 border-dashed rounded-lg">
-                                        <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {strategyNodes.map((node, index) => (
-                                            <Draggable key={node.id} draggableId={node.id} index={index}>
-                                                {(provided, snapshot) => (
-                                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                    <NodeCard node={node} isDragging={snapshot.isDragging} />
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                    </div>
-                                )}
-                                {provided.placeholder}
-                            </Card>
-                        )}
-                    </Droppable>
-                </main>
-            </DragDropContext>
-        )}
+            <main className="flex-1 p-4">
+                <Droppable droppableId="strategyCanvas">
+                    {(provided, snapshot) => (
+                        <Card 
+                            ref={provided.innerRef} 
+                            {...provided.droppableProps} 
+                            className={cn("h-full w-full transition-colors p-4", snapshot.isDraggingOver ? "bg-muted" : "bg-muted/30")}
+                        >
+                            {strategyNodes.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center text-center h-full border-2 border-dashed rounded-lg">
+                                    <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {strategyNodes.map((node, index) => (
+                                        <Draggable key={node.id} draggableId={node.id} index={index}>
+                                            {(provided, snapshot) => (
+                                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                <NodeCard node={node} isDragging={snapshot.isDragging} />
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                </div>
+                            )}
+                            {provided.placeholder}
+                        </Card>
+                    )}
+                </Droppable>
+            </main>
+        </DragDropContext>
+       )}
     </div>
   );
 }
