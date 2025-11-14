@@ -3,12 +3,12 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, GripVertical, Code, MoveRight, Clock, GitBranch, ShoppingCart, DollarSign, Bell } from 'lucide-react';
+import { ArrowLeft, GripVertical, Code, MoveRight, Clock, GitBranch, ShoppingCart, DollarSign, Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 type NodeCategory = 'Triggers' | 'Logic' | 'Data' | 'Actions';
 
@@ -61,10 +61,43 @@ const NodeCard = ({ node, isDragging }: { node: Node, isDragging: boolean }) => 
     )
 }
 
+const BuildingBlocksPanel = () => (
+    <div className="h-full overflow-y-auto">
+        {Object.entries(INITIAL_NODES).map(([category, nodes]) => (
+            <div key={category}>
+                <h3 className="text-sm font-semibold text-muted-foreground my-2 px-4">{category}</h3>
+                <Droppable droppableId={`library-${category}`} isDropDisabled={true}>
+                    {(provided) => (
+                        <div ref={provided.innerRef} {...provided.droppableProps} className="p-2">
+                            {nodes.map((node, index) => (
+                                <Draggable key={node.id} draggableId={node.id} index={index}>
+                                    {(provided, snapshot) => (
+                                         <>
+                                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                <NodeCard node={node} isDragging={snapshot.isDragging} />
+                                            </div>
+                                            {snapshot.isDragging && (
+                                                <div className="opacity-50"><NodeCard node={node} isDragging={false} /></div>
+                                            )}
+                                        </>
+                                    )}
+                                </Draggable>
+                            ))}
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </div>
+        ))}
+    </div>
+);
+
+
 export default function NoCodeAlgoPage() {
   const router = useRouter();
   const [strategyNodes, setStrategyNodes] = React.useState<Node[]>([]);
   const [isClient, setIsClient] = React.useState(false);
+  const [isBlocksPanelOpen, setIsBlocksPanelOpen] = React.useState(false);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -77,7 +110,6 @@ export default function NoCodeAlgoPage() {
       return;
     }
     
-    // If dropping into the strategy canvas from the library
     if (destination.droppableId === 'strategyCanvas' && source.droppableId.startsWith('library-')) {
         const category = source.droppableId.split('-')[1] as NodeCategory;
         const nodeToCopy = INITIAL_NODES[category][source.index];
@@ -86,8 +118,8 @@ export default function NoCodeAlgoPage() {
         newStrategyNodes.splice(destination.index, 0, { ...nodeToCopy, id: `${nodeToCopy.id}-${Date.now()}` });
 
         setStrategyNodes(newStrategyNodes);
+        setIsBlocksPanelOpen(false); // Close panel after dropping
     }
-    // If reordering within the strategy canvas
     else if (destination.droppableId === 'strategyCanvas' && source.droppableId === 'strategyCanvas') {
         const newStrategyNodes = Array.from(strategyNodes);
         const [reorderedItem] = newStrategyNodes.splice(source.index, 1);
@@ -101,84 +133,65 @@ export default function NoCodeAlgoPage() {
     <div className="bg-background min-h-screen flex flex-col">
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
-            <h1 className="text-xl font-bold">No-Code Algo Builder</h1>
+          <div className="flex items-center justify-between h-16 gap-4">
+            <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                    <ArrowLeft className="h-6 w-6" />
+                </Button>
+                <h1 className="text-xl font-bold">No-Code Algo Builder</h1>
+            </div>
+             <Sheet open={isBlocksPanelOpen} onOpenChange={setIsBlocksPanelOpen}>
+                <SheetTrigger asChild>
+                     <Button variant="outline">
+                        <Menu className="mr-2 h-5 w-5" />
+                        Building Blocks
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[320px] p-0">
+                     <SheetHeader className="p-4 border-b">
+                        <SheetTitle>Building Blocks</SheetTitle>
+                    </SheetHeader>
+                    <BuildingBlocksPanel />
+                </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
-
-      {isClient && (
-        <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex-1 grid md:grid-cols-[300px_1fr] gap-4 p-4">
-                {/* Sidebar with Nodes */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Building Blocks</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {Object.entries(INITIAL_NODES).map(([category, nodes]) => (
-                            <div key={category}>
-                                <h3 className="text-sm font-semibold text-muted-foreground my-2">{category}</h3>
-                                <Droppable droppableId={`library-${category}`} isDropDisabled={true}>
-                                    {(provided) => (
-                                        <div ref={provided.innerRef} {...provided.droppableProps}>
-                                            {nodes.map((node, index) => (
-                                                <Draggable key={node.id} draggableId={node.id} index={index}>
-                                                    {(provided, snapshot) => (
-                                                         <>
-                                                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                                <NodeCard node={node} isDragging={snapshot.isDragging} />
-                                                            </div>
-                                                            {snapshot.isDragging && (
-                                                                <div className="opacity-50"><NodeCard node={node} isDragging={false} /></div>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </Draggable>
-                                            ))}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </div>
-                        ))}
-                    </CardContent>
-                </Card>
-
-                {/* Strategy Canvas */}
-                <Droppable droppableId="strategyCanvas">
-                    {(provided, snapshot) => (
-                        <Card ref={provided.innerRef} {...provided.droppableProps} className={cn("transition-colors", snapshot.isDraggingOver && "bg-muted/50")}>
-                            <CardHeader>
-                                <CardTitle>My Algo Strategy</CardTitle>
-                            </CardHeader>
-                            <CardContent>
+        
+        {isClient && (
+            <DragDropContext onDragEnd={onDragEnd}>
+                <main className="flex-1 p-4">
+                    <Droppable droppableId="strategyCanvas">
+                        {(provided, snapshot) => (
+                            <Card 
+                                ref={provided.innerRef} 
+                                {...provided.droppableProps} 
+                                className={cn("h-full w-full transition-colors p-4", snapshot.isDraggingOver ? "bg-muted" : "bg-muted/30")}
+                            >
                                 {strategyNodes.length === 0 ? (
-                                     <div className="flex flex-col items-center justify-center text-center p-10 border-2 border-dashed rounded-lg">
-                                        <p className="text-muted-foreground">Drag and drop blocks from the left to build your strategy.</p>
+                                     <div className="flex flex-col items-center justify-center text-center h-full border-2 border-dashed rounded-lg">
+                                        <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
                                     </div>
                                 ) : (
-                                    strategyNodes.map((node, index) => (
-                                         <Draggable key={node.id} draggableId={node.id} index={index}>
-                                            {(provided, snapshot) => (
-                                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                   <NodeCard node={node} isDragging={snapshot.isDragging} />
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))
+                                    <div className="space-y-2">
+                                        {strategyNodes.map((node, index) => (
+                                            <Draggable key={node.id} draggableId={node.id} index={index}>
+                                                {(provided, snapshot) => (
+                                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                    <NodeCard node={node} isDragging={snapshot.isDragging} />
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                    </div>
                                 )}
                                 {provided.placeholder}
-                            </CardContent>
-                        </Card>
-                    )}
-                </Droppable>
-            </div>
-        </DragDropContext>
-      )}
+                            </Card>
+                        )}
+                    </Droppable>
+                </main>
+            </DragDropContext>
+        )}
     </div>
   );
 }
