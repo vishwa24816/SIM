@@ -161,13 +161,13 @@ export default function NoCodeAlgoPage() {
             </header>
         
             <main className="flex-1 dot-grid">
-                <Droppable droppableId="strategyCanvas">
+                <Droppable droppableId="strategyCanvas" isDropDisabled={false}>
                     {(provided, snapshot) => (
                         <div
                             ref={provided.innerRef} 
                             {...provided.droppableProps} 
                             className={cn(
-                                "h-full w-full transition-colors p-4", 
+                                "h-full w-full transition-colors", 
                                 snapshot.isDraggingOver && "bg-primary/10"
                             )}
                         >
@@ -176,7 +176,7 @@ export default function NoCodeAlgoPage() {
                                     <p className="text-muted-foreground p-8 rounded-lg bg-background/80 backdrop-blur-sm">Drag and drop blocks here to build your strategy.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-2 p-4">
                                     {strategyNodes.map((node, index) => (
                                         <Draggable key={node.id} draggableId={node.id} index={index}>
                                             {(provided, snapshot) => (
