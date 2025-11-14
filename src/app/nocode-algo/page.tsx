@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, GripVertical, Code, MoveRight, Clock, GitBranch, ShoppingCart, DollarSign, Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -160,17 +160,22 @@ export default function NoCodeAlgoPage() {
                 </div>
             </header>
         
-            <main className="flex-1 p-4">
+            <main className="flex-1 p-4 dot-grid">
                 <Droppable droppableId="strategyCanvas">
                     {(provided, snapshot) => (
-                        <Card 
+                        <div
                             ref={provided.innerRef} 
                             {...provided.droppableProps} 
-                            className={cn("h-full w-full transition-colors p-4", snapshot.isDraggingOver ? "bg-muted" : "bg-muted/30")}
+                            className={cn(
+                                "h-full w-full rounded-lg transition-colors p-4", 
+                                snapshot.isDraggingOver && "bg-muted/50"
+                            )}
                         >
                             {strategyNodes.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center text-center h-full border-2 border-dashed rounded-lg">
-                                    <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
+                                <div className="flex flex-col items-center justify-center text-center h-full">
+                                    <div className="p-8 rounded-lg bg-background/80 backdrop-blur-sm">
+                                        <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -186,7 +191,7 @@ export default function NoCodeAlgoPage() {
                                 </div>
                             )}
                             {provided.placeholder}
-                        </Card>
+                        </div>
                     )}
                 </Droppable>
             </main>
