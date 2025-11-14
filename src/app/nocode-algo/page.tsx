@@ -173,9 +173,7 @@ export default function NoCodeAlgoPage() {
                         >
                             {strategyNodes.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center text-center h-full">
-                                    <div className="p-8 rounded-lg bg-background/80 backdrop-blur-sm">
-                                        <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
-                                    </div>
+                                    <p className="text-muted-foreground">Drag and drop blocks here to build your strategy.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
