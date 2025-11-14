@@ -41,6 +41,7 @@ export function Header() {
   const handleCryptoSelect = (path: string) => {
     setSearchTerm('');
     setSearchResults([]);
+    setIsMenuOpen(false);
     router.push(path);
   }
 
@@ -102,7 +103,7 @@ export function Header() {
                                 <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><Info /> About</Button>
                                 <Button onClick={() => handleNavigation('/analytics')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
                                 <Button onClick={() => handleNavigation('/backtester')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
-                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><Cpu /> No-code Algo</Button>
+                                <Button onClick={() => handleNavigation('/nocode-algo')} variant="ghost" className="justify-start gap-3"><Cpu /> No-code Algo</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
                                 <Button onClick={() => handleNavigation('/taxy')} variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
