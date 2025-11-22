@@ -192,7 +192,7 @@ export default function ProfilePage() {
     { id: 'fees', icon: FileText, title: 'Fee Structure', description: 'View the fee structure for all services', href: '#' },
     { id: 'feedback', icon: Star, title: 'Feedback', description: 'Share your feedback and suggestions with us', href: '#' },
     { id: 'refer', icon: Gift, title: 'Refer and Earn', description: 'Refer your friends and earn rewards', href: '#' },
-    { id: 'about', icon: Info, title: 'About SIM', description: 'Know more about our company and mission', href: '#' },
+    { id: 'about', icon: Info, title: 'About SIM', description: 'Know more about our company and mission', href: 'https://simblog.vercel.app' },
     { id: 'api', icon: KeyRound, title: 'API', description: 'Manage your API keys for programmatic access', collapsible: true },
     { id: 'mcp', icon: Container, title: 'MCP', description: 'Media Capability Passthrough details', collapsible: true },
     { id: 'join', icon: Briefcase, title: 'Join Us', description: 'Explore career opportunities with us', href: '#' },
@@ -254,8 +254,15 @@ export default function ProfilePage() {
               )
             }
             if (item.href) {
+                const isExternal = item.href.startsWith('http');
                 return (
-                    <Link href={item.href} key={item.id} className="block hover:bg-muted/50 rounded-lg">
+                    <Link 
+                        href={item.href} 
+                        key={item.id} 
+                        className="block hover:bg-muted/50 rounded-lg"
+                        target={isExternal ? '_blank' : undefined}
+                        rel={isExternal ? 'noopener noreferrer' : undefined}
+                    >
                        <ProfileItem {...item} />
                     </Link>
                 )
@@ -277,5 +284,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
