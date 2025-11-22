@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Wallet as WalletIcon, Trash2, CheckCircle2, ChevronDown, Eye, ShieldCheck, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWallets, Wallet } from '@/hooks/use-wallets';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -206,68 +206,76 @@ export default function WalletPage() {
                 </div>
             </CardContent>
           </Card>
+          
+          <Card>
+            <CardHeader>
+                <CardTitle>Non-Custodial Wallets</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <Button variant="outline" onClick={() => setIsCreateOpen(true)}>Create Crypto Wallet</Button>
+                    <Button onClick={() => setIsImportOpen(true)}>Import Existing Wallet</Button>
+                </div>
 
-          <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" onClick={() => setIsCreateOpen(true)}>Create Crypto Wallet</Button>
-              <Button onClick={() => setIsImportOpen(true)}>Import Existing Wallet</Button>
-          </div>
-          {wallets.length === 0 ? (
-            <div className="text-center py-20">
-              <WalletIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">No Wallets Found</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Create or import a wallet to get started.</p>
-            </div>
-          ) : (
-            <Accordion type="single" collapsible className="w-full space-y-4" value={openAccordion} onValueChange={setOpenAccordion}>
-              {wallets.map((wallet) => (
-                <Card key={wallet.id}>
-                    <AccordionItem value={wallet.id} className="border-b-0">
-                        <CardContent className="p-4 flex justify-between items-center">
-                             <div className="font-bold flex items-center gap-2">
-                                {wallet.name}
-                                {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <AccordionTrigger>
-                                    <Eye className="h-4 w-4" />
-                                </AccordionTrigger>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => {e.stopPropagation(); setWalletToRemove(wallet.id)}}>
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                            </div>
-                        </CardContent>
-                        <AccordionContent className="p-4 pt-0">
-                            <div className="space-y-4">
-                                <div>
-                                    <Label className="text-xs font-semibold">Recovery Phrase</Label>
-                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
-                                        {wallet.recoveryPhrase.split(' ').map((word, index) => (
-                                            <div key={index} className="flex items-baseline">
-                                                <span className="text-xs mr-1.5">{index + 1}.</span>
-                                                <span className="font-medium text-foreground">{word}</span>
+                {wallets.length === 0 ? (
+                    <div className="text-center py-10 border-t mt-4">
+                        <WalletIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-lg font-semibold">No Wallets Found</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">Create or import a wallet to get started.</p>
+                    </div>
+                ) : (
+                    <Accordion type="single" collapsible className="w-full space-y-4 pt-4 border-t" value={openAccordion} onValueChange={setOpenAccordion}>
+                    {wallets.map((wallet) => (
+                        <Card key={wallet.id}>
+                            <AccordionItem value={wallet.id} className="border-b-0">
+                                <CardContent className="p-4 flex justify-between items-center">
+                                    <div className="font-bold flex items-center gap-2">
+                                        {wallet.name}
+                                        {wallet.isPrimary && <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <AccordionTrigger>
+                                            <Eye className="h-4 w-4" />
+                                        </AccordionTrigger>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => {e.stopPropagation(); setWalletToRemove(wallet.id)}}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                                <AccordionContent className="p-4 pt-0">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label className="text-xs font-semibold">Recovery Phrase</Label>
+                                            <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground grid grid-cols-3 gap-x-4 gap-y-2">
+                                                {wallet.recoveryPhrase.split(' ').map((word, index) => (
+                                                    <div key={index} className="flex items-baseline">
+                                                        <span className="text-xs mr-1.5">{index + 1}.</span>
+                                                        <span className="font-medium text-foreground">{word}</span>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs font-semibold">Public Key</Label>
+                                            <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground mb-2">
+                                                <span className="font-mono text-xs break-all text-foreground">{wallet.publicKey}</span>
+                                            </div>
+                                            <Button variant="outline" size="sm" className="w-full" onClick={handleGetPrivateKey}>Get private key</Button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <Label className="text-xs font-semibold">Public Key</Label>
-                                    <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground mb-2">
-                                        <span className="font-mono text-xs break-all text-foreground">{wallet.publicKey}</span>
-                                    </div>
-                                    <Button variant="outline" size="sm" className="w-full" onClick={handleGetPrivateKey}>Get private key</Button>
-                                </div>
-                            </div>
-                            {!wallet.isPrimary && (
-                                <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => setPrimaryWallet(wallet.id)}>
-                                    <CheckCircle2 className="mr-2 h-4 w-4"/> Make Primary
-                                </Button>
-                            )}
-                        </AccordionContent>
-                    </AccordionItem>
-                </Card>
-              ))}
-            </Accordion>
-          )}
+                                    {!wallet.isPrimary && (
+                                        <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => setPrimaryWallet(wallet.id)}>
+                                            <CheckCircle2 className="mr-2 h-4 w-4"/> Make Primary
+                                        </Button>
+                                    )}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Card>
+                    ))}
+                    </Accordion>
+                )}
+            </CardContent>
+          </Card>
         </main>
       </div>
 
@@ -294,3 +302,5 @@ export default function WalletPage() {
     </>
   );
 }
+
+    
