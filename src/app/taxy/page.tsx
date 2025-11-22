@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -63,48 +64,50 @@ export default function TaxyPage() {
         </div>
       </header>
       
-      <main className="p-4 space-y-6">
-        <div className="flex flex-wrap gap-2 justify-between items-center">
-            <Button variant="outline">Previously Generated Reports</Button>
-            <Button>
-                <Download className="mr-2 h-4 w-4" />
-                Download All
-            </Button>
-        </div>
+      <main className="p-4">
+        <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex flex-wrap gap-2 justify-between items-center">
+                <Button variant="outline">Previously Generated Reports</Button>
+                <Button>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download All
+                </Button>
+            </div>
 
-        <div className="flex items-center gap-4">
-            <label htmlFor="tax-year" className="text-sm font-medium text-muted-foreground">Tax Year:</label>
-            <div className="flex-1">
-                <Select defaultValue="fy-2024-25">
-                    <SelectTrigger id="tax-year" className="w-full sm:w-[180px]">
-                        <SelectValue placeholder="Select Tax Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="fy-2024-25">FY 2024-25</SelectItem>
-                        <SelectItem value="fy-2023-24">FY 2023-24</SelectItem>
-                        <SelectItem value="fy-2022-23">FY 2022-23</SelectItem>
-                    </SelectContent>
-                </Select>
+            <div className="flex items-center gap-4">
+                <label htmlFor="tax-year" className="text-sm font-medium text-muted-foreground">Tax Year:</label>
+                <div className="flex-1">
+                    <Select defaultValue="fy-2024-25">
+                        <SelectTrigger id="tax-year" className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Select Tax Year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="fy-2024-25">FY 2024-25</SelectItem>
+                            <SelectItem value="fy-2023-24">FY 2023-24</SelectItem>
+                            <SelectItem value="fy-2022-23">FY 2022-23</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="text-sm text-muted-foreground text-right">
+                    <p>1 Apr '24 - 31 Mar '25</p>
+                </div>
             </div>
-            <div className="text-sm text-muted-foreground text-right">
-                <p>1 Apr '24 - 31 Mar '25</p>
+            
+            <div className="space-y-4">
+                {reportItems.map((item, index) => (
+                    <Card key={index} className="cursor-pointer hover:bg-muted/50 transition-colors">
+                        <CardContent className="p-4 flex items-start gap-4">
+                            <div className={`p-3 rounded-full ${item.iconColor}`}>
+                                <item.icon className="h-6 w-6" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-semibold">{item.title}</h3>
+                                <p className="text-sm text-muted-foreground">{item.description}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
-        </div>
-        
-        <div className="space-y-4">
-            {reportItems.map((item, index) => (
-                <Card key={index} className="cursor-pointer hover:bg-muted/50 transition-colors">
-                    <CardContent className="p-4 flex items-start gap-4">
-                        <div className={`p-3 rounded-full ${item.iconColor}`}>
-                            <item.icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-semibold">{item.title}</h3>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            ))}
         </div>
       </main>
     </div>
