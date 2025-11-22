@@ -263,8 +263,8 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
             <div className="text-right">
               {isClient ? (
                 <>
-                  <p className={cn("text-2xl font-bold", dayPnl >= 0 ? "text-green-500" : "text-red-500")}>
-                      {dayPnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
+                  <p className={cn("text-2xl font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}>
+                      {pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
                   </p>
                   <p className="text-sm text-muted-foreground">Day's P&L</p>
                 </>
