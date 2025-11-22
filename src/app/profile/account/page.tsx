@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -29,11 +30,11 @@ export default function MyAccountPage() {
   const { copy } = useCopyToClipboard();
   const { toast } = useToast();
 
-  const uid = 'VI58908975';
+  const custodialAccountNumber = 'SIM89759739911799';
 
-  const handleCopyUid = () => {
-    copy(uid);
-    toast({ title: 'UID Copied!' });
+  const handleCopyAccount = () => {
+    copy(custodialAccountNumber);
+    toast({ title: 'Account Number Copied!' });
   };
 
   return (
@@ -57,7 +58,7 @@ export default function MyAccountPage() {
                     <InfoRow label="User Name" value="Demo User" />
                     <InfoRow label="Email" value="demo123@simulation.app" />
                     <InfoRow label="Phone Number" value="9739911799" />
-                    <InfoRow label="UID Number" value={uid} onCopy={handleCopyUid} />
+                    <InfoRow label="SIM Custodial Account" value={custodialAccountNumber} onCopy={handleCopyAccount} />
                 </CardContent>
             </Card>
         </div>
