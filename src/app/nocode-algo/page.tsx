@@ -161,7 +161,7 @@ export default function NoCodeAlgoPage() {
             </header>
         
             <main className="flex-1 dot-grid">
-                <Droppable droppableId="strategyCanvas" isDropDisabled={false}>
+                <Droppable droppableId="strategyCanvas">
                     {(provided, snapshot) => (
                         <div
                             ref={provided.innerRef} 
