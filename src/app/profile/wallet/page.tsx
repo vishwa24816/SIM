@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet as WalletIcon, Trash2, CheckCircle2, ChevronDown, Eye, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Wallet as WalletIcon, Trash2, CheckCircle2, ChevronDown, Eye, ShieldCheck, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets, Wallet } from '@/hooks/use-wallets';
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 
 const CreateWalletDialog = ({ open, onOpenChange, onConfirm }: { open: boolean; onOpenChange: (open: boolean) => void; onConfirm: (name: string, pin: string) => void }) => {
     const [name, setName] = React.useState('');
@@ -121,7 +122,10 @@ export default function WalletPage() {
   const { toast } = useToast();
   const [walletToRemove, setWalletToRemove] = React.useState<string | null>(null);
   const [openAccordion, setOpenAccordion] = React.useState<string | null>(null);
+  const { copy } = useCopyToClipboard();
   
+  const custodialAccountNumber = 'SIM89759739911799';
+
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [isImportOpen, setIsImportOpen] = React.useState(false);
   
@@ -184,15 +188,22 @@ export default function WalletPage() {
 
         <main className="p-4 space-y-4">
           <Card>
-            <CardContent className="p-4 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="font-bold">Custodial Account</p>
-                  <p className="text-xs text-muted-foreground">Default exchange account</p>
+            <CardContent className="p-4">
+                <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                        <ShieldCheck className="h-6 w-6 text-primary" />
+                        <div>
+                        <p className="font-bold">Custodial Account</p>
+                        <p className="text-xs text-muted-foreground">SIM Account: {custodialAccountNumber}</p>
+                        </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                        copy(custodialAccountNumber);
+                        toast({ title: 'Account Number Copied!' });
+                    }}>
+                        <Copy className="h-4 w-4" />
+                    </Button>
                 </div>
-              </div>
-              <Badge variant="secondary">Managed by SIM</Badge>
             </CardContent>
           </Card>
 
