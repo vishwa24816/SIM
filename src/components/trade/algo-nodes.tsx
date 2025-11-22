@@ -95,6 +95,7 @@ export const nodeCategories = [
         nodes: [
             { type: 'trading', label: 'Place Market Order', icon: HandCoins },
             { type: 'trading', label: 'Place Limit Order', icon: HandCoins },
+            { type: 'trading', label: 'Place HODL Order', icon: HandCoins },
             { type: 'trading', label: 'Cancel Order', icon: HandCoins },
             { type: 'trading', label: 'Fetch Open Orders', icon: ListOrdered },
         ]
