@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -123,74 +124,75 @@ export default function SimballPage() {
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header />
             <main className="flex-1 overflow-y-auto p-4 space-y-8 pb-24">
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold text-primary">SIMBALL</h1>
-                </div>
+                <div className="max-w-4xl mx-auto w-full space-y-8">
+                    <div className="text-center">
+                        <h1 className="text-3xl font-bold text-primary">SIMBALL</h1>
+                    </div>
 
-                <Collapsible open={isLeaderboardOpen} onOpenChange={setIsLeaderboardOpen}>
-                    <Card className="rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white shadow-xl overflow-hidden">
-                        <CollapsibleTrigger className="w-full text-left p-4">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Trophy className="w-4 h-4" />
-                                        <span>Leading this month:</span>
-                                    </div>
-                                    <div className="flex items-baseline gap-2">
-                                        <h2 className="text-3xl font-bold">Suraj</h2>
-                                        <Flame className="w-6 h-6 text-yellow-300" />
-                                    </div>
-                                    <p className="text-sm">with ₹59,000</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Avatar>
-                                        <AvatarFallback className="bg-white/30 text-white font-bold">S</AvatarFallback>
-                                    </Avatar>
-                                    <ChevronDown className={cn("w-5 h-5 transition-transform", isLeaderboardOpen && "rotate-180")} />
-                                </div>
-                            </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                            <div className="bg-white/10 p-4">
-                                <h3 className="font-bold mb-3 text-lg">Leaderboard</h3>
-                                <div className="space-y-2">
-                                    {leaderboardData.map(player => (
-                                        <div key={player.rank} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
-                                            <div className="flex items-center gap-3">
-                                                <span className="font-bold w-6 text-center">{player.rank}</span>
-                                                <Avatar className="h-8 w-8">
-                                                    <AvatarFallback className="bg-white/30 text-white font-bold text-sm">{player.initial}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="font-semibold">{player.name}</span>
-                                            </div>
-                                            <span className="font-bold">₹{player.cashback.toLocaleString()}</span>
+                    <Collapsible open={isLeaderboardOpen} onOpenChange={setIsLeaderboardOpen}>
+                        <Card className="rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white shadow-xl overflow-hidden">
+                            <CollapsibleTrigger className="w-full text-left p-4">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <Trophy className="w-4 h-4" />
+                                            <span>Leading this month:</span>
                                         </div>
-                                    ))}
+                                        <div className="flex items-baseline gap-2">
+                                            <h2 className="text-3xl font-bold">Suraj</h2>
+                                            <Flame className="w-6 h-6 text-yellow-300" />
+                                        </div>
+                                        <p className="text-sm">with ₹59,000</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Avatar>
+                                            <AvatarFallback className="bg-white/30 text-white font-bold">S</AvatarFallback>
+                                        </Avatar>
+                                        <ChevronDown className={cn("w-5 h-5 transition-transform", isLeaderboardOpen && "rotate-180")} />
+                                    </div>
                                 </div>
-                            </div>
-                        </CollapsibleContent>
-                    </Card>
-                </Collapsible>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="bg-white/10 p-4">
+                                    <h3 className="font-bold mb-3 text-lg">Leaderboard</h3>
+                                    <div className="space-y-2">
+                                        {leaderboardData.map(player => (
+                                            <div key={player.rank} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-bold w-6 text-center">{player.rank}</span>
+                                                    <Avatar className="h-8 w-8">
+                                                        <AvatarFallback className="bg-white/30 text-white font-bold text-sm">{player.initial}</AvatarFallback>
+                                                    </Avatar>
+                                                    <span className="font-semibold">{player.name}</span>
+                                                </div>
+                                                <span className="font-bold">₹{player.cashback.toLocaleString()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </CollapsibleContent>
+                        </Card>
+                    </Collapsible>
 
 
-                <div>
-                    <h2 className="text-xl font-bold mb-4">Games to be played</h2>
-                    <div className="space-y-4">
-                        {gamesToBePlayed.map((game, index) => (
-                            <GameCard key={index} game={game} onClick={() => handlePlayGame(game)} />
-                        ))}
+                    <div>
+                        <h2 className="text-xl font-bold mb-4">Games to be played</h2>
+                        <div className="space-y-4">
+                            {gamesToBePlayed.map((game, index) => (
+                                <GameCard key={index} game={game} onClick={() => handlePlayGame(game)} />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-4">Games played</h2>
+                        <div className="space-y-4">
+                            {gamesPlayed.map((game, index) => (
+                                <GameCard key={index} game={game} isPlayed />
+                            ))}
+                        </div>
                     </div>
                 </div>
-
-                <div>
-                    <h2 className="text-xl font-bold mb-4">Games played</h2>
-                    <div className="space-y-4">
-                        {gamesPlayed.map((game, index) => (
-                            <GameCard key={index} game={game} isPlayed />
-                        ))}
-                    </div>
-                </div>
-
             </main>
             <BottomNav />
         </div>
