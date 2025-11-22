@@ -38,6 +38,7 @@ import ReactFlow, {
   useReactFlow,
   Connection,
   NodeTypes,
+  NodeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -55,14 +56,6 @@ const initialNodes: Node[] = [
     data: { label: 'On a Schedule' },
   },
 ];
-
-const customNodeTypes: NodeTypes = {
-  trigger: (props) => <CustomNode {...props} icon={Clock} category="Triggers" />,
-  data: (props) => <CustomNode {...props} icon={Database} category="Data" />,
-  logic: (props) => <CustomNode {...props} icon={GitBranch} category="Logic" />,
-  action: (props) => <CustomNode {...props} icon={HandCoins} category="Actions" />,
-  utility: (props) => <CustomNode {...props} icon={BringToFront} category="Utility" />,
-};
 
 const CustomNode = ({ data, type }: NodeProps<any> & { icon: React.ElementType; category: string }) => {
     const Icon = data.icon || Settings;
@@ -83,65 +76,13 @@ const CustomNode = ({ data, type }: NodeProps<any> & { icon: React.ElementType; 
     );
 };
 
-const buildingBlocks = {
-    "Triggers": [
-        { id: 'schedule', type: 'trigger', data: { label: 'On a Schedule', icon: Clock } },
-        { id: 'webhook', type: 'trigger', data: { label: 'Webhook', icon: Webhook } },
-    ],
-    "Data": [
-        { id: 'getPrice', type: 'data', data: { label: 'Get Ticker Price', icon: CircleDollarSign } },
-        { id: 'getOrderBook', type: 'data', data: { label: 'Get Order Book', icon: FileText } },
-        { id: 'getHistory', type: 'data', data: { label: 'Get OHLC Data', icon: History } },
-    ],
-    "Logic": [
-        { id: 'if', type: 'logic', data: { label: 'If/Else', icon: GitBranch } },
-        { id: 'compare', type: 'logic', data: { label: 'Compare Values', icon: GitCompareArrows } },
-        { id: 'math', type: 'logic', data: { label: 'Math Operation', icon: Calculator } },
-    ],
-    "Actions": [
-        { id: 'marketOrder', type: 'action', data: { label: 'Place Market Order', icon: HandCoins } },
-        { id: 'limitOrder', type: 'action', data: { label: 'Place Limit Order', icon: HandCoins } },
-        { id: 'cancelOrder', type: 'action', data: { label: 'Cancel Order', icon: X } },
-    ],
-    "Utility": [
-        { id: 'setVar', type: 'utility', data: { label: 'Set Variable', icon: BringToFront } },
-        { id: 'getVar', type: 'utility', data: { label: 'Get Variable', icon: BringToFront } },
-    ]
+const customNodeTypes: NodeTypes = {
+  trigger: (props) => <CustomNode {...props} icon={Clock} category="Triggers" />,
+  data: (props) => <CustomNode {...props} icon={Database} category="Data" />,
+  logic: (props) => <CustomNode {...props} icon={GitBranch} category="Logic" />,
+  action: (props) => <CustomNode {...props} icon={HandCoins} category="Actions" />,
+  utility: (props) => <CustomNode {...props} icon={BringToFront} category="Utility" />,
 };
-
-const DraggableNode = ({ type, data, onDragStart }: { type: string, data: any, onDragStart: (event: React.DragEvent, nodeType: string, nodeData: any) => void }) => {
-    const Icon = data.icon || Settings;
-    return (
-        <div
-            className="p-3 mb-2 bg-card border rounded-lg flex items-center gap-3 cursor-grab"
-            onDragStart={(event) => onDragStart(event, type, data)}
-            draggable
-        >
-            <Icon className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">{data.label}</span>
-        </div>
-    );
-};
-
-const Sidebar = ({ onDragStart }: { onDragStart: (event: React.DragEvent, nodeType: string, nodeData: any) => void }) => (
-    <Sheet open={true} onOpenChange={() => {}}>
-        <SheetContent side="left" className="w-80 p-0" hideCloseButton>
-            <SheetHeader className="p-4 border-b">
-                <SheetTitle>Building Blocks</SheetTitle>
-            </SheetHeader>
-            <div className="p-4 space-y-4 overflow-y-auto">
-                {Object.entries(buildingBlocks).map(([category, nodes]) => (
-                    <div key={category}>
-                        <h3 className="font-semibold mb-2 text-muted-foreground">{category}</h3>
-                        {nodes.map((node) => (
-                            <DraggableNode key={node.id} type={node.type} data={node.data} onDragStart={onDragStart} />
-                        ))}
-                    </div>
-                ))}
-            </div>
-        </SheetContent>
-    </Sheet>
-);
 
 const SettingsPanel = ({ selectedNode, updateNodeData }: { selectedNode: Node | null, updateNodeData: (id: string, data: any) => void }) => {
     const [label, setLabel] = React.useState(selectedNode?.data.label || '');
@@ -229,12 +170,6 @@ const Flow = () => {
         [reactFlowInstance, nodes, setNodes]
     );
 
-    const onDragStart = (event: React.DragEvent, nodeType: string, nodeData: any) => {
-        event.dataTransfer.setData('application/reactflow-type', nodeType);
-        event.dataTransfer.setData('application/reactflow-data', JSON.stringify(nodeData));
-        event.dataTransfer.effectAllowed = 'move';
-    };
-
     const onNodeClick = (_: React.MouseEvent, node: Node) => {
         setSelectedNode(node);
     };
@@ -248,27 +183,24 @@ const Flow = () => {
 
     return (
         <div className="h-full w-full" ref={reactFlowWrapper}>
-            <Sidebar onDragStart={onDragStart} />
-            <div className="ml-80 h-full">
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onConnect={onConnect}
-                    onInit={setReactFlowInstance}
-                    onDrop={onDrop}
-                    onDragOver={onDragOver}
-                    onNodeClick={onNodeClick}
-                    onPaneClick={() => setSelectedNode(null)}
-                    nodeTypes={customNodeTypes}
-                    fitView
-                    className="bg-background dot-grid"
-                >
-                    <Controls showZoom={false} showFitView={false} className="!left-auto !right-4" />
-                    <Background />
-                </ReactFlow>
-            </div>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onInit={setReactFlowInstance}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                onNodeClick={onNodeClick}
+                onPaneClick={() => setSelectedNode(null)}
+                nodeTypes={customNodeTypes}
+                fitView
+                className="bg-background dot-grid"
+            >
+                <Controls showZoom={false} showFitView={false} className="!left-auto !right-4" />
+                <Background />
+            </ReactFlow>
             {isSettingsPanelOpen && <SettingsPanel selectedNode={selectedNode} updateNodeData={updateNodeData} />}
             <div className="absolute top-4 right-4 z-10 flex gap-2">
                  <Button variant="outline" size="icon" onClick={() => zoomIn()}><ZoomIn className="h-4 w-4" /></Button>
