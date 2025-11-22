@@ -189,7 +189,7 @@ export default function WalletPage() {
         <main className="p-4 space-y-4">
           <Card>
             <CardContent className="p-4">
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <ShieldCheck className="h-6 w-6 text-primary" />
                         <div>
