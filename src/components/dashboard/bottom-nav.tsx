@@ -14,7 +14,7 @@ export function BottomNav() {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/orders', label: 'Orders', icon: ListOrdered },
-    { href: '/crypto', label: 'Trade', icon: Bitcoin },
+    { href: '/crypto', label: 'Spot', icon: Bitcoin },
     { href: '/crypto?type=Futures', label: 'Futures', icon: TrendingUp },
     { href: '/screener', label: 'Screener', icon: AreaChart },
   ];
@@ -25,7 +25,7 @@ export function BottomNav() {
         {navItems.map((item) => {
             const tradeType = searchParams.get('type');
             const isFuturesActive = item.href.includes('?type=Futures') && pathname === '/crypto' && tradeType === 'Futures';
-            const isTradeActive = item.label === 'Trade' && (pathname.startsWith('/trade') || (pathname === '/crypto' && !tradeType));
+            const isTradeActive = item.label === 'Spot' && (pathname.startsWith('/trade') || (pathname === '/crypto' && !tradeType));
             const isRegularActive = pathname === item.href;
             
             const isActive = isRegularActive || isTradeActive || isFuturesActive;
