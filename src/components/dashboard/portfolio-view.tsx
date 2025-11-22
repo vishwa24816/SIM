@@ -220,11 +220,13 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
       setOpenSection(prev => prev === section ? null : section);
   }
   
-  const totalInvestment = portfolio.holdings.reduce((sum, h) => sum + (h.margin ?? 0), 0);
-  const totalCapital = totalInvestment + portfolio.usdBalance;
+  const totalInvestment = portfolio.holdings.reduce((sum, h) => {
+    if (h.assetType === 'Futures') return sum;
+    return sum + (h.margin ?? 0);
+  }, 0);
   
-  const pnl = totalPortfolioValue - totalCapital;
-  const pnlPercent = totalCapital > 0 ? (pnl / totalCapital) * 100 : 0;
+  const pnl = totalPortfolioValue - totalInvestment - portfolio.usdBalance;
+  const pnlPercent = totalInvestment > 0 ? (pnl / totalInvestment) * 100 : 0;
   
   const holdingsValue = totalPortfolioValue - portfolio.usdBalance;
   const holdingsRatio = totalPortfolioValue > 0 ? (holdingsValue / totalPortfolioValue) * 100 : 0;

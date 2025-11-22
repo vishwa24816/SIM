@@ -147,18 +147,16 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
     }
     
     const getAssetPath = (item: { assetType?: string, id: string }) => {
-        return `/trade/futures/${item.id}`;
+        return `/trade/futures/${item.id.replace('-fut', '')}`;
     }
     
     const handleSquareOff = (position: any) => {
-        const baseAsset = marketData.find(c => c.id === position.crypto.id.replace('-fut', ''));
-        if (!baseAsset || !user || !firestore) return;
+        if (!user || !firestore) return;
 
-        // Create a temporary crypto object for the sell action
-        const cryptoToSell = { ...baseAsset, id: position.crypto.id, assetType: 'Futures' as const };
-        
-        // We "sell" the absolute amount to close the position
-        sell(user, firestore, cryptoToSell, Math.abs(position.amount));
+        // For selling a short, we "buy" back. For selling a long, we "sell".
+        // The `sell` function in the store handles both by reducing the holding amount.
+        // We pass the absolute amount to close the position.
+        sell(user, firestore, position.crypto, Math.abs(position.amount));
     }
 
 
@@ -176,7 +174,7 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
                                 <holding.crypto.icon className="h-8 w-8" />
                                 <div>
                                     <div className="font-semibold flex items-center gap-2">
-                                        {holding.crypto.name}
+                                        {holding.crypto.name.replace('Futures', '')}
                                         <Badge variant={isShort ? "destructive" : "default"} className={isShort ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}>
                                             {isShort ? 'SHORT' : 'LONG'}
                                         </Badge>
@@ -248,7 +246,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
   const holdingsWithValue = portfolio.holdings
     .map(holding => {
       const crypto = marketData.find(c => c.id === holding.cryptoId);
-      if (!crypto || crypto.assetType === 'Futures' || holding.assetType === 'Futures') return null;
+      if (!crypto || holding.assetType === 'Futures') return null;
       if (!holding.margin) return null;
       
       const value = holding.amount * crypto.price;
@@ -263,21 +261,20 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
 
     const futuresPositions = portfolio.holdings
     .map(holding => {
+       if (holding.assetType !== 'Futures') return null;
+
       const crypto = marketData.find(c => c.id === holding.cryptoId);
-       if (!crypto || crypto.assetType !== 'Futures') return null;
-
-      const baseAssetId = crypto.id.replace('-fut', '');
-      const baseAsset = marketData.find(c => c.id === baseAssetId && c.assetType === 'Spot');
+      const baseAsset = marketData.find(c => c.id === holding.cryptoId.replace('-fut', ''));
       
-      if (!baseAsset || !holding.margin || holding.amount === 0) return null;
+      if (!crypto || !baseAsset || !holding.margin || holding.amount === 0) return null;
 
-      const leverage = Math.abs((holding.amount * baseAsset.price) / holding.margin);
-      const entryPrice = Math.abs((holding.margin * leverage) / holding.amount);
+      const leverage = Math.round(Math.abs((holding.amount * baseAsset.price) / holding.margin));
+      const entryPrice = isNaN(leverage) || leverage === 0 ? baseAsset.price : Math.abs((holding.margin * leverage) / holding.amount);
 
       return {
         ...holding,
         crypto,
-        leverage: isNaN(leverage) ? 0 : Math.round(leverage),
+        leverage: isNaN(leverage) ? 0 : leverage,
         baseAssetPrice: baseAsset.price,
         entryPrice: isNaN(entryPrice) ? 0 : entryPrice
       };

@@ -35,25 +35,24 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
         const { portfolio } = get();
         const holdingsValue = portfolio.holdings.reduce((total, holding) => {
             const crypto = marketData.find(c => c.id === holding.cryptoId);
-            if (!crypto || crypto.assetType === 'Futures') return total;
+            if (!crypto || holding.assetType === 'Futures') return total;
             return total + (holding.amount * crypto.price);
         }, 0);
         
-        const futuresValue = portfolio.holdings
-            .filter(h => h.assetType === 'Futures')
+        const futuresPnlAndMargin = portfolio.holdings
+            .filter(h => h.assetType === 'Futures' && h.margin)
             .reduce((acc, h) => {
-                const crypto = marketData.find(c => c.id === h.cryptoId);
                 const baseAsset = marketData.find(c => c.id === h.cryptoId.replace('-fut',''));
-                if (!crypto || !baseAsset || !h.margin || h.amount === 0) return acc;
-                
+                if (!baseAsset || !h.margin || h.amount === 0) return acc;
+
                 const leverage = Math.round(Math.abs((h.amount * baseAsset.price) / h.margin));
                 const entryPrice = Math.abs((h.margin * leverage) / h.amount);
-
+                
                 const pnl = (baseAsset.price - entryPrice) * h.amount;
                 return acc + h.margin + pnl;
             }, 0);
             
-        return portfolio.usdBalance + holdingsValue + futuresValue;
+        return portfolio.usdBalance + holdingsValue + futuresPnlAndMargin;
     },
     
     addUsd: async (user: User, firestore: Firestore, amount: number) => {
@@ -122,8 +121,9 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             return;
         }
         
+        const holdingId = crypto.assetType === 'Futures' ? `${crypto.id}-${Date.now()}` : crypto.id;
         const userRef = doc(firestore, 'users', user.uid);
-        const holdingRef = doc(firestore, `users/${user.uid}/holdings/${crypto.id}`);
+        const holdingRef = doc(firestore, `users/${user.uid}/holdings/${holdingId}`);
 
         try {
             await runTransaction(firestore, async (transaction) => {
@@ -209,9 +209,10 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
         }
-
+        
+        const holdingId = crypto.assetType === 'Futures' ? crypto.id : crypto.id; // For futures, we might need a specific holding ID
         const userRef = doc(firestore, 'users', user.uid);
-        const holdingRef = doc(firestore, `users/${user.uid}/holdings/${crypto.id}`);
+        const holdingRef = doc(firestore, `users/${user.uid}/holdings/${holdingId}`);
 
         try {
             await runTransaction(firestore, async (transaction) => {
