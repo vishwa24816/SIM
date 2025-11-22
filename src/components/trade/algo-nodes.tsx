@@ -21,6 +21,9 @@ import {
     ShoppingCart,
     Package,
     TrendingUp,
+    PlusCircle,
+    MinusCircle,
+    XCircle,
 } from 'lucide-react';
 import { NodeProps } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,7 +53,6 @@ export const nodeTypes = {
   trigger: (props: NodeProps) => <CustomNode {...props} />,
   marketData: (props: NodeProps) => <CustomNode {...props} />,
   indicator: (props: NodeProps) => <CustomNode {...props} />,
-  arbitrage: (props: NodeProps) => <CustomNode {...props} />,
   trading: (props: NodeProps) => <CustomNode {...props} />,
   basket: (props: NodeProps) => <CustomNode {...props} />,
   logic: (props: NodeProps) => <CustomNode {...props} />,
@@ -98,6 +100,9 @@ export const nodeCategories = [
             { type: 'trading', label: 'Place HODL Order', icon: HandCoins },
             { type: 'trading', label: 'Cancel Order', icon: HandCoins },
             { type: 'trading', label: 'Fetch Open Orders', icon: ListOrdered },
+            { type: 'trading', label: 'Add to Position', icon: PlusCircle },
+            { type: 'trading', label: 'Reduce Position', icon: MinusCircle },
+            { type: 'trading', label: 'Square Off Position', icon: XCircle },
         ]
     },
     {
