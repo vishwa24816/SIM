@@ -24,6 +24,7 @@ interface PortfolioViewProps {
     portfolio: Portfolio;
     marketData: CryptoCurrency[];
     totalPortfolioValue: number;
+    dayPnl: number;
 }
 
 
@@ -175,7 +176,7 @@ const ReceiveCryptoForm = ({ portfolio, marketData, onCancel }: { portfolio: Por
 };
 
 
-export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: PortfolioViewProps) {
+export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayPnl }: PortfolioViewProps) {
   const { addUsd, withdrawUsd } = usePortfolioStore();
   const [isManageFundsOpen, setIsManageFundsOpen] = React.useState(false);
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
@@ -227,14 +228,6 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue }: Po
   
   const holdingsValue = totalPortfolioValue - portfolio.usdBalance;
   const holdingsRatio = totalPortfolioValue > 0 ? (holdingsValue / totalPortfolioValue) * 100 : 0;
-
-  const dayPnl = marketData.reduce((acc, crypto) => {
-      const holding = portfolio.holdings.find(h => h.cryptoId === crypto.id);
-      if (holding) {
-          return acc + (holding.amount * crypto.price * (crypto.change24h / 100));
-      }
-      return acc;
-  }, 0);
 
 
   return (

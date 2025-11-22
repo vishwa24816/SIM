@@ -111,6 +111,21 @@ export default function DashboardPage() {
 
   const totalPortfolioValue = getPortfolioValue(marketData);
 
+   const dayPnl = marketData.reduce((acc, crypto) => {
+      const holding = portfolio.holdings.find(h => h.cryptoId === crypto.id);
+      if (holding) {
+          // Calculate the price 24 hours ago
+          const price24hAgo = crypto.price / (1 + crypto.change24h / 100);
+          // Calculate the value of the holding 24 hours ago
+          const value24hAgo = holding.amount * price24hAgo;
+          // Calculate the current value of the holding
+          const currentValue = holding.amount * crypto.price;
+          // Add the difference to the accumulator
+          return acc + (currentValue - value24hAgo);
+      }
+      return acc;
+  }, 0);
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
@@ -119,6 +134,7 @@ export default function DashboardPage() {
           portfolio={portfolio}
           marketData={marketData}
           totalPortfolioValue={totalPortfolioValue}
+          dayPnl={dayPnl}
         />
         
         <CryptoPositions portfolio={portfolio} marketData={marketData} />
