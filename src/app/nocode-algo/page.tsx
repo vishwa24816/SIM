@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,7 +6,11 @@ import {
     ArrowLeft, 
     Save, 
     Play, 
-    Menu
+    Menu,
+    ZoomIn,
+    ZoomOut,
+    Minimize,
+    Copy
 } from 'lucide-react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -19,11 +24,12 @@ import ReactFlow, {
   useReactFlow,
   Connection,
   NodeTypes,
+  Controls,
+  MiniMap
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { initialNodes, nodeTypes as customNodeTypes, nodeCategories, DRAGGABLE_TYPE } from '@/components/trade/algo-nodes';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -91,6 +97,8 @@ const Flow = () => {
                 className="bg-background dot-grid"
             >
                 <Background />
+                <Controls />
+                <MiniMap />
             </ReactFlow>
         </div>
     );
