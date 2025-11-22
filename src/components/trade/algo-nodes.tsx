@@ -91,12 +91,6 @@ export const nodeCategories = [
         ]
     },
     {
-        title: 'Arbitrage Nodes',
-        nodes: [
-            { type: 'arbitrage', label: 'Compare Exchanges', icon: GitCompareArrows },
-        ]
-    },
-    {
         title: 'Trading Nodes',
         nodes: [
             { type: 'trading', label: 'Place Market Order', icon: HandCoins },
