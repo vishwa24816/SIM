@@ -114,7 +114,8 @@ export default function ScreenerPage() {
         setIsAiLoading(true);
         setAiFilteredIds(null); // Clear previous results
         const spotMarketData = marketData.filter(c => c.assetType !== 'Futures');
-        const resultIds = await getAiScreenedCryptos(prompt, spotMarketData);
+        const serializableCryptos = spotMarketData.map(c => ({ id: c.id, name: c.name, symbol: c.symbol, description: '' }));
+        const resultIds = await getAiScreenedCryptos(prompt, serializableCryptos);
         setAiFilteredIds(resultIds);
         setIsAiLoading(false);
     }
@@ -258,5 +259,3 @@ export default function ScreenerPage() {
         </div>
     );
 }
-
-    

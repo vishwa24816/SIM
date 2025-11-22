@@ -18,11 +18,11 @@ export async function getNewsSummary(articles: string[]): Promise<string> {
   }
 }
 
-export async function getAiScreenedCryptos(prompt: string, cryptos: CryptoCurrency[]): Promise<string[]> {
+export async function getAiScreenedCryptos(prompt: string, cryptos: {id: string, name: string, symbol: string, description: string}[]): Promise<string[]> {
   try {
     const result = await screenCryptos({
       prompt,
-      cryptos: cryptos.map(c => ({ id: c.id, name: c.name, symbol: c.symbol, description: '' })) // Note: Description is not available, but schema expects it.
+      cryptos: cryptos
     });
     return result.cryptos.map(c => c.id);
   } catch (error) {
