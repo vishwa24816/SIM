@@ -17,6 +17,7 @@ import { Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { spotPairs, futuresPairs } from '@/lib/pairs';
 import { ADDITIONAL_FUNDS_ETFS_DATA } from '@/lib/data';
+import { useSearchParams } from 'next/navigation';
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -41,8 +42,11 @@ const CryptoListSkeleton = () => (
 
 export default function CryptoPage() {
     const { marketData, loading } = useMarketData();
+    const searchParams = useSearchParams();
+    const initialTradeType = searchParams.get('type') || 'Spot';
+
     const [listType, setListType] = React.useState('Gainers');
-    const [tradeType, setTradeType] = React.useState('Spot');
+    const [tradeType, setTradeType] = React.useState(initialTradeType);
     
     // Watchlist state
     const [watchlists, setWatchlists] = React.useState<Record<string, string[]>>({ 'Top watchlist': [] });
@@ -323,5 +327,3 @@ export default function CryptoPage() {
     </div>
   );
 }
-
-    
