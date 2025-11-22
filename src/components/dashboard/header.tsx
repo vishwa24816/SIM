@@ -100,7 +100,9 @@ export function Header() {
                         <div className="p-4 flex-1 overflow-y-auto">
                             <nav className="flex flex-col gap-1">
                                 <Button onClick={() => handleNavigation('/')} variant="ghost" className="justify-start gap-3"><Home /> Home</Button>
-                                <Button onClick={() => handleNavigation('#')} variant="ghost" className="justify-start gap-3"><Info /> About</Button>
+                                <Link href="https://simblog.vercel.app" target="_blank" rel="noopener noreferrer">
+                                    <Button variant="ghost" className="w-full justify-start gap-3"><Info /> About</Button>
+                                </Link>
                                 <Button onClick={() => handleNavigation('/analytics')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
                                 <Button onClick={() => handleNavigation('/backtester')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
                                 <Button onClick={() => handleNavigation('/nocode-algo')} variant="ghost" className="justify-start gap-3"><Cpu /> No-code Algo</Button>
