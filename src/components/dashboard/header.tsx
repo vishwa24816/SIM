@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { Menu, Search, User, Home, Info, BarChart2, Cpu, History, Rocket, FileText, LifeBuoy, X, LogOut, Sun, Moon } from "lucide-react";
+import { Menu, Search, User, Home, Info, BarChart2, Cpu, History, Rocket, FileText, LifeBuoy, X, LogOut, Sun, Moon, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetTitle, SheetFooter } from "@/components/ui/sheet";
@@ -104,6 +104,7 @@ export function Header() {
                                 <Button onClick={() => handleNavigation('/analytics')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
                                 <Button onClick={() => handleNavigation('/backtester')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
                                 <Button onClick={() => handleNavigation('/nocode-algo')} variant="ghost" className="justify-start gap-3"><Cpu /> No-code Algo</Button>
+                                <Button onClick={() => handleNavigation('/leaderboard')} variant="ghost" className="justify-start gap-3"><Trophy /> Leaderboard</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
                                 <Button onClick={() => handleNavigation('/taxy')} variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
