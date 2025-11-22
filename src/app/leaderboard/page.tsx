@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -31,8 +32,8 @@ interface Trader {
 
 const traders: Trader[] = [
   {
-    name: 'BGUSER-BFH2MC...',
-    handle: '@BGUSER-BFH2MCBL',
+    name: 'Aarav Sharma',
+    handle: '@AaravS',
     avatar: '',
     followers: 967,
     capacity: 1000,
@@ -48,8 +49,8 @@ const traders: Trader[] = [
     mainCoin: 'btc'
   },
   {
-    name: 'BGUSER-VARG3320',
-    handle: '@BGUSER-VARG3320',
+    name: 'Vihaan Patel',
+    handle: '@VihaanP',
     avatar: '',
     followers: 655,
     capacity: 750,
@@ -65,8 +66,8 @@ const traders: Trader[] = [
     mainCoin: 'btc'
   },
   {
-    name: 'AmbitionLruri',
-    handle: '@BGUSER-EYPFNB2R',
+    name: 'Vivaan Gupta',
+    handle: '@VivaanG',
     avatar: '',
     followers: 524,
     capacity: 550,
@@ -82,8 +83,8 @@ const traders: Trader[] = [
     mainCoin: 'btc'
   },
   {
-    name: 'Brightmoon',
-    handle: '@Brightmoon',
+    name: 'Aditya Singh',
+    handle: '@AdityaSingh',
     avatar: '/brightmoon-avatar.png',
     followers: 659,
     capacity: 750,
