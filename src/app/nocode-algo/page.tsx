@@ -176,7 +176,7 @@ export default function NoCodeAlgoPage() {
                                     <p className="text-muted-foreground p-8 rounded-lg bg-background/80 backdrop-blur-sm">Drag and drop blocks here to build your strategy.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-2 p-4">
+                                <div className="space-y-2 p-4 max-w-2xl mx-auto">
                                     {strategyNodes.map((node, index) => (
                                         <Draggable key={node.id} draggableId={node.id} index={index}>
                                             {(provided, snapshot) => (
