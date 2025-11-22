@@ -7,10 +7,6 @@ import {
     Save, 
     Play, 
     Menu,
-    ZoomIn,
-    ZoomOut,
-    Minimize,
-    Copy
 } from 'lucide-react';
 import ReactFlow, {
   ReactFlowProvider,
