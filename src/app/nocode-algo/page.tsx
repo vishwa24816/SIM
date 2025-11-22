@@ -54,22 +54,22 @@ const Flow = () => {
                 return;
             }
             
-            const type = event.dataTransfer.getData(DRAGGABLE_TYPE);
-            const dataString = event.dataTransfer.getData('application/reactflow-data');
+            const dataString = event.dataTransfer.getData(DRAGGABLE_TYPE);
 
-            if (typeof type === 'undefined' || !type) {
+            if (!dataString) {
                 return;
             }
+            
+            const data = JSON.parse(dataString);
             
             const position = reactFlowInstance.screenToFlowPosition({
                 x: event.clientX,
                 y: event.clientY,
             });
-            const data = JSON.parse(dataString);
             
             const newNode: Node = {
-                id: `${type}-${nodes.length + 1}`,
-                type,
+                id: `${data.nodeType}-${nodes.length + 1}`,
+                type: data.nodeType,
                 position,
                 data: { label: data.label, icon: data.icon, category: data.category },
             };

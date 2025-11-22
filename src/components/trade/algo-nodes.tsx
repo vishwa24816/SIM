@@ -52,17 +52,16 @@ const CustomNode = ({ data }: NodeProps<any>) => {
 };
 
 export const SidebarNode = ({ nodeType, label, icon: Icon, category }: { nodeType: string; label: string; icon: React.ElementType; category: string }) => {
-    const onDragStart = (event: React.DragEvent, nodeType: string) => {
-        const data = JSON.stringify({ label, icon: nodeType, category });
-        event.dataTransfer.setData(DRAGGABLE_TYPE, nodeType);
-        event.dataTransfer.setData('application/reactflow-data', data);
+    const onDragStart = (event: React.DragEvent) => {
+        const data = JSON.stringify({ nodeType, label, icon: nodeType, category });
+        event.dataTransfer.setData(DRAGGABLE_TYPE, data);
         event.dataTransfer.effectAllowed = 'move';
     };
 
     return (
         <div
             className="p-2 border rounded-md cursor-grab bg-card hover:bg-muted"
-            onDragStart={(event) => onDragStart(event, nodeType)}
+            onDragStart={onDragStart}
             draggable
         >
             <div className="flex items-center gap-2">
@@ -98,73 +97,73 @@ export const nodeCategories = [
     { 
         title: 'Market Data Nodes',
         nodes: [
-            { nodeType: 'marketData', label: 'Get Ticker Price', icon: CircleDollarSign },
-            { nodeType: 'marketData', label: 'Get Order Book', icon: BookOpen },
-            { nodeType: 'marketData', label: 'Get Funding Rate', icon: Receipt },
-            { nodeType: 'marketData', label: 'Get OHLC Data', icon: CandlestickChart },
-            { nodeType: 'marketData', label: 'Get Historical Trades', icon: History },
+            { nodeType: 'marketData', label: 'Get Ticker Price', icon: CircleDollarSign, category: 'Market Data Nodes' },
+            { nodeType: 'marketData', label: 'Get Order Book', icon: BookOpen, category: 'Market Data Nodes' },
+            { nodeType: 'marketData', label: 'Get Funding Rate', icon: Receipt, category: 'Market Data Nodes' },
+            { nodeType: 'marketData', label: 'Get OHLC Data', icon: CandlestickChart, category: 'Market Data Nodes' },
+            { nodeType: 'marketData', label: 'Get Historical Trades', icon: History, category: 'Market Data Nodes' },
         ]
     },
     {
         title: 'Indicator Nodes',
         nodes: [
-            { nodeType: 'indicator', label: 'SMA / EMA', icon: Calculator, description: 'Configurable length' },
-            { nodeType: 'indicator', label: 'RSI', icon: Calculator, description: 'Momentum or reversal setups' },
-            { nodeType: 'indicator', label: 'MACD', icon: Calculator },
-            { nodeType: 'indicator', label: 'Bollinger Bands', icon: Calculator },
-            { nodeType: 'indicator', label: 'ATR', icon: Calculator },
-            { nodeType: 'indicator', label: 'Supertrend', icon: Calculator },
-            { nodeType: 'indicator', label: 'Trend Strength', icon: TrendingUp, description: 'Simple direction score' },
+            { nodeType: 'indicator', label: 'SMA / EMA', icon: Calculator, description: 'Configurable length', category: 'Indicator Nodes' },
+            { nodeType: 'indicator', label: 'RSI', icon: Calculator, description: 'Momentum or reversal setups', category: 'Indicator Nodes' },
+            { nodeType: 'indicator', label: 'MACD', icon: Calculator, category: 'Indicator Nodes' },
+            { nodeType: 'indicator', label: 'Bollinger Bands', icon: Calculator, category: 'Indicator Nodes' },
+            { nodeType: 'indicator', label: 'ATR', icon: Calculator, category: 'Indicator Nodes' },
+            { nodeType: 'indicator', label: 'Supertrend', icon: Calculator, category: 'Indicator Nodes' },
+            { nodeType: 'indicator', label: 'Trend Strength', icon: TrendingUp, description: 'Simple direction score', category: 'Indicator Nodes' },
         ]
     },
     {
         title: 'Trading Nodes',
         nodes: [
-            { nodeType: 'trading', label: 'Place Market Order', icon: HandCoins },
-            { nodeType: 'trading', label: 'Place Limit Order', icon: HandCoins },
-            { nodeType: 'trading', label: 'Place HODL Order', icon: HandCoins },
-            { nodeType: 'trading', label: 'Cancel Order', icon: HandCoins },
-            { nodeType: 'trading', label: 'Fetch Open Orders', icon: ListOrdered },
-            { nodeType: 'trading', label: 'Add to Position', icon: PlusCircle },
-            { nodeType: 'trading', label: 'Reduce Position', icon: MinusCircle },
-            { nodeType: 'trading', label: 'Square Off Position', icon: XCircle },
+            { nodeType: 'trading', label: 'Place Market Order', icon: HandCoins, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Place Limit Order', icon: HandCoins, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Place HODL Order', icon: HandCoins, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Cancel Order', icon: HandCoins, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Fetch Open Orders', icon: ListOrdered, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Add to Position', icon: PlusCircle, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Reduce Position', icon: MinusCircle, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Square Off Position', icon: XCircle, category: 'Trading Nodes' },
         ]
     },
     {
         title: 'Basket Strategy Nodes',
         nodes: [
-            { nodeType: 'basket', label: 'Add to Basket', icon: PlusCircle },
-            { nodeType: 'basket', label: 'Remove from Basket', icon: MinusCircle },
-            { nodeType: 'basket', label: 'Close Basket', icon: XCircle },
+            { nodeType: 'basket', label: 'Add to Basket', icon: PlusCircle, category: 'Basket Strategy Nodes' },
+            { nodeType: 'basket', label: 'Remove from Basket', icon: MinusCircle, category: 'Basket Strategy Nodes' },
+            { nodeType: 'basket', label: 'Close Basket', icon: XCircle, category: 'Basket Strategy Nodes' },
         ]
     },
     {
         title: 'Core Logic & Control Nodes',
         nodes: [
-            { nodeType: 'trigger', label: 'Start', icon: PlayCircle },
-            { nodeType: 'trigger', label: 'Stop', icon: StopCircle },
-            { nodeType: 'trigger', label: 'On a Schedule', icon: Clock },
-            { nodeType: 'trigger', label: 'Webhook', icon: Webhook },
-            { nodeType: 'logic', label: 'If/Else', icon: GitBranch },
-            { nodeType: 'logic', label: 'Math Operation', icon: Calculator },
-            { nodeType: 'logic', label: 'Compare Values', icon: GitCompareArrows },
-            { nodeType: 'logic', label: 'Boolean Logic', icon: GitBranch },
+            { nodeType: 'trigger', label: 'Start', icon: PlayCircle, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'trigger', label: 'Stop', icon: StopCircle, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'trigger', label: 'On a Schedule', icon: Clock, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'trigger', label: 'Webhook', icon: Webhook, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'logic', label: 'If/Else', icon: GitBranch, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'logic', label: 'Math Operation', icon: Calculator, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'logic', label: 'Compare Values', icon: GitCompareArrows, category: 'Core Logic & Control Nodes' },
+            { nodeType: 'logic', label: 'Boolean Logic', icon: GitBranch, category: 'Core Logic & Control Nodes' },
         ]
     },
     {
         title: 'Risk / Guardrail Nodes',
         nodes: [
-            { nodeType: 'risk', label: 'Stop Loss', icon: Shield },
-            { nodeType: 'risk', label: 'Take Profit', icon: Shield },
-            { nodeType: 'risk', label: 'Trailing Stop', icon: Shield },
+            { nodeType: 'risk', label: 'Stop Loss', icon: Shield, category: 'Risk / Guardrail Nodes' },
+            { nodeType: 'risk', label: 'Take Profit', icon: Shield, category: 'Risk / Guardrail Nodes' },
+            { nodeType: 'risk', label: 'Trailing Stop', icon: Shield, category: 'Risk / Guardrail Nodes' },
         ]
     },
      {
         title: 'Utility Nodes',
         nodes: [
-            { nodeType: 'utility', label: 'Set Variable', icon: BringToFront },
-            { nodeType: 'utility', label: 'Get Variable', icon: Database },
-            { nodeType: 'utility', label: 'Log to Console', icon: FileTerminal },
+            { nodeType: 'utility', label: 'Set Variable', icon: BringToFront, category: 'Utility Nodes' },
+            { nodeType: 'utility', label: 'Get Variable', icon: Database, category: 'Utility Nodes' },
+            { nodeType: 'utility', label: 'Log to Console', icon: FileTerminal, category: 'Utility Nodes' },
         ]
     }
 ];
