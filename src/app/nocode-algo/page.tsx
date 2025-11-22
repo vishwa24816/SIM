@@ -43,10 +43,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 
 const initialNodes: Node[] = [
   {
@@ -84,39 +81,6 @@ const customNodeTypes: NodeTypes = {
   utility: (props) => <CustomNode {...props} icon={BringToFront} category="Utility" />,
 };
 
-const SettingsPanel = ({ selectedNode, updateNodeData }: { selectedNode: Node | null, updateNodeData: (id: string, data: any) => void }) => {
-    const [label, setLabel] = React.useState(selectedNode?.data.label || '');
-
-    React.useEffect(() => {
-        setLabel(selectedNode?.data.label || '');
-    }, [selectedNode]);
-
-    const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLabel(e.target.value);
-    };
-
-    const handleBlur = () => {
-        if (selectedNode) {
-            updateNodeData(selectedNode.id, { ...selectedNode.data, label });
-        }
-    };
-
-    return (
-        <div className="absolute right-4 top-20 w-80 bg-card border rounded-lg shadow-lg z-10 p-4 space-y-4">
-            <h2 className="text-lg font-semibold">Settings</h2>
-            {selectedNode ? (
-                <div>
-                    <Label htmlFor="node-label">Label</Label>
-                    <Input id="node-label" value={label} onChange={handleLabelChange} onBlur={handleBlur} />
-                    {/* Add more settings based on node type */}
-                </div>
-            ) : (
-                <p className="text-muted-foreground text-sm">Select a node to see its settings.</p>
-            )}
-        </div>
-    );
-};
-
 
 const Flow = () => {
     const reactFlowWrapper = React.useRef<HTMLDivElement>(null);
@@ -125,7 +89,6 @@ const Flow = () => {
     const [reactFlowInstance, setReactFlowInstance] = React.useState<any>(null);
     const { setViewport, zoomIn, zoomOut } = useReactFlow();
     const [selectedNode, setSelectedNode] = React.useState<Node | null>(null);
-    const [isSettingsPanelOpen, setIsSettingsPanelOpen] = React.useState(true);
 
     const onConnect = React.useCallback(
         (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
@@ -174,13 +137,6 @@ const Flow = () => {
         setSelectedNode(node);
     };
     
-    const updateNodeData = (id: string, data: any) => {
-        setNodes((nds) => nds.map(node => node.id === id ? { ...node, data: { ...node.data, ...data } } : node));
-        if (selectedNode?.id === id) {
-            setSelectedNode(prev => prev ? { ...prev, data: { ...prev.data, ...data } } : null);
-        }
-    };
-
     return (
         <div className="h-full w-full" ref={reactFlowWrapper}>
             <ReactFlow
@@ -201,13 +157,11 @@ const Flow = () => {
                 <Controls showZoom={false} showFitView={false} className="!left-auto !right-4" />
                 <Background />
             </ReactFlow>
-            {isSettingsPanelOpen && <SettingsPanel selectedNode={selectedNode} updateNodeData={updateNodeData} />}
             <div className="absolute top-4 right-4 z-10 flex gap-2">
                  <Button variant="outline" size="icon" onClick={() => zoomIn()}><ZoomIn className="h-4 w-4" /></Button>
                  <Button variant="outline" size="icon" onClick={() => zoomOut()}><ZoomOut className="h-4 w-4" /></Button>
                  <Button variant="outline" size="icon" onClick={() => setViewport({ x: 0, y: 0, zoom: 1 }, { duration: 800 })}><Copy className="h-4 w-4" /></Button>
                  <Button variant="outline" size="icon" onClick={() => setNodes(nodes => nodes.filter(n => n.id !== selectedNode?.id))} disabled={!selectedNode}><Trash2 className="h-4 w-4" /></Button>
-                 <Button variant="outline" size="icon" onClick={() => setIsSettingsPanelOpen(p => !p)}><PanelRight className="h-4 w-4" /></Button>
             </div>
         </div>
     );
@@ -226,7 +180,7 @@ export default function NoCodeAlgoPage() {
                     <Button><Save className="h-4 w-4 mr-2" /> Save</Button>
                 </div>
             </header>
-            <main className="flex-1 overflow-hidden">
+            <main className="flex-1 overflow-hidden relative">
                  <ReactFlowProvider>
                     <Flow />
                  </ReactFlowProvider>
