@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, ArrowUp, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Download, ArrowUp, CheckCircle, ChevronDown, ChevronUp, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -11,10 +11,10 @@ import { useTransactionHistory } from '@/hooks/use-transaction-history';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
-const TransactionRow = ({ label, value }: { label: string, value: string | React.ReactNode }) => (
+const TransactionRow = ({ label, value, valueClassName }: { label: string, value: string | React.ReactNode, valueClassName?: string }) => (
   <div className="flex justify-between items-center text-sm py-2">
     <p className="text-muted-foreground">{label}</p>
-    <p className="font-medium">{value}</p>
+    <p className={cn("font-medium", valueClassName)}>{value}</p>
   </div>
 );
 
@@ -65,6 +65,9 @@ export default function AnalyticsPage() {
                 <Accordion type="single" collapsible value={openAccordion} onValueChange={setOpenAccordion} className="w-full space-y-2">
                     {transactions.map(tx => {
                         const isBuy = tx.type === 'BUY';
+                        // Mock P&L for now. In a real app, this would be calculated based on cost basis.
+                        const pnl = isBuy ? null : tx.totalValue * (Math.random() * 0.2 - 0.1);
+
                         return (
                             <AccordionItem value={tx.id} key={tx.id} className="border-b-0">
                                 <div className="p-4 bg-card rounded-lg border">
@@ -90,6 +93,11 @@ export default function AnalyticsPage() {
                                         </Badge>
                                         <div className="mt-4">
                                             <TransactionRow label="Brokerage" value={tx.brokerage.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })} />
+                                            <TransactionRow 
+                                                label="Profit/Loss"
+                                                value={pnl !== null ? pnl.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) : 'N/A'}
+                                                valueClassName={pnl !== null ? (pnl >= 0 ? 'text-green-500' : 'text-red-500') : ''}
+                                            />
                                             <TransactionRow label="Brokerage Earned Back" value={tx.brokerageEarnedBack.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })} />
                                             <TransactionRow label="Crypto Platform" value={tx.platform} />
                                         </div>
