@@ -17,6 +17,8 @@ import { useMarketData } from '@/hooks/use-market-data';
 import { CryptoCurrency } from '@/lib/types';
 import { Card, CardContent } from '../ui/card';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import placeholderImages from '@/app/lib/placeholder-images.json';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -92,7 +94,14 @@ export function Header() {
                     <SheetContent side="left" className="w-72 bg-card p-0 flex flex-col">
                         <SheetHeader className="p-4 border-b">
                             <div className="flex items-center gap-3">
-                                <Logo className="h-8 w-8 text-primary" />
+                                <Image
+                                  src={placeholderImages.logo.src}
+                                  alt={placeholderImages.logo.alt}
+                                  width={32}
+                                  height={32}
+                                  className="rounded-md"
+                                  data-ai-hint={placeholderImages.logo['data-ai-hint']}
+                                />
                                 <h2 className="text-xl font-bold">SIM</h2>
                             </div>
                             <SheetTitle className="sr-only">Menu</SheetTitle>

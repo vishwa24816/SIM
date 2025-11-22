@@ -12,6 +12,8 @@ import { Loader2 } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
+import Image from 'next/image';
+import placeholderImages from '@/app/lib/placeholder-images.json';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>
@@ -63,7 +65,13 @@ export default function LoginPage() {
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                  <Logo className="h-12 w-12 text-primary" />
+                  <Image
+                    src={placeholderImages.logo.src}
+                    alt={placeholderImages.logo.alt}
+                    width={48}
+                    height={48}
+                    data-ai-hint={placeholderImages.logo['data-ai-hint']}
+                  />
               </div>
             <CardTitle className="text-2xl">Welcome to SIM</CardTitle>
             <CardDescription>
