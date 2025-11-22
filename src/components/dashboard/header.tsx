@@ -114,7 +114,6 @@ export function Header() {
                                 </Link>
                                 <Button onClick={() => handleNavigation('/analytics')} variant="ghost" className="justify-start gap-3"><BarChart2 /> Analytics</Button>
                                 <Button onClick={() => handleNavigation('/backtester')} variant="ghost" className="justify-start gap-3"><History /> Backtester</Button>
-                                <Button onClick={() => handleNavigation('/nocode-algo')} variant="ghost" className="justify-start gap-3"><Cpu /> No-code Algo</Button>
                                 <Button onClick={() => handleNavigation('/leaderboard')} variant="ghost" className="justify-start gap-3"><Trophy /> Leaderboard</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
