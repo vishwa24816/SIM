@@ -24,6 +24,8 @@ import {
     PlusCircle,
     MinusCircle,
     XCircle,
+    PlayCircle,
+    StopCircle,
 } from 'lucide-react';
 import { NodeProps } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -65,7 +67,7 @@ export const initialNodes = [
     id: '1',
     type: 'trigger',
     position: { x: 100, y: 150 },
-    data: { label: 'On a Schedule', icon: Clock, category: 'Triggers' },
+    data: { label: 'Start', icon: PlayCircle, category: 'Core Logic & Control Nodes' },
   },
 ];
 
@@ -116,6 +118,8 @@ export const nodeCategories = [
     {
         title: 'Core Logic & Control Nodes',
         nodes: [
+            { type: 'trigger', label: 'Start', icon: PlayCircle },
+            { type: 'trigger', label: 'Stop', icon: StopCircle },
             { type: 'trigger', label: 'On a Schedule', icon: Clock },
             { type: 'trigger', label: 'Webhook', icon: Webhook },
             { type: 'logic', label: 'If/Else', icon: GitBranch },
