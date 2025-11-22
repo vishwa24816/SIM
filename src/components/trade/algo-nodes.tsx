@@ -30,8 +30,6 @@ import {
 import { NodeProps } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 
-export const DRAGGABLE_TYPE = 'application/reactflow';
-
 const CustomNode = ({ data }: NodeProps<any>) => {
     const Icon = data.icon || Settings;
     return (
@@ -51,18 +49,15 @@ const CustomNode = ({ data }: NodeProps<any>) => {
     );
 };
 
-export const SidebarNode = ({ nodeType, label, icon: Icon, category }: { nodeType: string; label: string; icon: React.ElementType; category: string }) => {
-    const onDragStart = (event: React.DragEvent) => {
-        const data = JSON.stringify({ nodeType, label, icon: nodeType, category });
-        event.dataTransfer.setData(DRAGGABLE_TYPE, data);
-        event.dataTransfer.effectAllowed = 'move';
+export const SidebarNode = ({ nodeType, label, icon: Icon, category, onNodeClick }: { nodeType: string; label: string; icon: React.ElementType; category: string; onNodeClick: (nodeData: any) => void; }) => {
+    const handleNodeClick = () => {
+        onNodeClick({ nodeType, label, icon: Icon, category });
     };
 
     return (
         <div
-            className="p-2 border rounded-md cursor-grab bg-card hover:bg-muted"
-            onDragStart={onDragStart}
-            draggable
+            className="p-2 border rounded-md cursor-pointer bg-card hover:bg-muted"
+            onClick={handleNodeClick}
         >
             <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4 text-primary" />
