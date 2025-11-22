@@ -1,3 +1,4 @@
+
 'use client';
 import {
     Settings,
@@ -18,7 +19,8 @@ import {
     Shield,
     FileTerminal,
     ShoppingCart,
-    Package
+    Package,
+    TrendingUp,
 } from 'lucide-react';
 import { NodeProps } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,6 +55,7 @@ export const nodeTypes = {
   basket: (props: NodeProps) => <CustomNode {...props} />,
   logic: (props: NodeProps) => <CustomNode {...props} />,
   risk: (props: NodeProps) => <CustomNode {...props} />,
+  utility: (props: NodeProps) => <CustomNode {...props} />,
 };
 
 export const initialNodes = [
@@ -78,9 +81,13 @@ export const nodeCategories = [
     {
         title: 'Indicator Nodes',
         nodes: [
-            { type: 'indicator', label: 'RSI', icon: Calculator },
+            { type: 'indicator', label: 'SMA / EMA', icon: Calculator, description: 'Configurable length' },
+            { type: 'indicator', label: 'RSI', icon: Calculator, description: 'Momentum or reversal setups' },
             { type: 'indicator', label: 'MACD', icon: Calculator },
             { type: 'indicator', label: 'Bollinger Bands', icon: Calculator },
+            { type: 'indicator', label: 'ATR', icon: Calculator },
+            { type: 'indicator', label: 'Supertrend', icon: Calculator },
+            { type: 'indicator', label: 'Trend Strength', icon: TrendingUp, description: 'Simple direction score' },
         ]
     },
     {
