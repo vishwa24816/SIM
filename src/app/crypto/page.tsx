@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -39,8 +40,7 @@ const CryptoListSkeleton = () => (
     </div>
 )
 
-
-export default function CryptoPage() {
+function CryptoPageComponent() {
     const { marketData, loading } = useMarketData();
     const searchParams = useSearchParams();
     const initialTradeType = searchParams.get('type') || 'Spot';
@@ -299,7 +299,13 @@ export default function CryptoPage() {
         </main>
         <BottomNav />
     </div>
-  );
+    );
 }
 
-    
+export default function CryptoPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CryptoPageComponent />
+        </Suspense>
+    );
+}
