@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet as WalletIcon, Trash2, CheckCircle2, ChevronDown, Eye } from 'lucide-react';
+import { ArrowLeft, Wallet as WalletIcon, Trash2, CheckCircle2, ChevronDown, Eye, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useWallets, Wallet } from '@/hooks/use-wallets';
@@ -183,6 +183,19 @@ export default function WalletPage() {
         </header>
 
         <main className="p-4 space-y-4">
+          <Card>
+            <CardContent className="p-4 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 text-primary" />
+                <div>
+                  <p className="font-bold">Custodial Account</p>
+                  <p className="text-xs text-muted-foreground">Default exchange account</p>
+                </div>
+              </div>
+              <Badge variant="secondary">Managed by SIM</Badge>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-2 gap-4">
               <Button variant="outline" onClick={() => setIsCreateOpen(true)}>Create Crypto Wallet</Button>
               <Button onClick={() => setIsImportOpen(true)}>Import Existing Wallet</Button>
