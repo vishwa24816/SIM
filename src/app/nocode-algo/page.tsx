@@ -22,6 +22,7 @@ import ReactFlow, {
   MiniMap,
   ReactFlowInstance,
   useReactFlow,
+  useOnSelectionChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -30,36 +31,6 @@ import { initialNodes, nodeTypes as customNodeTypes, nodeCategories, SidebarNode
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useRouter } from 'next/navigation';
-
-const Flow = () => {
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-    const onConnect = React.useCallback(
-        (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
-        [setEdges]
-    );
-
-    return (
-        <div className="h-full w-full">
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                nodeTypes={customNodeTypes}
-                fitView
-                className="bg-background dot-grid"
-            >
-                <Background />
-                <Controls />
-                <MiniMap />
-            </ReactFlow>
-        </div>
-    );
-};
-
 
 export default function NoCodeAlgoPage() {
     const router = useRouter();
@@ -71,6 +42,11 @@ export default function NoCodeAlgoPage() {
         (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
         [setEdges]
     );
+
+    const deleteNode = React.useCallback((nodeId: string) => {
+        setNodes((nds) => nds.filter(n => n.id !== nodeId));
+        setEdges((eds) => eds.filter(e => e.source !== nodeId && e.target !== nodeId));
+    }, [setNodes, setEdges]);
     
     const addNode = (nodeData: { nodeType: string; label: string; icon: React.ElementType; category: string }) => {
         if (!reactFlowInstance) return;
@@ -84,11 +60,20 @@ export default function NoCodeAlgoPage() {
             id: `${nodeData.nodeType}-${nodes.length + 1}`,
             type: nodeData.nodeType,
             position,
-            data: { label: nodeData.label, icon: nodeData.icon, category: nodeData.category },
+            data: { 
+                label: nodeData.label, 
+                icon: nodeData.icon, 
+                category: nodeData.category,
+                onDelete: deleteNode,
+            },
         };
 
         setNodes((nds) => nds.concat(newNode));
     };
+
+    const onEdgeDoubleClick = React.useCallback((event: React.MouseEvent, edge: Edge) => {
+        setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+    }, [setEdges]);
 
     
     return (
@@ -115,7 +100,7 @@ export default function NoCodeAlgoPage() {
                                                 {category.nodes.map(node => (
                                                     <SidebarNode 
                                                         key={node.label} 
-                                                        onNodeClick={addNode}
+                                                        onNodeClick={() => addNode(node)}
                                                         {...node} 
                                                     />
                                                 ))}
@@ -146,6 +131,7 @@ export default function NoCodeAlgoPage() {
                         onConnect={onConnect}
                         onInit={setReactFlowInstance}
                         nodeTypes={customNodeTypes}
+                        onEdgeDoubleClick={onEdgeDoubleClick}
                         fitView
                         className="bg-background dot-grid"
                     >

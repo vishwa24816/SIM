@@ -26,18 +26,26 @@ import {
     XCircle,
     PlayCircle,
     StopCircle,
+    Trash2,
 } from 'lucide-react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 
-const CustomNode = ({ data, type }: NodeProps<any>) => {
+const CustomNode = ({ data, id }: NodeProps<any>) => {
     const Icon = data.icon || Settings;
     const isStart = data.label === 'Start';
     const isStop = data.label === 'Stop';
+    
+    const handleDelete = () => {
+        if (data.onDelete) {
+            data.onDelete(id);
+        }
+    }
 
     return (
-        <Card className="w-64 border-2 border-primary/50 shadow-lg">
+        <Card className="w-64 border-2 border-primary/50 shadow-lg group">
             {!isStart && <Handle type="target" position={Position.Left} className="!bg-primary" />}
             <CardHeader className="p-3">
                 <div className="flex items-center gap-3">
@@ -51,19 +59,26 @@ const CustomNode = ({ data, type }: NodeProps<any>) => {
                 </div>
             </CardHeader>
             {!isStop && <Handle type="source" position={Position.Right} className="!bg-primary" />}
+
+            {!isStart && (
+                <Button 
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -top-3 -right-3 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={handleDelete}
+                >
+                    <Trash2 className="h-3 w-3" />
+                </Button>
+            )}
         </Card>
     );
 };
 
-export const SidebarNode = ({ nodeType, label, icon: Icon, category, onNodeClick }: { nodeType: string; label: string; icon: React.ElementType; category: string; onNodeClick: (nodeData: any) => void; }) => {
-    const handleNodeClick = () => {
-        onNodeClick({ nodeType, label, icon: Icon, category });
-    };
-
+export const SidebarNode = ({ nodeType, label, icon: Icon, category, onNodeClick }: { nodeType: string; label: string; icon: React.ElementType; category: string; onNodeClick: () => void; }) => {
     return (
         <div
             className="p-2 border rounded-md cursor-pointer bg-card hover:bg-muted"
-            onClick={handleNodeClick}
+            onClick={onNodeClick}
         >
             <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4 text-primary" />
@@ -85,12 +100,17 @@ export const nodeTypes = {
   utility: (props: NodeProps) => <CustomNode {...props} />,
 };
 
-export const initialNodes = [
+export const initialNodes: Node[] = [
   {
     id: '1',
     type: 'trigger',
     position: { x: 100, y: 150 },
-    data: { label: 'Start', icon: PlayCircle, category: 'Core Logic & Control Nodes' },
+    data: { 
+        label: 'Start', 
+        icon: PlayCircle, 
+        category: 'Core Logic & Control Nodes',
+        onDelete: () => {}, // No-op for start node
+    },
   },
 ];
 
