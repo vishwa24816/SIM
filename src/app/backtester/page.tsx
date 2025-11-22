@@ -94,14 +94,16 @@ export default function BacktesterPage() {
           </CardContent>
         </Card>
 
-        {(isLoading || results) && <Separator />}
+        {(isLoading || results) && <Separator className="max-w-4xl mx-auto" />}
 
         {isLoading && (
           <div className="text-center text-muted-foreground">Loading results...</div>
         )}
         
         {results && (
-          <BacktestResults results={results} />
+          <div className="max-w-4xl mx-auto">
+            <BacktestResults results={results} />
+          </div>
         )}
       </main>
     </div>
