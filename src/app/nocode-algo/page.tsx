@@ -17,9 +17,7 @@ import ReactFlow, {
   Node,
   Edge,
   MarkerType,
-  useReactFlow,
   Connection,
-  NodeTypes,
   Controls,
   MiniMap
 } from 'reactflow';
@@ -29,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { initialNodes, nodeTypes as customNodeTypes, nodeCategories, DRAGGABLE_TYPE } from '@/components/trade/algo-nodes';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useRouter } from 'next/navigation';
 
 const Flow = () => {
     const reactFlowWrapper = React.useRef<HTMLDivElement>(null);
@@ -59,7 +58,7 @@ const Flow = () => {
                 return;
             }
             
-            const position = reactFlowInstance.project({
+            const position = reactFlowInstance.screenToFlowPosition({
                 x: event.clientX,
                 y: event.clientY,
             });
@@ -124,6 +123,7 @@ const SidebarNode = ({ nodeType, label, icon: Icon, category }: { nodeType: stri
 
 
 export default function NoCodeAlgoPage() {
+    const router = useRouter();
     return (
         <div className="h-screen w-screen flex flex-col bg-background">
             <header className="flex-shrink-0 flex items-center justify-between px-4 h-16 border-b z-20">
@@ -146,7 +146,7 @@ export default function NoCodeAlgoPage() {
                                         <AccordionContent>
                                             <div className="space-y-2">
                                                 {category.nodes.map(node => (
-                                                    <SidebarNode key={node.type} {...node} category={category.title} />
+                                                    <SidebarNode key={node.label} {...node} category={category.title} />
                                                 ))}
                                             </div>
                                         </AccordionContent>
@@ -155,6 +155,9 @@ export default function NoCodeAlgoPage() {
                             </Accordion>
                         </SheetContent>
                     </Sheet>
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
                     <h1 className="text-lg font-semibold">No-Code Algo Builder</h1>
                 </div>
                 <div className="flex items-center gap-2">
