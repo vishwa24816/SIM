@@ -19,12 +19,13 @@ import ReactFlow, {
   MarkerType,
   Connection,
   Controls,
-  MiniMap
+  MiniMap,
+  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { Button } from '@/components/ui/button';
-import { initialNodes, nodeTypes as customNodeTypes, nodeCategories, DRAGGABLE_TYPE } from '@/components/trade/algo-nodes';
+import { initialNodes, nodeTypes as customNodeTypes, nodeCategories, DRAGGABLE_TYPE, SidebarNode } from '@/components/trade/algo-nodes';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useRouter } from 'next/navigation';
@@ -33,7 +34,7 @@ const Flow = () => {
     const reactFlowWrapper = React.useRef<HTMLDivElement>(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-    const [reactFlowInstance, setReactFlowInstance] = React.useState<any>(null);
+    const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null);
 
     const onConnect = React.useCallback(
         (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
@@ -49,7 +50,9 @@ const Flow = () => {
         (event: React.DragEvent) => {
             event.preventDefault();
 
-            if (!reactFlowWrapper.current || !reactFlowInstance) return;
+            if (!reactFlowWrapper.current || !reactFlowInstance) {
+                return;
+            }
             
             const type = event.dataTransfer.getData(DRAGGABLE_TYPE);
             const dataString = event.dataTransfer.getData('application/reactflow-data');
@@ -99,28 +102,6 @@ const Flow = () => {
     );
 };
 
-const SidebarNode = ({ nodeType, label, icon: Icon, category }: { nodeType: string; label: string; icon: React.ElementType; category: string }) => {
-    const onDragStart = (event: React.DragEvent, nodeType: string) => {
-        const data = JSON.stringify({ label, icon: nodeType, category });
-        event.dataTransfer.setData(DRAGGABLE_TYPE, nodeType);
-        event.dataTransfer.setData('application/reactflow-data', data);
-        event.dataTransfer.effectAllowed = 'move';
-    };
-
-    return (
-        <div
-            className="p-2 border rounded-md cursor-grab bg-card hover:bg-muted"
-            onDragStart={(event) => onDragStart(event, nodeType)}
-            draggable
-        >
-            <div className="flex items-center gap-2">
-                <Icon className="w-4 h-4 text-primary" />
-                <span className="text-sm">{label}</span>
-            </div>
-        </div>
-    );
-};
-
 
 export default function NoCodeAlgoPage() {
     const router = useRouter();
@@ -146,7 +127,7 @@ export default function NoCodeAlgoPage() {
                                         <AccordionContent>
                                             <div className="space-y-2">
                                                 {category.nodes.map(node => (
-                                                    <SidebarNode key={node.label} {...node} category={category.title} />
+                                                    <SidebarNode key={node.label} {...node} />
                                                 ))}
                                             </div>
                                         </AccordionContent>
