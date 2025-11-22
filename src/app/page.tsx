@@ -111,16 +111,31 @@ export default function DashboardPage() {
 
   const totalPortfolioValue = getPortfolioValue(marketData);
 
-   const dayPnl = marketData.reduce((acc, crypto) => {
-      const holding = portfolio.holdings.find(h => h.cryptoId === crypto.id);
-      if (!holding || holding.assetType === 'Futures') return acc;
+   const dayPnl = portfolio.holdings.reduce((acc, holding) => {
+    const crypto = marketData.find(c => c.id === holding.cryptoId);
+    if (!crypto) return acc;
+
+    const price24hAgo = crypto.price / (1 + crypto.change24h / 100);
+
+    if (holding.assetType === 'Futures') {
+      // Futures PnL calculation
+      if (!holding.margin || holding.amount === 0) return acc;
       
-      const price24hAgo = crypto.price / (1 + crypto.change24h / 100);
-      const valueNow = holding.amount * crypto.price;
-      const value24hAgo = holding.amount * price24hAgo;
+      const leverage = Math.round(Math.abs((holding.amount * crypto.price) / holding.margin));
+      const entryPrice = Math.abs((holding.margin * leverage) / holding.amount);
+      
+      const valueNow = (crypto.price - entryPrice) * holding.amount;
+      const value24hAgo = (price24hAgo - entryPrice) * holding.amount;
       
       return acc + (valueNow - value24hAgo);
+    } else {
+      // Spot holdings PnL calculation
+      const valueNow = holding.amount * crypto.price;
+      const value24hAgo = holding.amount * price24hAgo;
+      return acc + (valueNow - value24hAgo);
+    }
   }, 0);
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
