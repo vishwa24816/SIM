@@ -109,7 +109,7 @@ export default function DashboardPage() {
     router.push(`/crypto/${crypto.id}`);
   };
 
-  const totalPortfolioValue = getPortfolioValue(marketData);
+  const totalPortfolioValue = portfolio.usdBalance + getPortfolioValue(marketData);
 
    const dayPnl = portfolio.holdings.reduce((acc, holding) => {
     const crypto = marketData.find(c => c.id === holding.cryptoId);
@@ -122,7 +122,7 @@ export default function DashboardPage() {
       if (!holding.margin || holding.amount === 0) return acc;
       
       const leverage = Math.round(Math.abs((holding.amount * crypto.price) / holding.margin));
-      const entryPrice = Math.abs((holding.margin * leverage) / holding.amount);
+      const entryPrice = isNaN(leverage) || leverage === 0 ? crypto.price : Math.abs((holding.margin * leverage) / holding.amount);
       
       const valueNow = (crypto.price - entryPrice) * holding.amount;
       const value24hAgo = (price24hAgo - entryPrice) * holding.amount;
@@ -156,3 +156,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

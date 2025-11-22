@@ -46,13 +46,13 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 if (!baseAsset || !h.margin || h.amount === 0) return acc;
 
                 const leverage = Math.round(Math.abs((h.amount * baseAsset.price) / h.margin));
-                const entryPrice = Math.abs((h.margin * leverage) / h.amount);
+                const entryPrice = isNaN(leverage) || leverage === 0 ? baseAsset.price : Math.abs((h.margin * leverage) / h.amount);
                 
                 const pnl = (baseAsset.price - entryPrice) * h.amount;
                 return acc + h.margin + pnl;
             }, 0);
             
-        return portfolio.usdBalance + holdingsValue + futuresPnlAndMargin;
+        return holdingsValue + futuresPnlAndMargin;
     },
     
     addUsd: async (user: User, firestore: Firestore, amount: number) => {
@@ -274,3 +274,5 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
         }
     },
 }));
+
+    
