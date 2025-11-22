@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoList } from '@/components/dashboard/crypto-list';
 import { Coins } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { spotPairs, futuresPairs } from '@/lib/pairs';
+import { spotPairs } from '@/lib/pairs';
 import { ADDITIONAL_FUNDS_ETFS_DATA } from '@/lib/data';
 import { useSearchParams } from 'next/navigation';
 
@@ -55,17 +55,6 @@ export default function CryptoPage() {
 
     const spotData = React.useMemo(() => marketData.filter(c => c.assetType === 'Spot'), [marketData]);
     
-    const futuresData = React.useMemo(() => marketData
-        .filter(crypto => crypto.assetType === 'Spot' && crypto.id !== 'tether' && crypto.id !== 'usd-coin')
-        .map(crypto => ({
-            ...crypto,
-            price: crypto.price,
-            symbol: `${crypto.symbol}-FUT`,
-            name: `${crypto.name} Futures`,
-            id: `${crypto.id}-fut`,
-            assetType: 'Futures' as const,
-    })), [marketData]);
-
     const fundsAndETFsData: CryptoCurrency[] = React.useMemo(() => {
         if (loading) return [];
         const existingFunds = marketData.filter(c => c.assetType === 'Mutual Fund' || c.assetType === 'Crypto ETF');
@@ -74,8 +63,6 @@ export default function CryptoPage() {
 
     const displayData = tradeType === 'Spot' 
         ? spotData 
-        : tradeType === 'Futures'
-        ? futuresData
         : fundsAndETFsData;
 
     const trendingCrypto = [...displayData]
@@ -99,10 +86,6 @@ export default function CryptoPage() {
     const topSpotPairs = React.useMemo(() => {
         return spotData.filter(c => topPairIds.includes(c.id));
     }, [spotData]);
-
-    const topFuturesPairs = React.useMemo(() => {
-        return futuresData.filter(c => topPairIds.includes(c.id.replace('-fut', '')));
-    }, [futuresData]);
 
     const gainers = [...displayData].sort((a, b) => b.change24h - a.change24h).slice(0, 5);
     const losers = [...displayData].sort((a, b) => a.change24h - b.change24h).slice(0, 5);
@@ -160,7 +143,6 @@ export default function CryptoPage() {
                 <div className="overflow-x-auto px-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
                         <Button onClick={() => setTradeType('Spot')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Spot' && 'text-primary')}>Spot</Button>
-                        <Button onClick={() => setTradeType('Futures')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Futures' && 'text-primary')}>Futures</Button>
                         <Button onClick={() => setTradeType('Mutual Fund')} variant="ghost" size="sm" className={cn("px-3", tradeType === 'Mutual Fund' && 'text-primary')}>Funds &amp; ETFs</Button>
                     </div>
                 </div>
@@ -257,14 +239,6 @@ export default function CryptoPage() {
                                 </div>
                            </div>
                         )}
-                        {tradeType === 'Futures' && (
-                           <div className="p-4">
-                                <h2 className="flex items-center gap-2 text-lg font-semibold mb-4"><Coins className="text-primary" /> Top Futures Pairs</h2>
-                                <div className="divide-y">
-                                    {loading ? <CryptoListSkeleton /> : <CryptoList cryptos={topFuturesPairs} />}
-                                </div>
-                           </div>
-                        )}
                     </>
                 )}
 
@@ -327,3 +301,5 @@ export default function CryptoPage() {
     </div>
   );
 }
+
+    
