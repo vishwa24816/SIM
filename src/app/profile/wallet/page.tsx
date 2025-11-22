@@ -193,8 +193,11 @@ export default function WalletPage() {
                     <div className="flex items-center gap-3">
                         <ShieldCheck className="h-6 w-6 text-primary" />
                         <div>
-                        <p className="font-bold">Custodial Account</p>
-                        <p className="text-xs text-muted-foreground">SIM Account: {custodialAccountNumber}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold">SIM Wallet</p>
+                            <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">SIM Account: {custodialAccountNumber}</p>
                         </div>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
@@ -302,5 +305,3 @@ export default function WalletPage() {
     </>
   );
 }
-
-    
