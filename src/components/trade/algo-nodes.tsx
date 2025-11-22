@@ -108,8 +108,9 @@ export const nodeCategories = [
     {
         title: 'Basket Strategy Nodes',
         nodes: [
-            { type: 'basket', label: 'Create Basket', icon: ShoppingCart },
-            { type: 'basket', label: 'Execute Basket', icon: Package },
+            { type: 'basket', label: 'Add to Basket', icon: PlusCircle },
+            { type: 'basket', label: 'Remove from Basket', icon: MinusCircle },
+            { type: 'basket', label: 'Close Basket', icon: XCircle },
         ]
     },
     {
