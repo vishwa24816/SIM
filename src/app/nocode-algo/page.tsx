@@ -76,7 +76,7 @@ const Flow = () => {
 
             setNodes((nds) => nds.concat(newNode));
         },
-        [reactFlowInstance, nodes, setNodes]
+        [reactFlowInstance, nodes.length, setNodes]
     );
     
     return (
