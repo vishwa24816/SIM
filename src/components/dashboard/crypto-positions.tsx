@@ -282,7 +282,7 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
     .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
 
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="flex flex-row items-center justify-between p-6">
           <div className="flex items-center gap-3">
@@ -306,6 +306,6 @@ export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps)
           <FuturesAccordion positions={futuresPositions} marketData={marketData} />
         </div>
       </div>
-    </>
+    </div>
   );
 }

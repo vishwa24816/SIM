@@ -140,17 +140,21 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
-      <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 pb-20">
-        <PortfolioView
-          portfolio={portfolio}
-          marketData={marketData}
-          totalPortfolioValue={totalPortfolioValue}
-          dayPnl={dayPnl}
-        />
+      <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24">
+        <div className="lg:col-span-1 space-y-6">
+            <PortfolioView
+              portfolio={portfolio}
+              marketData={marketData}
+              totalPortfolioValue={totalPortfolioValue}
+              dayPnl={dayPnl}
+            />
+        </div>
         
-        <CryptoPositions portfolio={portfolio} marketData={marketData} />
+        <div className="lg:col-span-2 space-y-6">
+            <CryptoPositions portfolio={portfolio} marketData={marketData} />
+            <NewsFeed />
+        </div>
 
-        <NewsFeed />
       </main>
       <BottomNav />
     </div>
