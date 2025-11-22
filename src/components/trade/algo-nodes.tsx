@@ -27,13 +27,18 @@ import {
     PlayCircle,
     StopCircle,
 } from 'lucide-react';
-import { NodeProps } from 'reactflow';
+import { NodeProps, Handle, Position } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-const CustomNode = ({ data }: NodeProps<any>) => {
+const CustomNode = ({ data, type }: NodeProps<any>) => {
     const Icon = data.icon || Settings;
+    const isStart = data.label === 'Start';
+    const isStop = data.label === 'Stop';
+
     return (
         <Card className="w-64 border-2 border-primary/50 shadow-lg">
+            {!isStart && <Handle type="target" position={Position.Left} className="!bg-primary" />}
             <CardHeader className="p-3">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-muted rounded-md">
@@ -45,6 +50,7 @@ const CustomNode = ({ data }: NodeProps<any>) => {
                     </div>
                 </div>
             </CardHeader>
+            {!isStop && <Handle type="source" position={Position.Right} className="!bg-primary" />}
         </Card>
     );
 };
