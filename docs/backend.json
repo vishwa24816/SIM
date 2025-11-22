@@ -130,6 +130,20 @@
         "usdBalance": { "type": "number" }
       },
       "required": ["id", "usdBalance"]
+    },
+    "AlgoWorkflow": {
+      "title": "AlgoWorkflow",
+      "type": "object",
+      "description": "Represents a user's no-code trading algorithm workflow.",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "nodes": { "type": "array", "items": { "type": "object" } },
+        "edges": { "type": "array", "items": { "type": "object" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "nodes", "edges", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -163,6 +177,10 @@
     "/users/{userId}/alerts/{alertId}": {
       "schema": { "$ref": "#/entities/Alert" },
       "description": "Stores a user's price alerts."
+    },
+    "/users/{userId}/algoWorkflows/{workflowId}": {
+      "schema": { "$ref": "#/entities/AlgoWorkflow" },
+      "description": "Stores a user's no-code trading algorithm workflows."
     }
   }
 }
