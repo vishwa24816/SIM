@@ -121,9 +121,9 @@ const Flow = () => {
 
       const flow = reactFlowInstance.toObject();
 
-      // Sanitize nodes before saving: remove non-serializable data
+      // Sanitize nodes before saving: remove non-serializable data like functions and components
       const sanitizedNodes = flow.nodes.map(node => {
-          const { onDelete, ...serializableData } = node.data;
+          const { onDelete, icon, ...serializableData } = node.data;
           return { ...node, data: serializableData };
       });
 
@@ -161,7 +161,24 @@ const Flow = () => {
 
     const handleLoadStrategy = (workflow: AlgoWorkflow) => {
         const { nodes: savedNodes, edges: savedEdges } = workflow;
-        setNodes(savedNodes.map(node => ({ ...node, data: { ...node.data, onDelete: deleteNode } })));
+        
+        // Find matching node definition from `nodeCategories` to re-hydrate the icon
+        const hydratedNodes = savedNodes.map(node => {
+            const nodeDef = nodeCategories
+                .flatMap(cat => cat.nodes)
+                .find(def => def.label === node.data.label);
+
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    icon: nodeDef ? nodeDef.icon : Settings, // Fallback icon
+                    onDelete: deleteNode
+                }
+            };
+        });
+
+        setNodes(hydratedNodes);
         setEdges(savedEdges);
         setSelectedWorkflow(workflow);
         setStrategyName(workflow.name);
@@ -306,5 +323,3 @@ export default function NoCodeAlgoPage() {
         </div>
     );
 }
-
-    
