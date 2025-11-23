@@ -71,16 +71,14 @@ const Flow = () => {
 
     const { data: savedStrategies } = useCollection<AlgoWorkflow>(workflowsCollectionRef);
 
-    useOnSelectionChange({
-        onChange: ({ nodes }) => {
-            setSelectedNode(nodes.length === 1 ? nodes[0] : null);
-        },
-    });
-
     const onConnect = React.useCallback(
         (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
         [setEdges]
     );
+    
+    const onNodeDoubleClick = React.useCallback((event: React.MouseEvent, node: Node) => {
+        setSelectedNode(node);
+    }, []);
 
     const deleteNode = React.useCallback((nodeId: string) => {
         setNodes((nds) => nds.filter(n => n.id !== nodeId));
@@ -178,6 +176,7 @@ const Flow = () => {
                 onInit={setReactFlowInstance}
                 nodeTypes={customNodeTypes}
                 onEdgeDoubleClick={onEdgeDoubleClick}
+                onNodeDoubleClick={onNodeDoubleClick}
                 fitView
                 className="bg-background dot-grid"
             >
