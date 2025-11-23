@@ -254,3 +254,13 @@ export interface Transaction {
   brokerageEarnedBack: number;
   platform: string;
 }
+
+export interface AlgoWorkflow {
+  id?: string;
+  userId: string;
+  name: string;
+  nodes: Node[];
+  edges: Edge[];
+  createdAt: any;
+  updatedAt: any;
+}

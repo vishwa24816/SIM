@@ -33,13 +33,43 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useRouter } from 'next/navigation';
 import { SettingsPanel } from '@/components/trade/settings-panel';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { addDoc, collection, doc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { AlgoWorkflow } from '@/lib/types';
+import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 
 const Flow = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null);
     const [selectedNode, setSelectedNode] = React.useState<Node | null>(null);
+    const [selectedWorkflow, setSelectedWorkflow] = React.useState<AlgoWorkflow | null>(null);
+
+    const { user } = useUser();
+    const firestore = useFirestore();
+    const { toast } = useToast();
+
+    const [isSaveAlertOpen, setIsSaveAlertOpen] = React.useState(false);
+    const [strategyName, setStrategyName] = React.useState('');
+
+    const workflowsCollectionRef = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return collection(firestore, `users/${user.uid}/algoWorkflows`);
+    }, [user, firestore]);
+
+    const { data: savedStrategies } = useCollection<AlgoWorkflow>(workflowsCollectionRef);
 
     useOnSelectionChange({
         onChange: ({ nodes }) => {
@@ -84,11 +114,58 @@ const Flow = () => {
         setEdges((eds) => eds.filter((e) => e.id !== edge.id));
     }, [setEdges]);
 
-    const savedStrategies = [
-        { name: 'RSI Momentum Scalper' },
-        { name: 'EMA Crossover Trend' },
-        { name: 'Bollinger Breakout' },
-    ];
+    const handleSaveStrategy = async () => {
+      if (!user || !firestore || !reactFlowInstance) return;
+      if (!strategyName.trim()) {
+        toast({ title: 'Error', description: 'Please enter a name for your strategy.', variant: 'destructive' });
+        return;
+      }
+
+      const flow = reactFlowInstance.toObject();
+      const workflowData = {
+        userId: user.uid,
+        name: strategyName,
+        nodes: flow.nodes,
+        edges: flow.edges,
+        updatedAt: serverTimestamp(),
+      };
+      
+      try {
+        if (selectedWorkflow && selectedWorkflow.id) {
+            // Update existing workflow
+            const workflowDoc = doc(firestore, `users/${user.uid}/algoWorkflows/${selectedWorkflow.id}`);
+            await updateDoc(workflowDoc, workflowData);
+            toast({ title: 'Success', description: 'Strategy updated successfully!' });
+        } else {
+            // Create new workflow
+            await addDoc(collection(firestore, `users/${user.uid}/algoWorkflows`), {
+              ...workflowData,
+              createdAt: serverTimestamp(),
+            });
+            toast({ title: 'Success', description: 'Strategy saved successfully!' });
+        }
+      } catch (error) {
+        console.error("Error saving strategy:", error);
+        toast({ title: 'Error', description: 'Failed to save strategy.', variant: 'destructive' });
+      }
+
+      setIsSaveAlertOpen(false);
+      setStrategyName('');
+      setSelectedWorkflow(null);
+    };
+
+    const handleLoadStrategy = (workflow: AlgoWorkflow) => {
+        const { nodes: savedNodes, edges: savedEdges } = workflow;
+        setNodes(savedNodes.map(node => ({ ...node, data: { ...node.data, onDelete: deleteNode } })));
+        setEdges(savedEdges);
+        setSelectedWorkflow(workflow);
+        setStrategyName(workflow.name);
+        toast({ title: 'Loaded', description: `Strategy "${workflow.name}" loaded.` });
+    };
+    
+    const handleSaveClick = () => {
+        setIsSaveAlertOpen(true);
+    };
 
     return (
         <div className="h-full w-full relative">
@@ -150,14 +227,22 @@ const Flow = () => {
                                     <AccordionTrigger>Saved Strategies</AccordionTrigger>
                                     <AccordionContent>
                                         <div className="space-y-2">
-                                            {savedStrategies.map(strategy => (
-                                                <div key={strategy.name} className="flex items-center justify-between p-2 border rounded-md bg-card hover:bg-muted cursor-pointer">
-                                                    <div className="flex items-center gap-2">
-                                                        <History className="w-4 h-4 text-primary" />
-                                                        <span className="text-sm">{strategy.name}</span>
+                                            {savedStrategies && savedStrategies.length > 0 ? (
+                                                savedStrategies.map(strategy => (
+                                                    <div 
+                                                        key={strategy.id} 
+                                                        className="flex items-center justify-between p-2 border rounded-md bg-card hover:bg-muted cursor-pointer"
+                                                        onClick={() => handleLoadStrategy(strategy)}
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <History className="w-4 h-4 text-primary" />
+                                                            <span className="text-sm">{strategy.name}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))
+                                            ) : (
+                                                <p className="text-sm text-muted-foreground text-center p-4">No saved strategies.</p>
+                                            )}
                                         </div>
                                     </AccordionContent>
                                 </AccordionItem>
@@ -166,6 +251,29 @@ const Flow = () => {
                     </ScrollArea>
                 </SheetContent>
             </Sheet>
+            <AlertDialog open={isSaveAlertOpen} onOpenChange={setIsSaveAlertOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Save Strategy</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Enter a name for your strategy. If it's an existing strategy, it will be updated.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <Input 
+                        placeholder="e.g., My Awesome BTC Strategy"
+                        value={strategyName}
+                        onChange={(e) => setStrategyName(e.target.value)}
+                    />
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleSaveStrategy}>Save</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                <Button variant="outline"><Play className="h-4 w-4 mr-2" /> Run Test</Button>
+                <Button onClick={handleSaveClick}><Save className="h-4 w-4 mr-2" /> Save</Button>
+            </div>
         </div>
     );
 };
@@ -182,10 +290,6 @@ export default function NoCodeAlgoPage() {
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-lg font-semibold">No-Code Algo Builder</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline"><Play className="h-4 w-4 mr-2" /> Run Test</Button>
-                    <Button><Save className="h-4 w-4 mr-2" /> Save</Button>
                 </div>
             </header>
             <main className="flex-1 overflow-hidden relative">
