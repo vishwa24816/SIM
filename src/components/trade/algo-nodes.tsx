@@ -27,6 +27,7 @@ import {
     PlayCircle,
     StopCircle,
     Trash2,
+    Scaling,
 } from 'lucide-react';
 import { NodeProps, Handle, Position } from 'reactflow';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -145,6 +146,7 @@ export const nodeCategories = [
             { nodeType: 'trading', label: 'Place HODL Order', icon: HandCoins, category: 'Trading Nodes' },
             { nodeType: 'trading', label: 'Cancel Order', icon: HandCoins, category: 'Trading Nodes' },
             { nodeType: 'trading', label: 'Fetch Open Orders', icon: ListOrdered, category: 'Trading Nodes' },
+            { nodeType: 'trading', label: 'Set Leverage', icon: Scaling, category: 'Trading Nodes' },
             { nodeType: 'trading', label: 'Add to Position', icon: PlusCircle, category: 'Trading Nodes' },
             { nodeType: 'trading', label: 'Reduce Position', icon: MinusCircle, category: 'Trading Nodes' },
             { nodeType: 'trading', label: 'Square Off Position', icon: XCircle, category: 'Trading Nodes' },
