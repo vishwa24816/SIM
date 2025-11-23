@@ -80,6 +80,38 @@ const MathOpSettings = ({ node }: { node: Node }) => {
     )
 }
 
+const RiskGuardrailSetting = ({ label, node }: { label: string, node: Node }) => {
+    const [value, setValue] = React.useState(node.data.value || '');
+    const [type, setType] = React.useState<'price' | 'percentage'>(node.data.type || 'price');
+
+    return (
+        <div className="space-y-4">
+            <Label>{label}</Label>
+             <div className="flex gap-2">
+                <Input placeholder="0.00" type="number" value={value} onChange={e => setValue(e.target.value)} />
+                <div className="flex rounded-md bg-muted p-1">
+                    <Button variant={type === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">$</Button>
+                    <Button variant={type === 'percentage' ? 'default' : 'ghost'} size="sm" onClick={() => setType('percentage')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">%</Button>
+                </div>
+            </div>
+            <Button className="w-full">Apply</Button>
+        </div>
+    );
+};
+
+const TrailingStopSettings = ({ node }: { node: Node }) => {
+    const [value, setValue] = React.useState(node.data.value || '');
+    return (
+        <div className="space-y-4">
+            <Label>Trailing Stop</Label>
+             <div className="flex gap-2">
+                <Input placeholder="e.g., 2" type="number" value={value} onChange={e => setValue(e.target.value)} />
+                <div className="flex items-center px-3 rounded-md bg-muted text-sm">%</div>
+            </div>
+            <Button className="w-full">Apply</Button>
+        </div>
+    );
+};
 
 const renderSettings = (node: Node | null) => {
     if (!node) return null;
@@ -91,6 +123,12 @@ const renderSettings = (node: Node | null) => {
             return <IfElseSettings node={node} />;
         case 'Math Operation':
             return <MathOpSettings node={node} />;
+        case 'Stop Loss':
+            return <RiskGuardrailSetting label="Stop Loss" node={node} />;
+        case 'Take Profit':
+            return <RiskGuardrailSetting label="Take Profit" node={node} />;
+        case 'Trailing Stop':
+            return <TrailingStopSettings node={node} />;
         default:
             return <p>No configurable settings for this node type.</p>;
     }
