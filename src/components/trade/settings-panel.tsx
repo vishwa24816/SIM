@@ -152,6 +152,32 @@ const GetTickerPriceSettings = ({ node }: { node: Node }) => {
     );
 };
 
+const leverageOptions = [1, 2, 3, 4, 5, 10, 20, 25, 50, 100, 200];
+
+const LeverageSettings = ({ node }: { node: Node }) => {
+    const [leverage, setLeverage] = React.useState(node.data.leverage || '5');
+
+    return (
+        <div className="space-y-4">
+            <div>
+                <Label htmlFor="leverage">Leverage</Label>
+                <Select value={leverage} onValueChange={setLeverage}>
+                    <SelectTrigger id="leverage">
+                        <SelectValue placeholder="Select leverage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {leverageOptions.map(option => (
+                             <SelectItem key={option} value={option.toString()}>{option}x</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <Button className="w-full">Apply</Button>
+        </div>
+    );
+};
+
+
 const renderSettings = (node: Node | null) => {
     if (!node) return null;
     
@@ -170,6 +196,8 @@ const renderSettings = (node: Node | null) => {
             return <RiskGuardrailSetting label="Take Profit" node={node} />;
         case 'Trailing Stop':
             return <TrailingStopSettings node={node} />;
+        case 'Set Leverage':
+            return <LeverageSettings node={node} />;
         default:
             return <p>No configurable settings for this node type.</p>;
     }
