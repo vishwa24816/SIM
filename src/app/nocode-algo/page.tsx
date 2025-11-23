@@ -31,12 +31,20 @@ import { initialNodes, nodeTypes as customNodeTypes, nodeCategories, SidebarNode
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useRouter } from 'next/navigation';
+import { SettingsPanel } from '@/components/trade/settings-panel';
 
 export default function NoCodeAlgoPage() {
     const router = useRouter();
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null);
+    const [selectedNode, setSelectedNode] = React.useState<Node | null>(null);
+
+    useOnSelectionChange({
+        onChange: ({ nodes }) => {
+            setSelectedNode(nodes.length === 1 ? nodes[0] : null);
+        },
+    });
 
     const onConnect = React.useCallback(
         (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
@@ -139,6 +147,7 @@ export default function NoCodeAlgoPage() {
                         <Controls />
                         <MiniMap />
                     </ReactFlow>
+                    <SettingsPanel selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
                  </ReactFlowProvider>
             </main>
         </div>
