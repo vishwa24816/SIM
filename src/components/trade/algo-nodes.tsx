@@ -156,6 +156,7 @@ export const nodeCategories = [
             { nodeType: 'basket', label: 'Add to Basket', icon: PlusCircle, category: 'Basket Strategy Nodes' },
             { nodeType: 'basket', label: 'Remove from Basket', icon: MinusCircle, category: 'Basket Strategy Nodes' },
             { nodeType: 'basket', label: 'Close Basket', icon: XCircle, category: 'Basket Strategy Nodes' },
+            { nodeType: 'basket', label: 'Execute Basket', icon: ShoppingCart, category: 'Basket Strategy Nodes' },
         ]
     },
     {
