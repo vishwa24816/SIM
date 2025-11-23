@@ -120,10 +120,17 @@ const Flow = () => {
       }
 
       const flow = reactFlowInstance.toObject();
+
+      // Sanitize nodes before saving: remove non-serializable data
+      const sanitizedNodes = flow.nodes.map(node => {
+          const { onDelete, ...serializableData } = node.data;
+          return { ...node, data: serializableData };
+      });
+
       const workflowData = {
         userId: user.uid,
         name: strategyName,
-        nodes: flow.nodes,
+        nodes: sanitizedNodes,
         edges: flow.edges,
         updatedAt: serverTimestamp(),
       };
@@ -299,3 +306,5 @@ export default function NoCodeAlgoPage() {
         </div>
     );
 }
+
+    
