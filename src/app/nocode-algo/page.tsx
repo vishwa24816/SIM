@@ -7,6 +7,7 @@ import {
     Save, 
     Play, 
     Menu,
+    History,
 } from 'lucide-react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -31,6 +32,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useRouter } from 'next/navigation';
 import { SettingsPanel } from '@/components/trade/settings-panel';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 const Flow = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -81,6 +84,12 @@ const Flow = () => {
         setEdges((eds) => eds.filter((e) => e.id !== edge.id));
     }, [setEdges]);
 
+    const savedStrategies = [
+        { name: 'RSI Momentum Scalper' },
+        { name: 'EMA Crossover Trend' },
+        { name: 'Bollinger Breakout' },
+    ];
+
     return (
         <div className="h-full w-full relative">
             <ReactFlow
@@ -107,28 +116,54 @@ const Flow = () => {
                         <span className="sr-only">Open Nodes</span>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
-                    <SheetHeader>
-                        <SheetTitle>Nodes</SheetTitle>
+                <SheetContent side="left" className="flex flex-col p-0">
+                    <SheetHeader className="p-4 border-b">
+                        <SheetTitle>Builder Menu</SheetTitle>
                     </SheetHeader>
-                    <Accordion type="multiple" className="w-full">
-                        {nodeCategories.map(category => (
-                            <AccordionItem value={category.title} key={category.title}>
-                                <AccordionTrigger>{category.title}</AccordionTrigger>
-                                <AccordionContent>
-                                    <div className="space-y-2">
-                                        {category.nodes.map(node => (
-                                            <SidebarNode 
-                                                key={node.label} 
-                                                onNodeClick={() => addNode(node)}
-                                                {...node} 
-                                            />
-                                        ))}
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
+                    <ScrollArea className="flex-1">
+                        <div className="p-4">
+                             <Accordion type="multiple" className="w-full" defaultValue={['nodes', 'saved-strategies']}>
+                                <AccordionItem value="nodes">
+                                    <AccordionTrigger>Nodes</AccordionTrigger>
+                                    <AccordionContent>
+                                        <Accordion type="multiple" className="w-full">
+                                            {nodeCategories.map(category => (
+                                                <AccordionItem value={category.title} key={category.title}>
+                                                    <AccordionTrigger>{category.title}</AccordionTrigger>
+                                                    <AccordionContent>
+                                                        <div className="space-y-2">
+                                                            {category.nodes.map(node => (
+                                                                <SidebarNode 
+                                                                    key={node.label} 
+                                                                    onNodeClick={() => addNode(node)}
+                                                                    {...node} 
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ))}
+                                        </Accordion>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="saved-strategies">
+                                    <AccordionTrigger>Saved Strategies</AccordionTrigger>
+                                    <AccordionContent>
+                                        <div className="space-y-2">
+                                            {savedStrategies.map(strategy => (
+                                                <div key={strategy.name} className="flex items-center justify-between p-2 border rounded-md bg-card hover:bg-muted cursor-pointer">
+                                                    <div className="flex items-center gap-2">
+                                                        <History className="w-4 h-4 text-primary" />
+                                                        <span className="text-sm">{strategy.name}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </div>
+                    </ScrollArea>
                 </SheetContent>
             </Sheet>
         </div>
