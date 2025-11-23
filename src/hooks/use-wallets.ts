@@ -30,7 +30,7 @@ const initialWallets: Wallet[] = [
     {
         id: 'wallet_1',
         name: 'My Main Wallet',
-        isPrimary: true,
+        isPrimary: false,
         recoveryPhrase: 'witch collapse practice feed shame open despair creek road again ice least',
         publicKey: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B'
     },
@@ -90,3 +90,4 @@ export const useWallets = create<WalletsState>()(
         }
     )
 );
+
