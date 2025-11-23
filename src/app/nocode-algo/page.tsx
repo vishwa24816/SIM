@@ -21,7 +21,6 @@ import ReactFlow, {
   Controls,
   MiniMap,
   ReactFlowInstance,
-  useReactFlow,
   useOnSelectionChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -33,8 +32,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useRouter } from 'next/navigation';
 import { SettingsPanel } from '@/components/trade/settings-panel';
 
-export default function NoCodeAlgoPage() {
-    const router = useRouter();
+const Flow = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null);
@@ -83,42 +81,68 @@ export default function NoCodeAlgoPage() {
         setEdges((eds) => eds.filter((e) => e.id !== edge.id));
     }, [setEdges]);
 
+    return (
+        <div className="h-full w-full relative">
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onInit={setReactFlowInstance}
+                nodeTypes={customNodeTypes}
+                onEdgeDoubleClick={onEdgeDoubleClick}
+                fitView
+                className="bg-background dot-grid"
+            >
+                <Background />
+                <Controls />
+                <MiniMap />
+            </ReactFlow>
+            <SettingsPanel selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
+             <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="absolute top-4 left-4 z-10">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Open Nodes</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left">
+                    <SheetHeader>
+                        <SheetTitle>Nodes</SheetTitle>
+                    </SheetHeader>
+                    <Accordion type="multiple" className="w-full">
+                        {nodeCategories.map(category => (
+                            <AccordionItem value={category.title} key={category.title}>
+                                <AccordionTrigger>{category.title}</AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="space-y-2">
+                                        {category.nodes.map(node => (
+                                            <SidebarNode 
+                                                key={node.label} 
+                                                onNodeClick={() => addNode(node)}
+                                                {...node} 
+                                            />
+                                        ))}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                </SheetContent>
+            </Sheet>
+        </div>
+    );
+};
+
+
+export default function NoCodeAlgoPage() {
+    const router = useRouter();
     
     return (
         <div className="h-screen w-screen flex flex-col bg-background">
             <header className="flex-shrink-0 flex items-center justify-between px-4 h-16 border-b z-20">
                 <div className="flex items-center gap-2">
-                     <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Open Nodes</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left">
-                            <SheetHeader>
-                                <SheetTitle>Nodes</SheetTitle>
-                            </SheetHeader>
-                            <Accordion type="multiple" className="w-full">
-                                {nodeCategories.map(category => (
-                                    <AccordionItem value={category.title} key={category.title}>
-                                        <AccordionTrigger>{category.title}</AccordionTrigger>
-                                        <AccordionContent>
-                                            <div className="space-y-2">
-                                                {category.nodes.map(node => (
-                                                    <SidebarNode 
-                                                        key={node.label} 
-                                                        onNodeClick={() => addNode(node)}
-                                                        {...node} 
-                                                    />
-                                                ))}
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                ))}
-                            </Accordion>
-                        </SheetContent>
-                    </Sheet>
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
@@ -131,23 +155,7 @@ export default function NoCodeAlgoPage() {
             </header>
             <main className="flex-1 overflow-hidden relative">
                  <ReactFlowProvider>
-                    <ReactFlow
-                        nodes={nodes}
-                        edges={edges}
-                        onNodesChange={onNodesChange}
-                        onEdgesChange={onEdgesChange}
-                        onConnect={onConnect}
-                        onInit={setReactFlowInstance}
-                        nodeTypes={customNodeTypes}
-                        onEdgeDoubleClick={onEdgeDoubleClick}
-                        fitView
-                        className="bg-background dot-grid"
-                    >
-                        <Background />
-                        <Controls />
-                        <MiniMap />
-                    </ReactFlow>
-                    <SettingsPanel selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
+                    <Flow />
                  </ReactFlowProvider>
             </main>
         </div>
