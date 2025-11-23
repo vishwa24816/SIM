@@ -8,6 +8,7 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { spotPairs, futuresPairs } from '@/lib/pairs';
 
 interface SettingsPanelProps {
     selectedNode: Node | null;
@@ -113,10 +114,50 @@ const TrailingStopSettings = ({ node }: { node: Node }) => {
     );
 };
 
+const GetTickerPriceSettings = ({ node }: { node: Node }) => {
+    const [marketType, setMarketType] = React.useState(node.data.marketType || 'spot');
+    const [ticker, setTicker] = React.useState(node.data.ticker || '');
+
+    const tickers = marketType === 'spot' ? spotPairs : futuresPairs;
+
+    return (
+        <div className="space-y-4">
+            <div>
+                <Label htmlFor="market-type">Market</Label>
+                <Select value={marketType} onValueChange={setMarketType}>
+                    <SelectTrigger id="market-type">
+                        <SelectValue placeholder="Select market type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="spot">Spot</SelectItem>
+                        <SelectItem value="futures">Futures</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div>
+                <Label htmlFor="ticker">Ticker</Label>
+                <Select value={ticker} onValueChange={setTicker}>
+                    <SelectTrigger id="ticker">
+                        <SelectValue placeholder="Select a ticker" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {tickers.map(t => (
+                            <SelectItem key={t.pair} value={t.pair}>{t.pair}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <Button className="w-full">Apply</Button>
+        </div>
+    );
+};
+
 const renderSettings = (node: Node | null) => {
     if (!node) return null;
     
     switch (node.data.label) {
+        case 'Get Ticker Price':
+            return <GetTickerPriceSettings node={node} />;
         case 'RSI':
             return <RsiSettings node={node} />;
         case 'If/Else':
