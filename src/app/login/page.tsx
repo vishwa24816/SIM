@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -6,14 +5,18 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
-import { useAuth } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useAuth, useFirestore } from '@/firebase';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import placeholderImages from '@/app/lib/placeholder-images.json';
+import { Separator } from '@/components/ui/separator';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>
@@ -24,12 +27,23 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+});
+
 export default function LoginPage() {
   const auth = useAuth();
-  const firestore = useFirestore();
   const { user, loading } = useUser();
   const router = useRouter();
   const [isSigningIn, setIsSigningIn] = React.useState(false);
+  const [formType, setFormType] = React.useState<'login' | 'signup'>('login');
+  const [error, setError] = React.useState<string | null>(null);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
   React.useEffect(() => {
     if (!loading && user) {
@@ -40,13 +54,30 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     if (!auth) return;
     setIsSigningIn(true);
+    setError(null);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // The user document creation is now handled by the useUser hook.
-      // The useEffect above will handle the redirect on user state change.
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error during Google sign-in:", error);
+      setError(error.message);
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleEmailAuth = async (values: z.infer<typeof formSchema>) => {
+    if (!auth) return;
+    setIsSigningIn(true);
+    setError(null);
+    try {
+      if (formType === 'login') {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+      } else {
+        await createUserWithEmailAndPassword(auth, values.email, values.password);
+      }
+    } catch (error: any) {
+      console.error(`Error during email ${formType}:`, error);
+      setError(error.message);
       setIsSigningIn(false);
     }
   };
@@ -60,36 +91,103 @@ export default function LoginPage() {
   }
 
   return (
-    <>
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-sm">
-          <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                  <Image
-                    src={placeholderImages.logo.src}
-                    alt={placeholderImages.logo.alt}
-                    width={48}
-                    height={48}
-                    data-ai-hint={placeholderImages.logo['data-ai-hint']}
-                  />
-              </div>
-            <CardTitle className="text-2xl">Welcome to SIM</CardTitle>
-            <CardDescription>
-              Sign in to access your simulated crypto exchange.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSigningIn}>
-              {isSigningIn ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              ) : (
-                <GoogleIcon className="mr-2 h-5 w-5" />
-              )}
-              Sign in with Google
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <Image
+              src={placeholderImages.logo.src}
+              alt={placeholderImages.logo.alt}
+              width={48}
+              height={48}
+              data-ai-hint={placeholderImages.logo['data-ai-hint']}
+            />
+          </div>
+          <CardTitle className="text-2xl">
+            {formType === 'login' ? 'Welcome Back' : 'Create an Account'}
+          </CardTitle>
+          <CardDescription>
+            {formType === 'login' 
+              ? 'Sign in to access your simulated crypto exchange.'
+              : 'Join SIM to start your crypto journey.'
+            }
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleEmailAuth)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="name@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {error && <p className="text-sm text-destructive text-center">{error}</p>}
+              <Button type="submit" className="w-full" disabled={isSigningIn}>
+                {isSigningIn && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                {formType === 'login' ? 'Sign In' : 'Sign Up'}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+          
+          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSigningIn}>
+            {isSigningIn && form.formState.isSubmitting ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <GoogleIcon className="mr-2 h-5 w-5" />
+            )}
+            Sign in with Google
+          </Button>
+
+          <Separator />
+          
+          <p className="text-center text-sm text-muted-foreground">
+            {formType === 'login'
+              ? "Don't have an account? "
+              : "Already have an account? "}
+            <Button
+              variant="link"
+              className="p-0 h-auto"
+              onClick={() => {
+                setFormType(formType === 'login' ? 'signup' : 'login');
+                setError(null);
+                form.reset();
+              }}
+            >
+              {formType === 'login' ? 'Sign Up' : 'Sign In'}
             </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
