@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
-    const IconComponent = crypto.icon;
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -19,8 +18,8 @@ const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
     const content = (
         <div className="flex items-center justify-between py-3 cursor-pointer">
             <div className="flex items-center gap-3">
-                <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center">
-                    {IconComponent && typeof IconComponent === 'function' && <IconComponent className="w-6 h-6" />}
+                <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm">
+                    {crypto.symbol.slice(0, 4)}
                 </div>
                 <div>
                     <p className="font-semibold">{crypto.symbol}</p>
