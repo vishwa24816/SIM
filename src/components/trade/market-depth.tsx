@@ -96,79 +96,83 @@ export function MarketDepth({ crypto, onPriceSelect, canAddToBasket, orderState 
 
 
   return (
-    <Collapsible>
-        <CollapsibleTrigger className="w-full">
-            <div className="flex flex-col space-y-1.5 p-6 border-b">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <List className="h-5 w-5" />
-                        <h3 className="text-lg font-semibold leading-none tracking-tight">Market Depth</h3>
+    <div>
+        <Collapsible>
+            <CollapsibleTrigger className="w-full">
+                <div className="flex flex-col space-y-1.5 p-6 border-b">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <List className="h-5 w-5" />
+                            <h3 className="text-lg font-semibold leading-none tracking-tight">Market Depth</h3>
+                        </div>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform [&[data-state=open]]:-rotate-180" />
                     </div>
-                    <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform [&[data-state=open]]:-rotate-180" />
                 </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+                <div className="p-6 pt-4">
+                    <div className="grid grid-cols-2 gap-4 text-center text-sm">
+                        <div>
+                            <h4 className="font-semibold mb-1">Buy Orders</h4>
+                            <p className="text-xs text-muted-foreground mb-2">Total: {totalBuy}</p>
+                            <div className="space-y-1">
+                                {buyOrders.map((order, i) => (
+                                    <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
+                                        <span>{order.total}</span>
+                                        <span className="text-green-500">{formatPrice(order.price)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold mb-1">Sell Orders</h4>
+                            <p className="text-xs text-muted-foreground mb-2">Total: {totalSell}</p>
+                            <div className="space-y-1">
+                                {sellOrders.map((order, i) => (
+                                    <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
+                                        <span className="text-red-500">{formatPrice(order.price)}</span>
+                                        <span>{order.total}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </CollapsibleContent>
+        </Collapsible>
+        <div className="p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+                <Button variant="outline" disabled={!canAddToBasket} onClick={() => setIsAddingToBasket(true)}>
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Add to Basket
+                </Button>
+                <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                    <BellRing className="w-4 h-4 mr-2"/>
+                    Add Alert
+                </Button>
             </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-            <div className="p-6 pt-4">
-                <div className="grid grid-cols-2 gap-4 text-center text-sm">
-                    <div>
-                        <h4 className="font-semibold mb-1">Buy Orders</h4>
-                        <p className="text-xs text-muted-foreground mb-2">Total: {totalBuy}</p>
-                        <div className="space-y-1">
-                            {buyOrders.map((order, i) => (
-                                <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
-                                    <span>{order.total}</span>
-                                    <span className="text-green-500">{formatPrice(order.price)}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold mb-1">Sell Orders</h4>
-                        <p className="text-xs text-muted-foreground mb-2">Total: {totalSell}</p>
-                        <div className="space-y-1">
-                            {sellOrders.map((order, i) => (
-                                <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
-                                    <span className="text-red-500">{formatPrice(order.price)}</span>
-                                    <span>{order.total}</span>
-                                </div>
-                            ))}
-                        </div>
+            {isSettingAlert && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
+                    <div className="flex gap-2">
+                        <Input 
+                            type="number" 
+                            placeholder={`Current: ${formatPrice(crypto.price)}`}
+                            value={alertPrice}
+                            onChange={(e) => setAlertPrice(e.target.value)}
+                        />
+                        <Button onClick={handleSetAlert}>Set Alert</Button>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                    <Button variant="outline" disabled={!canAddToBasket} onClick={() => setIsAddingToBasket(true)}>
-                        <Briefcase className="w-4 h-4 mr-2" />
-                        Add to Basket
-                    </Button>
-                    <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
-                        <BellRing className="w-4 h-4 mr-2"/>
-                        Add Alert
-                    </Button>
-                </div>
-                {isSettingAlert && (
-                    <div className="mt-4 space-y-2">
-                        <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
-                        <div className="flex gap-2">
-                            <Input 
-                                type="number" 
-                                placeholder={`Current: ${formatPrice(crypto.price)}`}
-                                value={alertPrice}
-                                onChange={(e) => setAlertPrice(e.target.value)}
-                            />
-                            <Button onClick={handleSetAlert}>Set Alert</Button>
-                        </div>
-                    </div>
-                )}
-                 {isAddingToBasket && (
-                    <AddToBasketForm 
-                        instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
-                        orderState={orderState}
-                        onClose={() => setIsAddingToBasket(false)}
-                    />
-                 )}
-            </div>
-        </CollapsibleContent>
-    </Collapsible>
+            )}
+             {isAddingToBasket && (
+                <AddToBasketForm 
+                    instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
+                    orderState={orderState}
+                    onClose={() => setIsAddingToBasket(false)}
+                />
+             )}
+        </div>
+    </div>
   );
 }
