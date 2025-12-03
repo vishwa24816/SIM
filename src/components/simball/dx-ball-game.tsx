@@ -6,45 +6,45 @@ import { Button } from '@/components/ui/button';
 import { X, Trophy, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SimballGame } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
-interface DxBallGameProps {
-  brokerage: number;
-  onClose: () => void;
-}
-
-const ConfettiPiece = ({ x, y, rotate, color }: { x: number; y: number; rotate: number; color: string }) => {
+const ConfettiPiece = ({ id, x, y, rotate, color }: { id: number, x: number; y: number; rotate: number; color: string }) => {
+  const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
   return (
     <motion.div
+      key={id}
       style={{
         position: 'absolute',
-        left: x,
-        top: y,
+        left: `${x}vw`,
+        top: `${y}vh`,
         backgroundColor: color,
         width: '8px',
-        height: '8px',
+        height: '16px',
+        rotate: rotate,
       }}
-      initial={{ opacity: 1, y: 0, rotate: 0 }}
-      animate={{ opacity: 0, y: 100, rotate: rotate + 180 }}
-      transition={{ duration: 1, ease: 'easeOut' }}
+      initial={{ y: -20, opacity: 1 }}
+      animate={{ y: screenHeight + 20, opacity: 0 }}
+      transition={{ duration: Math.random() * 3 + 4, ease: "linear", repeat: Infinity, delay: Math.random() * 5 }}
     />
   );
 };
 
 const ConfettiExplosion = () => {
     const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1", "#F1C40F"];
-    const pieces = useMemo(() => Array.from({ length: 50 }).map((_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * -50,
-        rotate: Math.random() * 360,
-        color: colors[Math.floor(Math.random() * colors.length)]
-    })), [colors]);
+    const pieces = useMemo(() => {
+        return Array.from({ length: 150 }).map((_, i) => ({
+            id: i,
+            x: Math.random() * 100,
+            y: Math.random() * -100, // Start above the screen
+            rotate: Math.random() * 360,
+            color: colors[i % colors.length]
+        }));
+    }, [colors]);
 
     return (
-        <div className="absolute inset-0 pointer-events-none">
-            <AnimatePresence>
-                {pieces.map(p => <ConfettiPiece key={p.id} {...p} />)}
-            </AnimatePresence>
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+            {pieces.map(p => <ConfettiPiece key={p.id} {...p} />)}
         </div>
     );
 };
@@ -267,9 +267,9 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       <canvas ref={canvasRef} style={{ display: gameState === 'ended' ? 'none' : 'block' }}></canvas>
       
       {gameState === 'ended' && (
-        <div className="relative">
+        <div className="relative w-full h-full flex items-center justify-center">
           <ConfettiExplosion />
-          <Card className="w-full max-w-sm text-center">
+          <Card className="w-full max-w-sm text-center z-10">
               <CardHeader>
                   <CardTitle className="flex items-center justify-center gap-2">
                       <Trophy className="w-8 h-8 text-yellow-400" />
