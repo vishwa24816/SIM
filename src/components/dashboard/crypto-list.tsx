@@ -18,7 +18,7 @@ const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
     const content = (
         <div className="flex items-center justify-between py-3 cursor-pointer">
             <div className="flex items-center gap-3">
-                <div className="bg-muted rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm">
+                <div className="bg-muted rounded-full w-12 h-12 flex items-center justify-center font-bold text-sm">
                     {crypto.symbol.slice(0, 4)}
                 </div>
                 <div>
