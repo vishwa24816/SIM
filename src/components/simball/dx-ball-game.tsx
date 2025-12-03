@@ -5,11 +5,50 @@ import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button';
 import { X, Trophy, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DxBallGameProps {
   brokerage: number;
   onClose: () => void;
 }
+
+const ConfettiPiece = ({ x, y, rotate, color }: { x: number; y: number; rotate: number; color: string }) => {
+  return (
+    <motion.div
+      style={{
+        position: 'absolute',
+        left: x,
+        top: y,
+        backgroundColor: color,
+        width: '8px',
+        height: '8px',
+      }}
+      initial={{ opacity: 1, y: 0, rotate: 0 }}
+      animate={{ opacity: 0, y: 100, rotate: rotate + 180 }}
+      transition={{ duration: 1, ease: 'easeOut' }}
+    />
+  );
+};
+
+const ConfettiExplosion = () => {
+    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1", "#F1C40F"];
+    const pieces = useMemo(() => Array.from({ length: 50 }).map((_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * -50,
+        rotate: Math.random() * 360,
+        color: colors[Math.floor(Math.random() * colors.length)]
+    })), [colors]);
+
+    return (
+        <div className="absolute inset-0 pointer-events-none">
+            <AnimatePresence>
+                {pieces.map(p => <ConfettiPiece key={p.id} {...p} />)}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 
 export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -228,22 +267,25 @@ export const DxBallGame: React.FC<DxBallGameProps> = ({ brokerage, onClose }) =>
       <canvas ref={canvasRef} style={{ display: gameState === 'ended' ? 'none' : 'block' }}></canvas>
       
       {gameState === 'ended' && (
-        <Card className="w-full max-w-sm text-center">
-            <CardHeader>
-                <CardTitle className="flex items-center justify-center gap-2">
-                    <Trophy className="w-8 h-8 text-yellow-400" />
-                    Congratulations!
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <p className="text-2xl font-bold">You've earned <span className="text-primary">₹{score.current}</span> cashback!</p>
-                <div className="flex gap-4">
-                    <Button className="w-full" onClick={onClose}>
-                        Close
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="relative">
+          <ConfettiExplosion />
+          <Card className="w-full max-w-sm text-center">
+              <CardHeader>
+                  <CardTitle className="flex items-center justify-center gap-2">
+                      <Trophy className="w-8 h-8 text-yellow-400" />
+                      Congratulations!
+                  </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  <p className="text-2xl font-bold">You've earned <span className="text-primary">₹{score.current}</span> cashback!</p>
+                  <div className="flex gap-4">
+                      <Button className="w-full" onClick={onClose}>
+                          Close
+                      </Button>
+                  </div>
+              </CardContent>
+          </Card>
+        </div>
       )}
 
     </div>
