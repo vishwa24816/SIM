@@ -17,7 +17,7 @@ import { CryptoCurrency, Portfolio } from "@/lib/types";
 interface TradingPanelProps {
   selectedCrypto: CryptoCurrency;
   portfolio: Portfolio;
-  onBuy: (cryptoId: string, usdAmount: number) => void;
+  onBuy: (cryptoId: string, inrAmount: number, quantity: number) => void;
   onSell: (cryptoId: string, cryptoAmount: number) => void;
 }
 
@@ -26,7 +26,10 @@ export function TradingPanel({ selectedCrypto, portfolio, onBuy, onSell }: Tradi
   const [sellAmount, setSellAmount] = React.useState("");
 
   const handleBuy = () => {
-    onBuy(selectedCrypto.id, parseFloat(buyAmount));
+    const amountInr = parseFloat(buyAmount);
+    if (!amountInr || amountInr <= 0 || selectedCrypto.price <= 0) return;
+    const quantity = amountInr / selectedCrypto.price;
+    onBuy(selectedCrypto.id, amountInr, quantity);
     setBuyAmount("");
   };
 
@@ -53,10 +56,10 @@ export function TradingPanel({ selectedCrypto, portfolio, onBuy, onSell }: Tradi
             <div className="space-y-4 pt-4">
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>Available:</span>
-                <span>${portfolio.usdBalance.toFixed(2)} USD</span>
+                <span>₹{portfolio.usdBalance.toFixed(2)}</span>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="buy-amount">Amount in USD</Label>
+                <Label htmlFor="buy-amount">Amount in INR</Label>
                 <Input
                   id="buy-amount"
                   type="number"

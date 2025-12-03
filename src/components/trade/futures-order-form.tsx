@@ -167,7 +167,7 @@ export function FuturesOrderForm({
                     <div className="flex gap-2">
                         <Input id="stop-loss-value" placeholder="0.00" type="number" value={stopLossValue} onChange={e => setStopLossValue(e.target.value)} />
                         <div className="flex rounded-md bg-muted p-1">
-                            <Button variant={stopLossType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setStopLossType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">$</Button>
+                            <Button variant={stopLossType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setStopLossType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">₹</Button>
                             <Button variant={stopLossType === 'percentage' ? 'default' : 'ghost'} size="sm" onClick={() => setStopLossType('percentage')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">%</Button>
                         </div>
                     </div>
@@ -180,7 +180,7 @@ export function FuturesOrderForm({
                     <div className="flex gap-2">
                         <Input id="take-profit-value" placeholder="0.00" type="number" value={takeProfitValue} onChange={e => setTakeProfitValue(e.target.value)} />
                         <div className="flex rounded-md bg-muted p-1">
-                             <Button variant={takeProfitType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">$</Button>
+                             <Button variant={takeProfitType === 'price' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('price')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">₹</Button>
                             <Button variant={takeProfitType === 'percentage' ? 'default' : 'ghost'} size="sm" onClick={() => setTakeProfitType('percentage')} className="flex-1 text-xs px-2 h-auto data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">%</Button>
                         </div>
                     </div>
@@ -209,7 +209,7 @@ export function FuturesOrderForm({
             </RadioGroup>
 
             <div className="text-sm text-muted-foreground">
-                Margin required: <span className="font-semibold text-foreground">${marginRequired.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                Margin required: <span className="font-semibold text-foreground">₹{marginRequired.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
 
         </div>

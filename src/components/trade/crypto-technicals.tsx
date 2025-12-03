@@ -6,29 +6,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoCurrency } from '@/lib/types';
 import { Search, TrendingUp } from 'lucide-react';
 
-const formatCurrency = (value: number, currency = 'USD', style = 'currency') => {
+const formatCurrency = (value: number, currency = 'INR', style = 'currency') => {
     if (style === 'currency') {
-         return new Intl.NumberFormat('en-US', {
+         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).format(value);
     }
-    return value.toLocaleString('en-US');
+    return value.toLocaleString('en-IN');
 }
 
 const formatLargeNumber = (value: number) => {
     if (value >= 1_000_000_000_000) {
-        return `${(value / 1_000_000_000_000).toFixed(2)}T`;
+        return `₹${(value / 1_000_000_000_000).toFixed(2)}T`;
     }
     if (value >= 1_000_000_000) {
-        return `${(value / 1_000_000_000).toFixed(2)}B`;
+        return `₹${(value / 1_000_000_000).toFixed(2)}B`;
     }
     if (value >= 1_000_000) {
-        return `${(value / 1_000_000).toFixed(2)}M`;
+        return `₹${(value / 1_000_000).toFixed(2)}M`;
     }
-    return value.toLocaleString();
+    return `₹${value.toLocaleString()}`;
 };
 
 

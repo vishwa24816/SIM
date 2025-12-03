@@ -7,6 +7,7 @@ import { INITIAL_CRYPTO_DATA, CRYPTO_ETFS_DATA, MUTUAL_FUNDS_DATA } from '@/lib/
 import { spotPairs, futuresPairs } from '@/lib/pairs';
 
 const defaultCrypto = INITIAL_CRYPTO_DATA[0];
+const USD_TO_INR = 90;
 
 export type Exchange = 'binance' | 'coinbase';
 
@@ -52,7 +53,7 @@ export function useMarketData() {
         const cryptoSymbol = parsedData.s.replace('USDT', '');
         const crypto = ALL_INITIAL_SPOT_ASSETS.find(c => c.symbol.toUpperCase() === cryptoSymbol);
         if (crypto) {
-          handlePriceUpdate({ id: crypto.id, price: parseFloat(candle.c), time: new Date(candle.t).toISOString() });
+          handlePriceUpdate({ id: crypto.id, price: parseFloat(candle.c) * USD_TO_INR, time: new Date(candle.t).toISOString() });
         }
       }
     };
@@ -81,7 +82,7 @@ export function useMarketData() {
         const cryptoSymbol = parsedData.product_id.split('-')[0];
         const crypto = ALL_INITIAL_SPOT_ASSETS.find(c => c.symbol.toUpperCase() === cryptoSymbol);
         if (crypto) {
-          handlePriceUpdate({ id: crypto.id, price: parseFloat(parsedData.price), time: parsedData.time });
+          handlePriceUpdate({ id: crypto.id, price: parseFloat(parsedData.price) * USD_TO_INR, time: parsedData.time });
         }
       }
     };
@@ -97,7 +98,7 @@ export function useMarketData() {
           const lastPrice = crypto.priceHistory.length > 0 ? crypto.priceHistory[crypto.priceHistory.length - 1].value : newPrice;
           const change24h = lastPrice > 0 ? ((newPrice - lastPrice) / lastPrice) * 100 + crypto.change24h : crypto.change24h;
           const newHistory = [...crypto.priceHistory.slice(1), { time: update.time, value: newPrice }];
-          return { ...crypto, price: newPrice, change24h, priceHistory: newHistory };
+          return { ...crypto, price: newPrice, change24h, volume24h: crypto.volume24h * (1 + (Math.random() - 0.5) * 0.01), priceHistory: newHistory };
         }
         if (crypto.assetType === 'Futures' && crypto.id === `${update.id}-fut`) {
           return { ...crypto, price: update.price };

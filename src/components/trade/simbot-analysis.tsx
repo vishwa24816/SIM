@@ -28,7 +28,7 @@ export function SimbotAnalysis({ crypto, showTabs = false }: SimbotAnalysisProps
                                 <AvatarFallback>B</AvatarFallback>
                             </Avatar>
                             <div className="p-3 bg-muted rounded-lg text-sm">
-                                <p>Based on recent trends, {crypto.name} ({crypto.symbol}) is showing strong bullish momentum. Key indicators suggest a potential breakout above the ${crypto.price.toFixed(4)} level in the short term.</p>
+                                <p>Based on recent trends, {crypto.name} ({crypto.symbol}) is showing strong bullish momentum. Key indicators suggest a potential breakout above the ₹{crypto.price.toFixed(4)} level in the short term.</p>
                             </div>
                         </div>
                     </div>

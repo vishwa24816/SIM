@@ -23,7 +23,7 @@ interface PortfolioState {
   getPortfolioValue: (marketData: CryptoCurrency[]) => number;
   addUsd: (user: User, firestore: Firestore, amount: number) => Promise<void>;
   withdrawUsd: (user: User, firestore: Firestore, amount: number) => Promise<void>;
-  buy: (user: User, firestore: Firestore, crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => Promise<void>;
+  buy: (user: User, firestore: Firestore, crypto: CryptoCurrency, inrAmount: number, quantity: number, options?: BuyOptions) => Promise<void>;
   sell: (user: User, firestore: Firestore, crypto: CryptoCurrency, cryptoAmountToSell: number) => Promise<void>;
 }
 
@@ -73,7 +73,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 const newBalance = (userDoc.data().usdBalance || 0) + amount;
                 transaction.update(userRef, { usdBalance: newBalance });
             });
-            toast({ title: 'Funds Added', description: `$${amount.toFixed(2)} has been added.` });
+            toast({ title: 'Funds Added', description: `₹${amount.toFixed(2)} has been added.` });
         } catch (e: any) {
             const permissionError = new FirestorePermissionError({
                 path: userRef.path,
@@ -105,7 +105,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 const newBalance = currentBalance - amount;
                 transaction.update(userRef, { usdBalance: newBalance });
             });
-            toast({ title: 'Withdrawal Successful', description: `$${amount.toFixed(2)} withdrawn.` });
+            toast({ title: 'Withdrawal Successful', description: `₹${amount.toFixed(2)} withdrawn.` });
         } catch (e: any) {
              const permissionError = new FirestorePermissionError({
                 path: userRef.path,
@@ -115,7 +115,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             errorEmitter.emit('permission-error', permissionError);
         }
     },
-    buy: async (user: User, firestore: Firestore, crypto: CryptoCurrency, usdAmount: number, quantity: number, options?: BuyOptions) => {
+    buy: async (user: User, firestore: Firestore, crypto: CryptoCurrency, inrAmount: number, quantity: number, options?: BuyOptions) => {
          if (!user || !firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'User not authenticated.' });
             return;
@@ -136,18 +136,18 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 }
                 
                 const currentBalance = userDoc.data().usdBalance || 0;
-                if (currentBalance < usdAmount) {
+                if (currentBalance < inrAmount) {
                     throw new Error("Insufficient funds.");
                 }
                 
                 // 2. All writes second
-                const newBalance = currentBalance - usdAmount;
+                const newBalance = currentBalance - inrAmount;
                 transaction.update(userRef, { usdBalance: newBalance });
                 
                 if (holdingDoc.exists()) {
                     const currentHolding = holdingDoc.data() as Holding;
                     const newAmount = currentHolding.amount + quantity;
-                    const newMargin = (currentHolding.margin || 0) + usdAmount;
+                    const newMargin = (currentHolding.margin || 0) + inrAmount;
                     
                     const updatedHolding: Partial<Holding> = {
                         amount: newAmount,
@@ -165,7 +165,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                         cryptoId: crypto.id,
                         assetType: crypto.assetType,
                         amount: quantity,
-                        margin: usdAmount,
+                        margin: inrAmount,
                     };
                     if (options?.stopLoss !== undefined) newHolding.stopLoss = options.stopLoss;
                     if (options?.takeProfit !== undefined) newHolding.takeProfit = options.takeProfit;
@@ -181,10 +181,10 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 asset: crypto.symbol,
                 quantity: quantity,
                 priceAtTransaction: crypto.price,
-                totalValue: usdAmount,
+                totalValue: inrAmount,
                 date: new Date().toISOString(),
                 blockchainId: Math.random().toString(36).substring(2, 10).toUpperCase(),
-                brokerage: usdAmount * 0.001,
+                brokerage: inrAmount * 0.001,
                 brokerageEarnedBack: 0,
             });
         } catch (error: any) {
@@ -197,7 +197,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                     cryptoId: crypto.id,
                     assetType: crypto.assetType,
                     amount: quantity,
-                    margin: usdAmount,
+                    margin: inrAmount,
                     ...(options || {})
                 },
             });
@@ -233,9 +233,9 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
                 }
     
                 // 2. All writes second
-                const usdGained = cryptoAmountToSell * crypto.price;
+                const inrGained = cryptoAmountToSell * crypto.price;
                 const currentBalance = userDoc.data().usdBalance;
-                const newBalance = currentBalance + usdGained;
+                const newBalance = currentBalance + inrGained;
                 transaction.update(userRef, { usdBalance: newBalance });
     
                 const newAmount = currentHolding.amount - cryptoAmountToSell;

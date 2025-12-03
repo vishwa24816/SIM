@@ -63,14 +63,11 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
           <AccordionItem value={holding.crypto.id} key={holding.crypto.id}>
             <AccordionTrigger>
               <div className="flex items-center gap-3 w-full">
-                <holding.crypto.icon className="h-8 w-8" />
-                <div>
-                  <div className="font-semibold">{holding.crypto.name}</div>
-                  <div className="text-xs text-muted-foreground">{holding.crypto.symbol}</div>
-                </div>
+                <div className="font-semibold">{holding.crypto.name}</div>
+                <div className="text-xs text-muted-foreground">{holding.crypto.symbol}</div>
                 <div className="ml-auto text-right">
                   <div className="font-mono font-semibold">
-                    ${holding.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{holding.value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   <div className={cn("text-sm flex items-center justify-end gap-1", pnl >= 0 ? "text-green-500" : "text-red-500")}>
                      {pnl >= 0 ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>}
@@ -88,26 +85,26 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
                       </div>
                       <div className="text-right">
                           <p className="text-muted-foreground">Avg. Buy Price</p>
-                          <p className="font-semibold">${entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: entryPrice < 1 ? 6 : 2 })}</p>
+                          <p className="font-semibold">₹{entryPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: entryPrice < 1 ? 6 : 2 })}</p>
                       </div>
                       <div>
                           <p className="text-muted-foreground">Current Price</p>
-                          <p className="font-semibold">${holding.crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: holding.crypto.price < 1 ? 6 : 2 })}</p>
+                          <p className="font-semibold">₹{holding.crypto.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: holding.crypto.price < 1 ? 6 : 2 })}</p>
                       </div>
                        <div className="text-right">
                           <p className="text-muted-foreground">Total Investment</p>
-                          <p className="font-semibold">${holding.margin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className="font-semibold">₹{holding.margin.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       </div>
                   </div>
                   {(holding.stopLoss || holding.takeProfit || holding.trailingStopLoss) && (
                     <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm mb-4">
                         <div>
                             <p className="text-muted-foreground">Stop Loss</p>
-                            <p className="font-semibold text-red-500">{holding.stopLoss ? `$${holding.stopLoss}` : 'Not Set'}</p>
+                            <p className="font-semibold text-red-500">{holding.stopLoss ? `₹${holding.stopLoss}` : 'Not Set'}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-muted-foreground">Take Profit</p>
-                            <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
+                            <p className="font-semibold text-green-500">{holding.takeProfit ? `₹${holding.takeProfit}` : 'Not Set'}</p>
                         </div>
                         {holding.trailingStopLoss && (
                            <div>
@@ -171,7 +168,6 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
                     <AccordionItem value={holding.crypto.id} key={holding.crypto.id}>
                         <AccordionTrigger>
                             <div className="flex items-center gap-3 w-full">
-                                <holding.crypto.icon className="h-8 w-8" />
                                 <div>
                                     <div className="font-semibold flex items-center gap-2">
                                         {holding.crypto.name.replace('Futures', '')}
@@ -183,7 +179,7 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
                                 </div>
                                 <div className="ml-auto text-right">
                                     <div className="font-mono font-semibold">
-                                       ${(holding.margin ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                       ₹{(holding.margin ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
                                      <div className={cn("text-sm flex items-center justify-end gap-1", pnl >= 0 ? "text-green-500" : "text-red-500")}>
                                         {pnl >= 0 ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>}
@@ -201,22 +197,22 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
                                     </div>
                                     <div className="text-center">
                                         <p className="text-muted-foreground">Entry Price</p>
-                                        <p className="font-semibold">${holding.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                                        <p className="font-semibold">₹{holding.entryPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-muted-foreground">Current Price</p>
-                                        <p className="font-semibold">${holding.baseAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                        <p className="font-semibold">₹{holding.baseAssetPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                     </div>
                                 </div>
                                 {(holding.stopLoss || holding.takeProfit || holding.trailingStopLoss) && (
                                     <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm mb-4">
                                         <div>
                                             <p className="text-muted-foreground">Stop Loss</p>
-                                            <p className="font-semibold text-red-500">{holding.stopLoss ? `$${holding.stopLoss}` : 'Not Set'}</p>
+                                            <p className="font-semibold text-red-500">{holding.stopLoss ? `₹${holding.stopLoss}` : 'Not Set'}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-muted-foreground">Take Profit</p>
-                                            <p className="font-semibold text-green-500">{holding.takeProfit ? `$${holding.takeProfit}` : 'Not Set'}</p>
+                                            <p className="font-semibold text-green-500">{holding.takeProfit ? `₹${holding.takeProfit}` : 'Not Set'}</p>
                                         </div>
                                         {holding.trailingStopLoss && (
                                           <div>
