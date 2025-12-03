@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { List, BellRing, Briefcase } from 'lucide-react';
+import { List, BellRing, Briefcase, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CryptoCurrency } from '@/lib/types';
 import { useAlerts } from '@/hooks/use-alerts';
@@ -10,6 +10,7 @@ import { Input } from '../ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { AddToBasketForm } from './add-to-basket-form';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
+import { cn } from '@/lib/utils';
 
 interface MarketDepthProps {
     crypto: CryptoCurrency;
@@ -95,76 +96,79 @@ export function MarketDepth({ crypto, onPriceSelect, canAddToBasket, orderState 
 
 
   return (
-    <>
-    <Collapsible open={isAddingToBasket} onOpenChange={setIsAddingToBasket}>
-        <div className="flex flex-col space-y-1.5 p-6">
-            <div className="flex items-center gap-2">
-                <List className="h-5 w-5" />
-                <h3 className="text-lg font-semibold leading-none tracking-tight">Market Depth</h3>
-            </div>
-        </div>
-        <div className="p-6 pt-0">
-            <div className="grid grid-cols-2 gap-4 text-center text-sm">
-                <div>
-                    <h4 className="font-semibold mb-1">Buy Orders</h4>
-                    <p className="text-xs text-muted-foreground mb-2">Total: {totalBuy}</p>
-                    <div className="space-y-1">
-                        {buyOrders.map((order, i) => (
-                              <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
-                                <span>{order.total}</span>
-                                <span className="text-green-500">{formatPrice(order.price)}</span>
-                            </div>
-                        ))}
+    <Collapsible>
+        <CollapsibleTrigger className="w-full">
+            <div className="flex flex-col space-y-1.5 p-6 border-b">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <List className="h-5 w-5" />
+                        <h3 className="text-lg font-semibold leading-none tracking-tight">Market Depth</h3>
                     </div>
-                </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Sell Orders</h4>
-                    <p className="text-xs text-muted-foreground mb-2">Total: {totalSell}</p>
-                    <div className="space-y-1">
-                        {sellOrders.map((order, i) => (
-                              <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
-                                <span className="text-red-500">{formatPrice(order.price)}</span>
-                                <span>{order.total}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform [&[data-state=open]]:-rotate-180" />
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-6">
-                <CollapsibleTrigger asChild>
-                    <Button variant="outline" disabled={!canAddToBasket}>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+            <div className="p-6 pt-4">
+                <div className="grid grid-cols-2 gap-4 text-center text-sm">
+                    <div>
+                        <h4 className="font-semibold mb-1">Buy Orders</h4>
+                        <p className="text-xs text-muted-foreground mb-2">Total: {totalBuy}</p>
+                        <div className="space-y-1">
+                            {buyOrders.map((order, i) => (
+                                <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-green-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
+                                    <span>{order.total}</span>
+                                    <span className="text-green-500">{formatPrice(order.price)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-1">Sell Orders</h4>
+                        <p className="text-xs text-muted-foreground mb-2">Total: {totalSell}</p>
+                        <div className="space-y-1">
+                            {sellOrders.map((order, i) => (
+                                <div key={i} className="grid grid-cols-2 items-center p-1 rounded-sm bg-red-500/10" onClick={() => onPriceSelect(order.price)} style={{cursor: 'pointer'}}>
+                                    <span className="text-red-500">{formatPrice(order.price)}</span>
+                                    <span>{order.total}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                    <Button variant="outline" disabled={!canAddToBasket} onClick={() => setIsAddingToBasket(true)}>
                         <Briefcase className="w-4 h-4 mr-2" />
                         Add to Basket
                     </Button>
-                </CollapsibleTrigger>
-                <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
-                    <BellRing className="w-4 h-4 mr-2"/>
-                    Add Alert
-                </Button>
-            </div>
-              {isSettingAlert && (
-                <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
-                    <div className="flex gap-2">
-                        <Input 
-                            type="number" 
-                            placeholder={`Current: ${formatPrice(crypto.price)}`}
-                            value={alertPrice}
-                            onChange={(e) => setAlertPrice(e.target.value)}
-                        />
-                        <Button onClick={handleSetAlert}>Set Alert</Button>
-                    </div>
+                    <Button variant="outline" onClick={() => setIsSettingAlert(!isSettingAlert)}>
+                        <BellRing className="w-4 h-4 mr-2"/>
+                        Add Alert
+                    </Button>
                 </div>
-            )}
-        </div>
-        <CollapsibleContent>
-            <AddToBasketForm 
-                instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
-                orderState={orderState}
-                onClose={() => setIsAddingToBasket(false)}
-            />
+                {isSettingAlert && (
+                    <div className="mt-4 space-y-2">
+                        <p className="text-sm font-medium">Set a price alert for {crypto.symbol}</p>
+                        <div className="flex gap-2">
+                            <Input 
+                                type="number" 
+                                placeholder={`Current: ${formatPrice(crypto.price)}`}
+                                value={alertPrice}
+                                onChange={(e) => setAlertPrice(e.target.value)}
+                            />
+                            <Button onClick={handleSetAlert}>Set Alert</Button>
+                        </div>
+                    </div>
+                )}
+                 {isAddingToBasket && (
+                    <AddToBasketForm 
+                        instrument={{ id: crypto.id, name: crypto.name, symbol: crypto.symbol, assetType: 'Spot' }}
+                        orderState={orderState}
+                        onClose={() => setIsAddingToBasket(false)}
+                    />
+                 )}
+            </div>
         </CollapsibleContent>
     </Collapsible>
-    </>
   );
 }
