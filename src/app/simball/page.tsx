@@ -126,7 +126,7 @@ export default function SimballPage() {
             <main className="flex-1 overflow-y-auto p-4 space-y-8 pb-24">
                 <div className="max-w-4xl mx-auto w-full space-y-8">
                     <div className="text-center">
-                        <h1 className="text-3xl font-bold text-primary">SIMBALL</h1>
+                        <h1 className="text-3xl font-bold text-primary">Cashback Ball</h1>
                     </div>
 
                     <Collapsible open={isLeaderboardOpen} onOpenChange={setIsLeaderboardOpen}>
