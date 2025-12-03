@@ -19,6 +19,8 @@ import { usePortfolioStore } from '@/hooks/use-portfolio';
 import { GeneralOrderConfig } from '@/components/trade/order-form';
 import { OrderPageHeader } from '@/components/trade/order-page-header';
 import { useUser, useFirestore } from '@/firebase';
+import { SimbotAnalysis } from '@/components/trade/simbot-analysis';
+import { NewsFeed } from '@/components/dashboard/news-feed';
 
 export default function FuturesTradePage() {
   const params = useParams();
@@ -31,17 +33,22 @@ export default function FuturesTradePage() {
   
   const [price, setPrice] = React.useState('');
   const [orderType, setOrderType] = React.useState('market');
-  const [activeTab, setActiveTab] = React.useState('Technicals');
+  const [activeTab, setActiveTab] = React.useState('Overview');
   const [investmentType, setInvestmentType] = React.useState('delivery');
   const [quantity, setQuantity] = React.useState('');
   const [canAddToBasket, setCanAddToBasket] = React.useState(false);
   const [leverage, setLeverage] = React.useState('5');
   const [generalOrderConfig, setGeneralOrderConfig] = React.useState<GeneralOrderConfig | null>(null);
   
-  const TABS = ['Technicals', 'Analysis'];
+  const TABS = ['Overview', 'News', 'Technicals', 'Analysis'];
   
   const crypto = React.useMemo(() => {
-    return marketData.find(c => c.id === id);
+    const futureId = id.endsWith('-fut') ? id : `${id}-fut`;
+    return marketData.find(c => c.id === futureId);
+  }, [marketData, id]);
+
+  const cryptoForChart = React.useMemo(() => {
+    return marketData.find(c => c.id === id.replace('-fut', ''));
   }, [marketData, id]);
 
 
@@ -51,7 +58,7 @@ export default function FuturesTradePage() {
   };
 
   const handleTrade = (action: 'buy' | 'sell') => {
-    if (!user || !firestore) return;
+    if (!user || !firestore || !crypto) return;
     const qty = parseFloat(quantity);
     if (!crypto || !qty || qty <= 0) {
       toast({ variant: 'destructive', title: 'Invalid Quantity', description: 'Please enter a valid quantity.' });
@@ -102,7 +109,7 @@ export default function FuturesTradePage() {
     }
   }, [crypto, orderType]);
 
-  if (marketLoading) {
+  if (marketLoading || !cryptoForChart) {
     return (
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <OrderPageHeader crypto={undefined} loading={true} />
@@ -131,7 +138,7 @@ export default function FuturesTradePage() {
       <OrderPageHeader crypto={crypto} />
       
       <main className="flex-1 overflow-y-auto p-4 space-y-6 pb-24">
-        <PriceChart crypto={crypto} loading={marketLoading} />
+        <PriceChart crypto={cryptoForChart} loading={marketLoading} />
         <Separator className="bg-border/50" />
         <FuturesOrderForm
           crypto={crypto}
@@ -174,6 +181,8 @@ export default function FuturesTradePage() {
           </div>
         </div>
 
+        {activeTab === 'Overview' && <SimbotAnalysis crypto={crypto} />}
+        {activeTab === 'News' && <NewsFeed />}
         {activeTab === 'Technicals' && <CryptoTechnicals crypto={crypto} />}
         {activeTab === 'Analysis' && <CryptoAnalysis crypto={crypto} />}
         
