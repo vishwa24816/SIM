@@ -68,11 +68,10 @@ export function SimbotAnalysis({ crypto, showTabs = false }: SimbotAnalysisProps
         <div className="flex flex-col space-y-1.5 p-6">
             <div className="flex items-center gap-2">
                 <Bot className="h-5 w-5" />
-                <h3 className="text-lg font-semibold leading-none tracking-tight">Simbot {activeTab}</h3>
+                <h3 className="text-lg font-semibold leading-none tracking-tight">Veda {activeTab}</h3>
             </div>
         </div>
         {renderContent()}
     </div>
   );
 }
-

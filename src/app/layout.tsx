@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'SIM | Simulated Crypto Exchange',
+  title: 'Coin Veda | Simulated Crypto Exchange',
   description: 'A sophisticated crypto exchange platform that displays live market data, allowing users to simulate buying and selling cryptocurrencies, and track their simulated portfolio.',
 };
 

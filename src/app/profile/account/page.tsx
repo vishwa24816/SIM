@@ -30,7 +30,7 @@ export default function MyAccountPage() {
   const { copy } = useCopyToClipboard();
   const { toast } = useToast();
 
-  const custodialAccountNumber = 'SIM89759739911799';
+  const custodialAccountNumber = 'VEDA89759739911799';
 
   const handleCopyAccount = () => {
     copy(custodialAccountNumber);
@@ -58,7 +58,7 @@ export default function MyAccountPage() {
                     <InfoRow label="User Name" value="Demo User" />
                     <InfoRow label="Email" value="demo123@simulation.app" />
                     <InfoRow label="Phone Number" value="9739911799" />
-                    <InfoRow label="SIM Custodial Account" value={custodialAccountNumber} onCopy={handleCopyAccount} />
+                    <InfoRow label="Coin Veda Custodial Account" value={custodialAccountNumber} onCopy={handleCopyAccount} />
                 </CardContent>
             </Card>
         </div>

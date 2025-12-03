@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -109,7 +110,7 @@ export default function LoginPage() {
           <CardDescription>
             {formType === 'login' 
               ? 'Sign in to access your simulated crypto exchange.'
-              : 'Join SIM to start your crypto journey.'
+              : 'Join Coin Veda to start your crypto journey.'
             }
           </CardDescription>
         </CardHeader>

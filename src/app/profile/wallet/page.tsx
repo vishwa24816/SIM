@@ -124,7 +124,7 @@ export default function WalletPage() {
   const [openAccordion, setOpenAccordion] = React.useState<string | null>(null);
   const { copy } = useCopyToClipboard();
   
-  const custodialAccountNumber = 'SIM89759739911799';
+  const custodialAccountNumber = 'VEDA89759739911799';
 
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [isImportOpen, setIsImportOpen] = React.useState(false);
@@ -194,10 +194,10 @@ export default function WalletPage() {
                         <ShieldCheck className="h-6 w-6 text-primary" />
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-bold">SIM Wallet</p>
+                            <p className="font-bold">Coin Veda Wallet</p>
                             <Badge className="bg-green-500/20 text-green-500 border-green-500/30">Primary</Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground">SIM Account: {custodialAccountNumber}</p>
+                          <p className="text-xs text-muted-foreground">Coin Veda Account: {custodialAccountNumber}</p>
                         </div>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {

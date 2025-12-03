@@ -102,7 +102,7 @@ export function Header() {
                                   className="rounded-md"
                                   data-ai-hint={placeholderImages.logo['data-ai-hint']}
                                 />
-                                <h2 className="text-xl font-bold">SIM</h2>
+                                <h2 className="text-xl font-bold">Coin Veda</h2>
                             </div>
                             <SheetTitle className="sr-only">Menu</SheetTitle>
                         </SheetHeader>
@@ -117,7 +117,7 @@ export function Header() {
                                 <Button onClick={() => handleNavigation('/leaderboard')} variant="ghost" className="justify-start gap-3"><Trophy /> Leaderboard</Button>
                                 <Button onClick={() => handleNavigation('/nocode-algo')} variant="ghost" className="justify-start gap-3"><Cpu /> No-Code Algo</Button>
                                 <Separator className="my-2" />
-                                <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> SIMBALL</Button>
+                                <Button onClick={() => handleNavigation('/simball')} variant="ghost" className="justify-start gap-3"><Rocket /> Coin Veda</Button>
                                 <Button onClick={() => handleNavigation('/taxy')} variant="ghost" className="justify-start gap-3"><FileText /> TAXY</Button>
                                 <Separator className="my-2" />
                                 <Button onClick={() => handleNavigation('/support')} variant="ghost" className="justify-start gap-3"><LifeBuoy /> Support</Button>

@@ -22,7 +22,7 @@ const initialTransactions: Transaction[] = [
         blockchainId: 'G6LZKRD3',
         brokerage: 52,
         brokerageEarnedBack: 10,
-        platform: 'SIM',
+        platform: 'Coin Veda',
     }
 ];
 
@@ -35,7 +35,7 @@ export const useTransactionHistory = create<TransactionHistoryState>()(
                     { 
                         ...transaction, 
                         id: `tx_${Date.now()}`,
-                        platform: 'SIM',
+                        platform: 'Coin Veda',
                     },
                     ...state.transactions
                 ]
