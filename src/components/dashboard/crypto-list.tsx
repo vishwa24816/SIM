@@ -19,9 +19,9 @@ const COLORS = [
 
 const CryptoListItem = ({ crypto, index }: { crypto: CryptoCurrency, index: number }) => {
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
-    const price = new Intl.NumberFormat('en-US', {
+    const price = new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'INR',
         minimumFractionDigits: 2,
         maximumFractionDigits: crypto.price < 1 ? 6 : 2,
     }).format(crypto.price);

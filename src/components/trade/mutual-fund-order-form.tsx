@@ -123,7 +123,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
         });
         toast({
             title: 'Alert Set!',
-            description: `You will be notified when ${fund.symbol} NAV reaches $${price}.`
+            description: `You will be notified when ${fund.symbol} NAV reaches ₹${price}.`
         });
         setIsSettingAlert(false);
         setAlertPrice('');
@@ -157,7 +157,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     
                     {(investmentType === 'one-time' || investmentType === 'hodl') && (
                         <div className="space-y-2 mb-6">
-                            <Label htmlFor="investment-amount">Investment Amount ($)</Label>
+                            <Label htmlFor="investment-amount">Investment Amount (₹)</Label>
                             <Input 
                                 id="investment-amount" 
                                 placeholder="e.g., 5000" 
@@ -256,7 +256,7 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                     <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mt-6">
                         <div>
                             <p>NAV: {new Date(fund.navDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                            <p className="font-semibold text-foreground">${fund.nav.toFixed(2)}</p>
+                            <p className="font-semibold text-foreground">₹{fund.nav.toFixed(2)}</p>
                         </div>
                         <div className="text-right">
                             <p>Rating</p>
@@ -264,11 +264,11 @@ export function MutualFundOrderForm({ fund }: MutualFundOrderFormProps) {
                         </div>
                         <div>
                             <p>Min. SIP amount</p>
-                            <p className="font-semibold text-foreground">${fund.minSipAmount.toLocaleString()}</p>
+                            <p className="font-semibold text-foreground">₹{fund.minSipAmount.toLocaleString()}</p>
                         </div>
                         <div className="text-right">
                             <p>Fund Size</p>
-                            <p className="font-semibold text-foreground">${(fund.fundSize / 10000000).toFixed(2)} Cr</p>
+                            <p className="font-semibold text-foreground">₹{(fund.fundSize / 10000000).toFixed(2)} Cr</p>
                         </div>
                     </div>
 

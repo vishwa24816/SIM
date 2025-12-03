@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
             toast({
                 title: 'Limit Order Executed!',
-                description: `${order.action} ${order.quantity} of ${order.instrumentSymbol} at $${order.price.toFixed(2)}`
+                description: `${order.action} ${order.quantity} of ${order.instrumentSymbol} at ₹${order.price.toFixed(2)}`
             });
             
             // Remove the executed order

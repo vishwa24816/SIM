@@ -59,7 +59,9 @@ export function MarketDepth({ crypto, onPriceSelect, canAddToBasket, orderState 
   const totalSell = sellOrders.reduce((acc, order) => acc + order.total, 0);
   
   const formatPrice = (price: number) => {
-    return price.toLocaleString(undefined, {
+    return price.toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
       minimumFractionDigits: 2,
       maximumFractionDigits: crypto.price < 1 ? 6 : 2,
     });
@@ -85,7 +87,7 @@ export function MarketDepth({ crypto, onPriceSelect, canAddToBasket, orderState 
     });
     toast({
         title: 'Alert Set!',
-        description: `You will be notified when ${crypto.symbol} reaches $${price}.`
+        description: `You will be notified when ${crypto.symbol} reaches ₹${price}.`
     });
     setIsSettingAlert(false);
     setAlertPrice('');

@@ -92,7 +92,7 @@ export default function ETFTradePage() {
     });
     toast({
         title: 'Alert Set!',
-        description: `You will be notified when ${etf.symbol} reaches $${price}.`
+        description: `You will be notified when ${etf.symbol} reaches ₹${price}.`
     });
     setIsSettingAlert(false);
     setAlertPrice('');
@@ -207,7 +207,7 @@ export default function ETFTradePage() {
                       </div>
                       <div>
                           <p className="font-semibold">Assets Under Management</p>
-                          <p className="text-muted-foreground">${(staticEtfData.aum / 1_000_000_000).toFixed(2)}B</p>
+                          <p className="text-muted-foreground">₹{(staticEtfData.aum / 1_000_000_000).toFixed(2)}B</p>
                       </div>
                   </div>
                   <div>

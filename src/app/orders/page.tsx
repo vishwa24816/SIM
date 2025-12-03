@@ -73,7 +73,7 @@ const LimitOrderCard = ({ order, onCancel }: { order: LimitOrder, onCancel: (id:
             <div className="grid grid-cols-2 gap-y-2 text-sm mt-4">
                 <div>
                 <p className="text-muted-foreground">Price</p>
-                <p>${order.price.toLocaleString()}</p>
+                <p>₹{order.price.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
                 <p className="text-muted-foreground">Qty</p>
@@ -88,11 +88,11 @@ const LimitOrderCard = ({ order, onCancel }: { order: LimitOrder, onCancel: (id:
                     <div className="grid grid-cols-2 gap-4 pt-2 mt-2 border-t text-sm">
                         <div>
                             <p className="text-muted-foreground">Stop Loss</p>
-                            <p className="font-semibold text-red-500">{order.stopLoss ? `$${order.stopLoss}` : 'Not Set'}</p>
+                            <p className="font-semibold text-red-500">{order.stopLoss ? `₹${order.stopLoss}` : 'Not Set'}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-muted-foreground">Take Profit</p>
-                            <p className="font-semibold text-green-500">{order.takeProfit ? `$${order.takeProfit}` : 'Not Set'}</p>
+                            <p className="font-semibold text-green-500">{order.takeProfit ? `₹${order.takeProfit}` : 'Not Set'}</p>
                         </div>
                     </div>
                 )}
@@ -159,7 +159,7 @@ const HodlOrderCard = ({ order, crypto, onCancelClick }: { order: HodlOrder, cry
             <CardContent className="space-y-4 text-sm">
                  <div className="text-right">
                   <div className="font-mono font-semibold">
-                    ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ₹{currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   <div className={cn("text-sm flex items-center justify-end gap-1", pnl >= 0 ? "text-green-500" : "text-red-500")}>
                      {pnl >= 0 ? <ArrowUp className="h-3 w-3"/> : <ArrowDown className="h-3 w-3"/>}
@@ -174,11 +174,11 @@ const HodlOrderCard = ({ order, crypto, onCancelClick }: { order: HodlOrder, cry
                     </div>
                     <div>
                         <p className="text-muted-foreground">Avg. Buy Price</p>
-                        <p className="font-semibold">${order.price.toLocaleString()}</p>
+                        <p className="font-semibold">₹{order.price.toLocaleString()}</p>
                     </div>
                     <div className="text-right">
                         <p className="text-muted-foreground">Investment</p>
-                        <p className="font-semibold">${order.margin.toLocaleString()}</p>
+                        <p className="font-semibold">₹{order.margin.toLocaleString()}</p>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -195,11 +195,11 @@ const HodlOrderCard = ({ order, crypto, onCancelClick }: { order: HodlOrder, cry
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                         <div>
                             <p className="text-muted-foreground">Stop Loss</p>
-                            <p className="font-semibold text-red-500">{order.stopLoss ? `$${order.stopLoss}` : 'Not Set'}</p>
+                            <p className="font-semibold text-red-500">{order.stopLoss ? `₹${order.stopLoss}` : 'Not Set'}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-muted-foreground">Take Profit</p>
-                            <p className="font-semibold text-green-500">{order.takeProfit ? `$${order.takeProfit}` : 'Not Set'}</p>
+                            <p className="font-semibold text-green-500">{order.takeProfit ? `₹${order.takeProfit}` : 'Not Set'}</p>
                         </div>
                     </div>
                 )}
@@ -240,11 +240,11 @@ const AlertCard = ({ alert, currentPrice, onRemove }: { alert: Alert, currentPri
                 <div className="grid grid-cols-2 gap-y-2 text-sm mt-4">
                     <div>
                         <p className="text-muted-foreground">Alert Price</p>
-                        <p className="font-semibold">${alert.price.toLocaleString()}</p>
+                        <p className="font-semibold">₹{alert.price.toLocaleString()}</p>
                     </div>
                     <div className="text-right">
                         <p className="text-muted-foreground">Current Price</p>
-                        <p className="font-semibold">${currentPrice.toLocaleString()}</p>
+                        <p className="font-semibold">₹{currentPrice.toLocaleString()}</p>
                     </div>
                      <div>
                         <p className="text-muted-foreground">Difference</p>
@@ -282,7 +282,7 @@ const SystematicPlanCard = ({ plan, onStatusChange, onRemove }: { plan: Systemat
                 <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                     <div>
                         <p className="text-muted-foreground">{isSIP ? 'Installment' : 'Withdrawal'}</p>
-                        <p className="font-semibold">{plan.investmentType === 'amount' ? `$${plan.amount.toLocaleString()}` : `${plan.amount} units`}</p>
+                        <p className="font-semibold">{plan.investmentType === 'amount' ? `₹${plan.amount.toLocaleString()}` : `${plan.amount} units`}</p>
                     </div>
                      <div className="text-right">
                         <p className="text-muted-foreground">Frequency</p>
@@ -291,7 +291,7 @@ const SystematicPlanCard = ({ plan, onStatusChange, onRemove }: { plan: Systemat
                     {!isSIP && plan.lumpsumAmount && (
                          <div>
                             <p className="text-muted-foreground">Lumpsum</p>
-                            <p className="font-semibold">${plan.lumpsumAmount.toLocaleString()}</p>
+                            <p className="font-semibold">₹{plan.lumpsumAmount.toLocaleString()}</p>
                         </div>
                     )}
                 </div>
@@ -348,7 +348,7 @@ export default function OrdersPage() {
             const asset = marketData.find(c => c.id === alert.cryptoId);
             if (asset && asset.price >= alert.price) {
                 // In a real app, you'd trigger a notification here.
-                console.log(`Alert triggered for ${alert.cryptoSymbol}! Price reached $${alert.price}`);
+                console.log(`Alert triggered for ${alert.cryptoSymbol}! Price reached ₹${alert.price}`);
                 updateAlertStatus(alert.id, 'triggered');
             }
         }
@@ -519,7 +519,7 @@ export default function OrdersPage() {
                                                           </div>
                                                           {asset && (
                                                               <div className="text-right">
-                                                                  <p className='font-semibold'>${asset.price.toLocaleString()}</p>
+                                                                  <p className='font-semibold'>₹{asset.price.toLocaleString()}</p>
                                                                   <p className={cn('text-sm', asset.change24h >= 0 ? 'text-green-500' : 'text-red-500')}>
                                                                       {asset.change24h.toFixed(2)}%
                                                                   </p>
@@ -533,11 +533,11 @@ export default function OrdersPage() {
                                                           </div>
                                                            <div>
                                                               <p>Price</p>
-                                                              <p className="font-medium text-foreground">${itemPrice.toLocaleString()}</p>
+                                                              <p className="font-medium text-foreground">₹{itemPrice.toLocaleString()}</p>
                                                           </div>
                                                            <div className="text-right">
                                                               <p>Margin</p>
-                                                              <p className="font-medium text-foreground">${margin.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                                                              <p className="font-medium text-foreground">₹{margin.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                                                           </div>
                                                       </div>
                                                       <div className="flex gap-2 mt-4">

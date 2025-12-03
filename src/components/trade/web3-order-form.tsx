@@ -66,7 +66,9 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
     };
 
     const formatPrice = (price: number) => {
-        return price.toLocaleString(undefined, {
+        return price.toLocaleString('en-IN', {
+            style: 'currency',
+            currency: 'INR',
             minimumFractionDigits: 2,
             maximumFractionDigits: crypto.price < 1 ? 6 : 2,
         });
@@ -92,7 +94,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
         });
         toast({
             title: 'Alert Set!',
-            description: `You will be notified when ${crypto.symbol} reaches $${price}.`
+            description: `You will be notified when ${crypto.symbol} reaches ₹${price}.`
         });
         setIsSettingAlert(false);
         setAlertPrice('');
@@ -120,7 +122,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
                     </RadioGroup>
                     
                     <div className="space-y-2 mb-6">
-                        <Label htmlFor="investment-amount">Investment Amount ($)</Label>
+                        <Label htmlFor="investment-amount">Investment Amount (₹)</Label>
                         <Input 
                             id="investment-amount" 
                             placeholder="e.g., 500" 
@@ -180,7 +182,7 @@ export function Web3OrderForm({ crypto }: Web3OrderFormProps) {
                     <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mt-6">
                         <div>
                             <p>Price</p>
-                            <p className="font-semibold text-foreground">${crypto.price.toFixed(crypto.price < 1 ? 6 : 2)}</p>
+                            <p className="font-semibold text-foreground">₹{crypto.price.toFixed(crypto.price < 1 ? 6 : 2)}</p>
                         </div>
                         <div className="text-right">
                             <p>24h Change</p>

@@ -249,7 +249,7 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
               {isClient ? (
                 <>
                   <p className={cn("text-2xl font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}>
-                      {pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
+                      {pnl.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })}
                   </p>
                   <p className="text-sm text-muted-foreground">Overall P&L ({pnlPercent.toFixed(2)}%)</p>
                 </>
@@ -263,8 +263,8 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
             <div className="text-right">
               {isClient ? (
                 <>
-                  <p className={cn("text-2xl font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}>
-                      {pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}
+                  <p className={cn("text-2xl font-bold", dayPnl >= 0 ? "text-green-500" : "text-red-500")}>
+                      {dayPnl.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })}
                   </p>
                   <p className="text-sm text-muted-foreground">Day's P&L</p>
                 </>
@@ -280,18 +280,18 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
             <div>
                 <p className="text-muted-foreground">Total Investment</p>
-                {isClient ? <p className="font-semibold">${totalInvestment.toLocaleString('en-US', {minimumFractionDigits: 2})}</p> : <Skeleton className="h-5 w-20 mt-1" />}
+                {isClient ? <p className="font-semibold">₹{totalInvestment.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p> : <Skeleton className="h-5 w-20 mt-1" />}
             </div>
             <div className="text-right">
                 <p className="text-muted-foreground">Current Value</p>
-                {isClient ? <p className="font-semibold">{totalPortfolioValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}</p> : <Skeleton className="h-5 w-28 mt-1 ml-auto" />}
+                {isClient ? <p className="font-semibold">{totalPortfolioValue.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 })}</p> : <Skeleton className="h-5 w-28 mt-1 ml-auto" />}
             </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
              <div>
                 <p className="text-muted-foreground">Cash Balance</p>
-                {isClient ? <p className="font-semibold">${portfolio.usdBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</p> : <Skeleton className="h-5 w-24 mt-1" />}
+                {isClient ? <p className="font-semibold">₹{portfolio.usdBalance.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p> : <Skeleton className="h-5 w-24 mt-1" />}
             </div>
             <div className="text-right">
                 <p className="text-muted-foreground">Holdings/Position Ratio</p>

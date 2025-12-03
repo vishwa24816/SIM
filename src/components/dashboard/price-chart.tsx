@@ -108,7 +108,7 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
                 <>
                   <div className="flex items-center justify-end gap-1">
                       <div className={cn("text-2xl font-bold", isUp ? "text-green-500" : "text-red-500")}>
-                          ${crypto.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2 })}
+                          {crypto.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2 })}
                       </div>
                       {isUp ? <TrendingUp className="h-6 w-6 text-green-500" /> : <TrendingDown className="h-6 w-6 text-red-500" />}
                   </div>
@@ -153,7 +153,7 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
               <Tooltip 
                 content={<ChartTooltipContent 
                     indicator="dot" 
-                    formatter={(value) => (typeof value === 'number' ? value.toLocaleString(undefined, {style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2}) : value)}
+                    formatter={(value) => (typeof value === 'number' ? value.toLocaleString('en-IN', {style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2}) : value)}
                 />} 
               />
               <defs>

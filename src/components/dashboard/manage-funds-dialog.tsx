@@ -31,7 +31,7 @@ export function ManageFundsDialog({ isOpen, onClose, action, balance, onConfirm 
   const title = action === 'add' ? 'Add Money' : 'Withdraw Money';
   const description = action === 'add'
     ? 'Enter the amount you want to add to your wallet.'
-    : `Enter the amount you want to withdraw. Available: $${balance.toFixed(2)}`;
+    : `Enter the amount you want to withdraw. Available: ₹${balance.toFixed(2)}`;
 
   const handleConfirm = () => {
     const numericAmount = parseFloat(amount);
@@ -65,7 +65,7 @@ export function ManageFundsDialog({ isOpen, onClose, action, balance, onConfirm 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="col-span-3"
-              placeholder="$0.00"
+              placeholder="₹0.00"
             />
           </div>
         </div>

@@ -25,21 +25,21 @@ const ScreenerListItem = ({
 }) => {
   const Icon = crypto.icon;
   const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
-  const price = new Intl.NumberFormat('en-US', {
+  const price = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     minimumFractionDigits: 2,
     maximumFractionDigits: crypto.price < 1 ? 6 : 2,
   }).format(crypto.price);
 
   const formatMarketData = (value: number) => {
     if (value >= 1_000_000_000) {
-      return `$${(value / 1_000_000_000).toFixed(2)}B`;
+      return `₹${(value / 1_000_000_000).toFixed(2)}B`;
     }
     if (value >= 1_000_000) {
-      return `$${(value / 1_000_000).toFixed(2)}M`;
+      return `₹${(value / 1_000_000).toFixed(2)}M`;
     }
-    return `$${value.toLocaleString()}`;
+    return `₹${value.toLocaleString()}`;
   };
 
   return (

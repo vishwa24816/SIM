@@ -28,7 +28,7 @@ const DUMMY_RESULTS: BacktestResult = {
 export default function BacktesterPage() {
   const router = useRouter();
   
-  const [strategy, setStrategy] = React.useState('WHEN BTC price goes below $65000\nBUY 1 BTC\n\nWHEN BTC price goes above $70000\nSELL 1 BTC\n\nTest this strategy on the last 1 Month of data.');
+  const [strategy, setStrategy] = React.useState('WHEN BTC price goes below ₹5,400,000\nBUY 1 BTC\n\nWHEN BTC price goes above ₹5,800,000\nSELL 1 BTC\n\nTest this strategy on the last 1 Month of data.');
   const [isLoading, setIsLoading] = React.useState(false);
   const [results, setResults] = React.useState<BacktestResult | null>(null);
 
@@ -75,7 +75,7 @@ export default function BacktesterPage() {
                 value={strategy}
                 onChange={(e) => setStrategy(e.target.value)}
                 className="min-h-[150px] font-mono text-sm bg-muted/50"
-                placeholder="e.g., BUY 1 BTC when its price is below $60000 and test it on the last 7 days of data."
+                placeholder="e.g., BUY 1 BTC when its price is below ₹5,000,000 and test it on the last 7 days of data."
               />
             </div>
             <Button size="lg" className="w-full" onClick={handleRunBacktest} disabled={isLoading}>
