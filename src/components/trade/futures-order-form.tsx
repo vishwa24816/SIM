@@ -30,7 +30,7 @@ interface FuturesOrderFormProps {
     onGeneralOrderConfigChange: (config: GeneralOrderConfig | null) => void;
 }
 
-const leverageOptions = [1, 2, 3, 5, 10, 20, 25, 50, 100, 200];
+const leverageOptions = [1, 2, 3, 5, 10, 20, 25, 40, 50, 100, 200];
 
 export function FuturesOrderForm({ 
     crypto, price, setPrice, orderType, setOrderType, investmentType, setInvestmentType, 
