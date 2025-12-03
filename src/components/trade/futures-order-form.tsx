@@ -149,21 +149,6 @@ export function FuturesOrderForm({
                     value={[leverageIndex > -1 ? leverageIndex : 0]}
                     onValueChange={handleLeverageChange}
                 />
-                <RadioGroup value={leverage} onValueChange={setLeverage} className="grid grid-cols-5 gap-2">
-                    {leverageOptions.slice(0, 5).map(option => (
-                        <Label
-                            key={option}
-                            htmlFor={`leverage-${option}`}
-                            className={cn(
-                                "text-center p-2 rounded-md cursor-pointer border",
-                                leverage === option.toString() ? "bg-primary text-primary-foreground border-primary" : "bg-muted"
-                            )}
-                        >
-                            {option}x
-                            <RadioGroupItem value={option.toString()} id={`leverage-${option}`} className="sr-only" />
-                        </Label>
-                    ))}
-                </RadioGroup>
             </div>
 
             {investmentType === 'hodl' && (
