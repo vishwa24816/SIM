@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus, Search } from 'lucide-react';
+import { Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus, Search, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { spotPairs } from '@/lib/pairs';
 import { ADDITIONAL_FUNDS_ETFS_DATA } from '@/lib/data';
 import { useSearchParams } from 'next/navigation';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 const CryptoListSkeleton = () => (
     <div className="space-y-3">
@@ -48,10 +49,10 @@ function CryptoPageComponent() {
     const [listType, setListType] = React.useState('Gainers');
     const [tradeType, setTradeType] = React.useState(initialTradeType);
     
-    // Watchlist state
     const [watchlists, setWatchlists] = React.useState<Record<string, string[]>>({ 'Top watchlist': [] });
     const [activeWatchlist, setActiveWatchlist] = React.useState('Top watchlist');
     const [searchTerm, setSearchTerm] = React.useState('');
+    const [watchlistToRemove, setWatchlistToRemove] = React.useState<string | null>(null);
 
     const spotData = React.useMemo(() => marketData.filter(c => c.assetType === 'Spot'), [marketData]);
     
@@ -104,6 +105,24 @@ function CryptoPageComponent() {
         setActiveWatchlist(newWatchlistName);
     };
 
+    const handleRemoveWatchlist = (name: string) => {
+        if (name === 'Top watchlist') return;
+        setWatchlistToRemove(name);
+    }
+
+    const confirmRemoveWatchlist = () => {
+        if (!watchlistToRemove) return;
+        setWatchlists(prev => {
+            const newWatchlists = {...prev};
+            delete newWatchlists[watchlistToRemove];
+            return newWatchlists;
+        });
+        if (activeWatchlist === watchlistToRemove) {
+            setActiveWatchlist('Top watchlist');
+        }
+        setWatchlistToRemove(null);
+    }
+
     const handleAddToWatchlist = (cryptoId: string) => {
         if (activeWatchlist !== 'Top watchlist' && !watchlists[activeWatchlist].includes(cryptoId)) {
             setWatchlists(prev => ({
@@ -136,6 +155,7 @@ function CryptoPageComponent() {
     const isCustomWatchlist = activeWatchlist !== 'Top watchlist' && activeWatchlist !== 'All';
 
     return (
+    <>
     <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
         <main className="flex-1 overflow-y-auto pb-20">
@@ -160,6 +180,7 @@ function CryptoPageComponent() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setActiveWatchlist(watchlist)}
+                                onDoubleClick={() => watchlist !== 'Top watchlist' && handleRemoveWatchlist(watchlist)}
                                 className={cn("px-3", activeWatchlist === watchlist && 'text-primary')}
                             >
                                 {watchlist}
@@ -299,6 +320,23 @@ function CryptoPageComponent() {
         </main>
         <BottomNav />
     </div>
+      <AlertDialog open={!!watchlistToRemove} onOpenChange={() => setWatchlistToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the "{watchlistToRemove}" watchlist.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setWatchlistToRemove(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveWatchlist} className="bg-destructive hover:bg-destructive/80">
+                <Trash2 className="w-4 h-4 mr-2"/> Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
     );
 }
 
