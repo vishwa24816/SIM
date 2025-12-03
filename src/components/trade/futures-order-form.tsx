@@ -11,6 +11,8 @@ import { CryptoCurrency } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { GeneralOrderConfig } from './order-form';
+import { Slider } from '../ui/slider';
+import { cn } from '@/lib/utils';
 
 
 interface FuturesOrderFormProps {
@@ -28,7 +30,7 @@ interface FuturesOrderFormProps {
     onGeneralOrderConfigChange: (config: GeneralOrderConfig | null) => void;
 }
 
-const leverageOptions = [1, 2, 3, 4, 5, 10, 20, 25, 50, 100, 200];
+const leverageOptions = [1, 2, 3, 5, 10, 20, 25, 50, 100, 200];
 
 export function FuturesOrderForm({ 
     crypto, price, setPrice, orderType, setOrderType, investmentType, setInvestmentType, 
@@ -61,6 +63,8 @@ export function FuturesOrderForm({
   };
   
   const selectedLeverage = parseInt(leverage, 10);
+  const leverageIndex = leverageOptions.indexOf(selectedLeverage);
+
 
   const marginRequired = React.useMemo(() => {
     const qty = parseFloat(quantity);
@@ -100,6 +104,10 @@ export function FuturesOrderForm({
     }
   };
 
+  const handleLeverageChange = (value: number[]) => {
+    setLeverage(leverageOptions[value[0]].toString());
+  };
+
 
   return (
     <div>
@@ -128,18 +136,34 @@ export function FuturesOrderForm({
                 </div>
             </div>
 
-            <div className="mb-4">
-                <Label htmlFor="leverage">Leverage</Label>
-                <Select value={leverage} onValueChange={setLeverage}>
-                    <SelectTrigger id="leverage">
-                        <SelectValue placeholder="Select leverage" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {leverageOptions.map(option => (
-                             <SelectItem key={option} value={option.toString()}>{option}x</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+             <div className="mb-6 space-y-4">
+                <div className="flex justify-between items-center">
+                    <Label htmlFor="leverage">Leverage</Label>
+                    <span className="px-2 py-1 text-sm font-semibold bg-primary/10 text-primary rounded-md">{selectedLeverage}x</span>
+                </div>
+                <Slider
+                    id="leverage"
+                    min={0}
+                    max={leverageOptions.length - 1}
+                    step={1}
+                    value={[leverageIndex > -1 ? leverageIndex : 0]}
+                    onValueChange={handleLeverageChange}
+                />
+                <RadioGroup value={leverage} onValueChange={setLeverage} className="grid grid-cols-5 gap-2">
+                    {leverageOptions.slice(0, 5).map(option => (
+                        <Label
+                            key={option}
+                            htmlFor={`leverage-${option}`}
+                            className={cn(
+                                "text-center p-2 rounded-md cursor-pointer border",
+                                leverage === option.toString() ? "bg-primary text-primary-foreground border-primary" : "bg-muted"
+                            )}
+                        >
+                            {option}x
+                            <RadioGroupItem value={option.toString()} id={`leverage-${option}`} className="sr-only" />
+                        </Label>
+                    ))}
+                </RadioGroup>
             </div>
 
             {investmentType === 'hodl' && (
