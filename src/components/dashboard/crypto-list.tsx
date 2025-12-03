@@ -6,7 +6,18 @@ import { CryptoCurrency } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
+const COLORS = [
+    'bg-red-500/20 text-red-500',
+    'bg-green-500/20 text-green-500',
+    'bg-blue-500/20 text-blue-500',
+    'bg-yellow-500/20 text-yellow-500',
+    'bg-purple-500/20 text-purple-500',
+    'bg-pink-500/20 text-pink-500',
+    'bg-indigo-500/20 text-indigo-500',
+    'bg-teal-500/20 text-teal-500',
+];
+
+const CryptoListItem = ({ crypto, index }: { crypto: CryptoCurrency, index: number }) => {
     const changeColor = crypto.change24h >= 0 ? 'text-green-500' : 'text-red-500';
     const price = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -15,10 +26,12 @@ const CryptoListItem = ({ crypto }: { crypto: CryptoCurrency }) => {
         maximumFractionDigits: crypto.price < 1 ? 6 : 2,
     }).format(crypto.price);
 
+    const colorClass = COLORS[index % COLORS.length];
+
     const content = (
         <div className="flex items-center justify-between py-3 cursor-pointer">
             <div className="flex items-center gap-3">
-                <div className="bg-muted rounded-full w-12 h-12 flex items-center justify-center font-bold text-sm">
+                <div className={cn("rounded-full w-12 h-12 flex items-center justify-center font-bold text-sm", colorClass)}>
                     {crypto.symbol.slice(0, 4)}
                 </div>
                 <div>
@@ -69,7 +82,7 @@ interface CryptoListProps {
 export function CryptoList({ cryptos }: CryptoListProps) {
     return (
         <>
-            {cryptos.map(crypto => <CryptoListItem key={crypto.id} crypto={crypto} />)}
+            {cryptos.map((crypto, index) => <CryptoListItem key={crypto.id} crypto={crypto} index={index} />)}
         </>
     );
 }
