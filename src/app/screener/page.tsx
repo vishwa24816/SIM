@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const ScreenerListItem = ({
   crypto,
@@ -99,7 +100,7 @@ const MemoizedScreenerListItem = React.memo(ScreenerListItem);
 
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
-    const [activeTab, setActiveTab] = React.useState('All');
+    const [activeTab, setActiveTab] = React.useState('AI Powered');
     
     const dataWithMarketCap = React.useMemo(() => {
         if (loading) return [];
@@ -160,13 +161,16 @@ export default function ScreenerPage() {
               <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="border-b">
-                      <TabsList className="p-0 h-auto bg-transparent m-4">
-                        <TabsTrigger value="All" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">All</TabsTrigger>
-                        <TabsTrigger value="Trending" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Trending</TabsTrigger>
-                        <TabsTrigger value="Top Gainers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Gainers</TabsTrigger>
-                        <TabsTrigger value="Top Losers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Losers</TabsTrigger>
-                        <TabsTrigger value="AI Powered" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Powered</TabsTrigger>
-                      </TabsList>
+                      <ScrollArea className="w-full whitespace-nowrap">
+                        <TabsList className="p-0 h-auto bg-transparent m-4 inline-flex">
+                          <TabsTrigger value="AI Powered" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Powered</TabsTrigger>
+                          <TabsTrigger value="All" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">All</TabsTrigger>
+                          <TabsTrigger value="Trending" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Trending</TabsTrigger>
+                          <TabsTrigger value="Top Gainers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Gainers</TabsTrigger>
+                          <TabsTrigger value="Top Losers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Losers</TabsTrigger>
+                        </TabsList>
+                        <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
                     </div>
                     
                     <div className="p-4 hidden md:flex text-sm font-medium text-muted-foreground border-b">
