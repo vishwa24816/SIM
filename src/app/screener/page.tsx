@@ -184,7 +184,7 @@ export default function ScreenerPage() {
                         <p className="text-muted-foreground mb-6">Ask me anything about the crypto market.</p>
                     </div>
                     
-                    <form onSubmit={handleChatSubmit} className="relative p-4 rounded-lg bg-card border min-h-[120px]">
+                    <form onSubmit={handleChatSubmit} className="relative p-4 rounded-lg bg-card border min-h-[150px]">
                         <Textarea
                             placeholder="Type your message here..."
                             className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none pr-40 pl-0 min-h-[60px]"
