@@ -117,6 +117,11 @@ export default function ScreenerPage() {
     const trendingCryptos = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.volume24h - a.volume24h), [dataWithMarketCap]);
     const topGainers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.change24h - a.change24h), [dataWithMarketCap]);
     const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWithMarketCap]);
+    const aiScreenedCryptos = React.useMemo(() => {
+        // Simulated AI response
+        const ids = ['bitcoin', 'ethereum', 'solana', 'render-token', 'fetch-ai', 'the-graph'];
+        return dataWithMarketCap.filter(c => ids.includes(c.id));
+    }, [dataWithMarketCap]);
 
     const renderList = (data: (CryptoCurrency & { marketCap: number })[]) => {
       if (data.length === 0) {
@@ -140,11 +145,12 @@ export default function ScreenerPage() {
         case 'Trending': return renderList(trendingCryptos);
         case 'Top Gainers': return renderList(topGainers);
         case 'Top Losers': return renderList(topLosers);
+        case 'AI Powered': return renderList(aiScreenedCryptos);
         case 'All':
         default:
           return renderList(allCryptos);
       }
-    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers]);
+    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiScreenedCryptos]);
     
 
     return (
@@ -159,6 +165,7 @@ export default function ScreenerPage() {
                         <TabsTrigger value="Trending" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Trending</TabsTrigger>
                         <TabsTrigger value="Top Gainers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Gainers</TabsTrigger>
                         <TabsTrigger value="Top Losers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Losers</TabsTrigger>
+                        <TabsTrigger value="AI Powered" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Powered</TabsTrigger>
                       </TabsList>
                     </div>
                     
