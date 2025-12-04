@@ -177,7 +177,7 @@ const ReceiveCryptoForm = ({ portfolio, marketData, onCancel }: { portfolio: Por
 
 
 export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayPnl }: PortfolioViewProps) {
-  const { addUsd, withdrawUsd, getPortfolioValue } = usePortfolioStore();
+  const { addUsd, withdrawUsd } = usePortfolioStore();
   const [isManageFundsOpen, setIsManageFundsOpen] = React.useState(false);
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
   const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
@@ -227,8 +227,30 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
   const pnl = totalPortfolioValue - totalInvestment - portfolio.usdBalance;
   const pnlPercent = totalInvestment > 0 ? (pnl / totalInvestment) * 100 : 0;
   
-  const holdingsValue = getPortfolioValue(marketData);
-  const holdingsRatio = totalPortfolioValue > 0 ? (holdingsValue / totalPortfolioValue) * 100 : 0;
+  const { holdingsValue, futuresValue } = portfolio.holdings.reduce(
+    (acc, holding) => {
+      const crypto = marketData.find(c => c.id === holding.cryptoId);
+      if (!crypto) return acc;
+
+      if (holding.assetType === 'Futures') {
+        if (!holding.margin || holding.amount === 0) return acc;
+        const baseAsset = marketData.find(c => c.id === holding.cryptoId.replace('-fut', ''));
+        if (!baseAsset) return acc;
+
+        const leverage = Math.round(Math.abs((holding.amount * baseAsset.price) / holding.margin));
+        const entryPrice = isNaN(leverage) || leverage === 0 ? baseAsset.price : Math.abs((holding.margin * leverage) / holding.amount);
+        const pnl = (baseAsset.price - entryPrice) * holding.amount;
+        acc.futuresValue += (holding.margin + pnl);
+      } else {
+        acc.holdingsValue += holding.amount * crypto.price;
+      }
+      return acc;
+    },
+    { holdingsValue: 0, futuresValue: 0 }
+  );
+
+  const totalInvestedValue = holdingsValue + futuresValue;
+  const holdingsRatio = totalInvestedValue > 0 ? (holdingsValue / totalInvestedValue) * 100 : 0;
 
 
   return (
