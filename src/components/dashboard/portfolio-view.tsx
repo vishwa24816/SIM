@@ -177,7 +177,7 @@ const ReceiveCryptoForm = ({ portfolio, marketData, onCancel }: { portfolio: Por
 
 
 export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayPnl }: PortfolioViewProps) {
-  const { addUsd, withdrawUsd } = usePortfolioStore();
+  const { addUsd, withdrawUsd, getPortfolioValue } = usePortfolioStore();
   const [isManageFundsOpen, setIsManageFundsOpen] = React.useState(false);
   const [dialogAction, setDialogAction] = React.useState<'add' | 'withdraw'>('add');
   const [openSection, setOpenSection] = React.useState<'send' | 'receive' | null>(null);
@@ -221,14 +221,13 @@ export function PortfolioView({ portfolio, marketData, totalPortfolioValue, dayP
   }
   
   const totalInvestment = portfolio.holdings.reduce((sum, h) => {
-    if (h.assetType === 'Futures') return sum;
     return sum + (h.margin ?? 0);
   }, 0);
   
   const pnl = totalPortfolioValue - totalInvestment - portfolio.usdBalance;
   const pnlPercent = totalInvestment > 0 ? (pnl / totalInvestment) * 100 : 0;
   
-  const holdingsValue = totalPortfolioValue - portfolio.usdBalance;
+  const holdingsValue = getPortfolioValue(marketData);
   const holdingsRatio = totalPortfolioValue > 0 ? (holdingsValue / totalPortfolioValue) * 100 : 0;
 
 
