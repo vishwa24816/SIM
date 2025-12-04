@@ -113,26 +113,20 @@ export default function DashboardPage() {
 
    const dayPnl = portfolio.holdings.reduce((acc, holding) => {
     const crypto = marketData.find(c => c.id === holding.cryptoId);
-    if (!crypto) return acc;
-
-    const price24hAgo = crypto.price / (1 + crypto.change24h / 100);
-
+    if (!crypto || !holding.margin) return acc;
+    
     if (holding.assetType === 'Futures') {
-      // Futures PnL calculation
-      if (!holding.margin || holding.amount === 0) return acc;
+      if (holding.amount === 0) return acc;
       
       const leverage = Math.round(Math.abs((holding.amount * crypto.price) / holding.margin));
       const entryPrice = isNaN(leverage) || leverage === 0 ? crypto.price : Math.abs((holding.margin * leverage) / holding.amount);
       
-      const valueNow = (crypto.price - entryPrice) * holding.amount;
-      const value24hAgo = (price24hAgo - entryPrice) * holding.amount;
-      
-      return acc + (valueNow - value24hAgo);
+      const pnl = (crypto.price - entryPrice) * holding.amount;
+      return acc + pnl;
     } else {
-      // Spot holdings PnL calculation
-      const valueNow = holding.amount * crypto.price;
-      const value24hAgo = holding.amount * price24hAgo;
-      return acc + (valueNow - value24hAgo);
+      const currentValue = holding.amount * crypto.price;
+      const pnl = currentValue - holding.margin;
+      return acc + pnl;
     }
   }, 0);
 
