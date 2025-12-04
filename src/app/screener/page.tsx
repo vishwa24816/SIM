@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Search, Sparkles, Paperclip, Mic, CornerDownLeft, ArrowUp, ArrowDown, Flame, List } from 'lucide-react';
+import { MoreHorizontal, Search, Sparkles, Paperclip, Mic, CornerDownLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Header } from '@/components/dashboard/header';
@@ -15,7 +15,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
 
 const ScreenerListItem = ({
   crypto,
@@ -122,27 +121,25 @@ export default function ScreenerPage() {
     const topGainers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.change24h - a.change24h), [dataWithMarketCap]);
     const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWithMarketCap]);
 
-    const handlePrompt = (prompt: string) => {
-        setActivePrompt(prompt);
-        setChatInput(prompt); // Set input to the selected prompt
-        if (prompt.toLowerCase().includes('gaining')) {
-            setAiPoweredList(topGainers.slice(0, 10));
-        } else if (prompt.toLowerCase().includes('top crypto')) {
-            setAiPoweredList(allCryptos.slice(0, 10));
-        } else {
-             // Basic search logic for custom prompts
-            const results = allCryptos.filter(crypto => 
-                crypto.name.toLowerCase().includes(prompt.toLowerCase()) || 
-                crypto.symbol.toLowerCase().includes(prompt.toLowerCase())
-            );
-            setAiPoweredList(results);
-        }
+    const handlePromptClick = (prompt: string) => {
+        setChatInput(prompt);
     };
 
     const handleChatSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (chatInput.trim()) {
-            handlePrompt(chatInput);
+        if (!chatInput.trim()) return;
+
+        setActivePrompt(chatInput);
+        if (chatInput.toLowerCase().includes('gaining')) {
+            setAiPoweredList(topGainers.slice(0, 10));
+        } else if (chatInput.toLowerCase().includes('top crypto')) {
+            setAiPoweredList(allCryptos.slice(0, 10));
+        } else {
+             const results = allCryptos.filter(crypto => 
+                crypto.name.toLowerCase().includes(chatInput.toLowerCase()) || 
+                crypto.symbol.toLowerCase().includes(chatInput.toLowerCase())
+            );
+            setAiPoweredList(results);
         }
     };
 
@@ -172,14 +169,10 @@ export default function ScreenerPage() {
         case 'AI Powered':
             return (
                 <div className="p-4 space-y-4">
-                    {aiPoweredList ? (
-                         renderList(aiPoweredList)
-                    ) : (
-                         <div className="text-center py-10">
-                            <h2 className="text-2xl font-bold mb-2">Veda Screener</h2>
-                            <p className="text-muted-foreground mb-6">Ask me anything about the crypto market.</p>
-                        </div>
-                    )}
+                    <div className="text-center py-10">
+                        <h2 className="text-2xl font-bold mb-2">Veda Screener</h2>
+                        <p className="text-muted-foreground mb-6">Ask me anything about the crypto market.</p>
+                    </div>
                     
                     <form onSubmit={handleChatSubmit} className="relative p-4 rounded-lg bg-card border">
                         <Textarea
@@ -202,15 +195,15 @@ export default function ScreenerPage() {
                         </Button>
                     </form>
                     
-                    {!aiPoweredList && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto pt-4">
-                            <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top gaining cryptos')}>
-                                <p className="font-semibold">Top gaining cryptos</p>
-                            </Card>
-                             <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top crypto')}>
-                                <p className="font-semibold">Top crypto</p>
-                            </Card>
-                        </div>
+                    <div className="flex justify-center gap-2 pt-4">
+                        <Button variant="outline" size="sm" onClick={() => handlePromptClick('Top gaining cryptos')}>Top gaining cryptos</Button>
+                        <Button variant="outline" size="sm" onClick={() => handlePromptClick('Top crypto')}>Top crypto</Button>
+                    </div>
+
+                    {aiPoweredList && (
+                         <div className="pt-4">
+                            {renderList(aiPoweredList)}
+                         </div>
                     )}
                 </div>
             );
