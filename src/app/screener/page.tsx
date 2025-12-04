@@ -121,20 +121,21 @@ export default function ScreenerPage() {
     const trendingCryptos = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.volume24h - a.volume24h), [dataWithMarketCap]);
     const topGainers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.change24h - a.change24h), [dataWithMarketCap]);
     const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWithMarketCap]);
-    const aiScreenedCryptos = React.useMemo(() => {
-        // Simulated AI response
-        const ids = ['bitcoin', 'ethereum', 'solana', 'render-token', 'fetch-ai', 'the-graph'];
-        return dataWithMarketCap.filter(c => ids.includes(c.id));
-    }, [dataWithMarketCap]);
 
     const handlePrompt = (prompt: string) => {
         setActivePrompt(prompt);
+        setChatInput(prompt); // Set input to the selected prompt
         if (prompt.toLowerCase().includes('gaining')) {
-            setAiPoweredList(topGainers);
+            setAiPoweredList(topGainers.slice(0, 10));
         } else if (prompt.toLowerCase().includes('top crypto')) {
-            setAiPoweredList(allCryptos.slice(0, 10)); // Show top 10
+            setAiPoweredList(allCryptos.slice(0, 10));
         } else {
-            setAiPoweredList(null);
+             // Basic search logic for custom prompts
+            const results = allCryptos.filter(crypto => 
+                crypto.name.toLowerCase().includes(prompt.toLowerCase()) || 
+                crypto.symbol.toLowerCase().includes(prompt.toLowerCase())
+            );
+            setAiPoweredList(results);
         }
     };
 
@@ -171,23 +172,33 @@ export default function ScreenerPage() {
         case 'AI Powered':
             return (
                 <div className="p-4 space-y-4">
-                    <Card className="bg-muted/30">
-                        <CardContent className="p-4 space-y-4">
-                            <form onSubmit={handleChatSubmit} className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                    placeholder="Ask AI for a custom screener..."
-                                    className="pl-10 h-11"
-                                    value={chatInput}
-                                    onChange={(e) => setChatInput(e.target.value)}
-                                />
-                            </form>
-                            <div className="flex flex-wrap gap-2">
-                                <Button variant={activePrompt === 'Top gaining cryptos' ? 'default' : 'outline'} size="sm" onClick={() => handlePrompt('Top gaining cryptos')}>Top gaining cryptos</Button>
-                                <Button variant={activePrompt === 'Top crypto' ? 'default' : 'outline'} size="sm" onClick={() => handlePrompt('Top crypto')}>Top crypto</Button>
+                    {!aiPoweredList && (
+                         <div className="text-center py-10">
+                            <h2 className="text-2xl font-bold mb-2">Veda Screener</h2>
+                            <p className="text-muted-foreground mb-6">Ask me anything about the crypto market.</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                                <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top gaining cryptos')}>
+                                    <p className="font-semibold">Top gaining cryptos</p>
+                                    <p className="text-sm text-muted-foreground">in the last 24 hours</p>
+                                </Card>
+                                 <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top crypto')}>
+                                    <p className="font-semibold">Top crypto</p>
+                                    <p className="text-sm text-muted-foreground">by market cap</p>
+                                </Card>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    )}
+                    <form onSubmit={handleChatSubmit} className="relative">
+                        <Input
+                            placeholder="Ask Veda for a custom screener..."
+                            className="pl-4 pr-12 h-12"
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                        />
+                        <Button type="submit" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8">
+                            <Sparkles className="w-4 h-4"/>
+                        </Button>
+                    </form>
                     {aiPoweredList && renderList(aiPoweredList)}
                 </div>
             );
@@ -236,5 +247,3 @@ export default function ScreenerPage() {
         </div>
     );
 }
-
-    
