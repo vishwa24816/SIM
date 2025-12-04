@@ -103,7 +103,7 @@ export default function ScreenerPage() {
     const [activeTab, setActiveTab] = React.useState('AI Powered');
     const [chatInput, setChatInput] = React.useState('');
     const [aiPoweredList, setAiPoweredList] = React.useState<(CryptoCurrency & { marketCap: number })[] | null>(null);
-    const [activePrompt, setActivePrompt] = React.useState<string | null>(null);
+    const [aiResponseText, setAiResponseText] = React.useState<string | null>(null);
     
     const dataWithMarketCap = React.useMemo(() => {
         if (loading) return [];
@@ -129,17 +129,27 @@ export default function ScreenerPage() {
         e.preventDefault();
         if (!chatInput.trim()) return;
 
-        setActivePrompt(chatInput);
-        if (chatInput.toLowerCase().includes('gaining')) {
+        setAiPoweredList(null);
+        setAiResponseText(null);
+
+        const lowercasedInput = chatInput.toLowerCase();
+
+        if (lowercasedInput.includes('lowest gains')) {
+             setAiResponseText("That's an interesting strategy, but it can be very risky. Buying a crypto asset simply because it has had the lowest gains (or even losses) is often called 'catching a falling knife.' While it can sometimes lead to high rewards if the asset recovers, it frequently results in further losses. A low-performing asset may be declining for fundamental reasons, such as waning interest, security issues, or poor project development. A better approach is to consider why an asset is underperforming and look for signs of a potential turnaround, like upcoming project milestones, positive news, or shifts in market sentiment. Always combine this with broader market analysis and risk management.");
+        } else if (lowercasedInput.includes('gaining')) {
             setAiPoweredList(topGainers.slice(0, 10));
-        } else if (chatInput.toLowerCase().includes('top crypto')) {
+        } else if (lowercasedInput.includes('top crypto')) {
             setAiPoweredList(allCryptos.slice(0, 10));
         } else {
              const results = allCryptos.filter(crypto => 
-                crypto.name.toLowerCase().includes(chatInput.toLowerCase()) || 
-                crypto.symbol.toLowerCase().includes(chatInput.toLowerCase())
+                crypto.name.toLowerCase().includes(lowercasedInput) || 
+                crypto.symbol.toLowerCase().includes(lowercasedInput)
             );
-            setAiPoweredList(results);
+            if (results.length > 0) {
+              setAiPoweredList(results);
+            } else {
+              setAiResponseText("I couldn't find any cryptocurrencies matching your search. Please try another query.");
+            }
         }
     };
 
@@ -198,19 +208,23 @@ export default function ScreenerPage() {
                     <div className="flex justify-center gap-2 pt-4">
                         <Button variant="outline" size="sm" onClick={() => handlePromptClick('Top gaining cryptos')}>Top gaining cryptos</Button>
                         <Button variant="outline" size="sm" onClick={() => handlePromptClick('Top crypto')}>Top crypto</Button>
+                        <Button variant="outline" size="sm" onClick={() => handlePromptClick('Should I buy a crypto with lowest gains to make profit tomorrow?')}>Risky strategy?</Button>
                     </div>
 
-                    {aiPoweredList && (
-                         <div className="pt-4">
-                            {renderList(aiPoweredList)}
-                         </div>
-                    )}
+                    <div className="pt-4">
+                        {aiPoweredList && renderList(aiPoweredList)}
+                        {aiResponseText && (
+                            <div className="p-4 bg-muted rounded-md text-sm">
+                                <p>{aiResponseText}</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         default:
           return renderList(allCryptos);
       }
-    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiPoweredList, chatInput, activePrompt]);
+    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiPoweredList, chatInput, aiResponseText]);
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
