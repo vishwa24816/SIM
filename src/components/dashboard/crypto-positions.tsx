@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import * as React from "react";
@@ -10,13 +9,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { CryptoCurrency, Holding, Portfolio } from "@/lib/types";
-import { PieChart, ArrowUp, ArrowDown } from "lucide-react";
+import { PieChart, ArrowUp, ArrowDown, List, BarChart, Grid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { usePortfolioStore } from "@/hooks/use-portfolio";
 import { Badge } from "../ui/badge";
 import { useUser, useFirestore } from "@/firebase";
+import { BarChart as RechartsBarChart, PieChart as RechartsPieChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Pie, Cell } from 'recharts';
+
 
 interface CryptoPositionsProps {
   portfolio: Portfolio;
@@ -129,6 +130,62 @@ const HoldingsAccordion = ({ holdings }: { holdings: any[] }) => {
   );
 };
 
+const HoldingsBarChart = ({ holdings }: { holdings: any[] }) => {
+    if (holdings.length === 0) return null;
+    return (
+        <ResponsiveContainer width="100%" height={300}>
+            <RechartsBarChart data={holdings} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="crypto.symbol" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Value']} />
+                <Legend />
+                <Bar dataKey="value" fill="#8884d8" name="Holding Value (₹)" />
+            </RechartsBarChart>
+        </ResponsiveContainer>
+    );
+};
+
+const HoldingsPieChart = ({ holdings }: { holdings: any[] }) => {
+    if (holdings.length === 0) return null;
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+    return (
+        <ResponsiveContainer width="100%" height={300}>
+            <RechartsPieChart>
+                <Pie data={holdings} dataKey="value" nameKey="crypto.name" cx="50%" cy="50%" outerRadius={100} label>
+                    {holdings.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                <Legend />
+            </RechartsPieChart>
+        </ResponsiveContainer>
+    );
+};
+
+const HoldingsHeatmap = ({ holdings }: { holdings: any[] }) => {
+    if (holdings.length === 0) return null;
+    return (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {holdings.map(holding => {
+                const pnl = holding.value - holding.margin;
+                const pnlPercent = holding.margin > 0 ? (pnl / holding.margin) * 100 : 0;
+                const bgColor = pnl >= 0 ? 'bg-green-500/20' : 'bg-red-500/20';
+                return (
+                    <div key={holding.crypto.id} className={cn('p-4 rounded-lg', bgColor)}>
+                        <p className="font-bold">{holding.crypto.symbol}</p>
+                        <p className="text-sm">₹{holding.value.toLocaleString()}</p>
+                        <p className={cn('text-xs', pnl >= 0 ? 'text-green-500' : 'text-red-500')}>
+                            {pnl >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
+                        </p>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
 
 const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketData: CryptoCurrency[] }) => {
     const { sell } = usePortfolioStore();
@@ -239,69 +296,86 @@ const FuturesAccordion = ({ positions, marketData }: { positions: any[], marketD
 
 
 export function CryptoPositions({ portfolio, marketData }: CryptoPositionsProps) {
-  const holdingsWithValue = portfolio.holdings
-    .map(holding => {
-      const crypto = marketData.find(c => c.id === holding.cryptoId);
-      if (!crypto || holding.assetType === 'Futures') return null;
-      if (!holding.margin) return null;
-      
-      const value = holding.amount * crypto.price;
-      return {
-        ...holding,
-        crypto,
-        value,
-      };
-    })
-    .filter((holding): holding is NonNullable<typeof holding> => holding !== null)
-    .sort((a, b) => b.value - a.value);
+    const [holdingsView, setHoldingsView] = React.useState('list');
+    const [positionsView, setPositionsView] = React.useState('list');
+
+    const holdingsWithValue = portfolio.holdings
+        .map(holding => {
+            const crypto = marketData.find(c => c.id === holding.cryptoId);
+            if (!crypto || holding.assetType === 'Futures') return null;
+            if (!holding.margin) return null;
+            
+            const value = holding.amount * crypto.price;
+            return { ...holding, crypto, value };
+        })
+        .filter((holding): holding is NonNullable<typeof holding> => holding !== null)
+        .sort((a, b) => b.value - a.value);
 
     const futuresPositions = portfolio.holdings
-    .map(holding => {
-       if (holding.assetType !== 'Futures') return null;
+        .map(holding => {
+            if (holding.assetType !== 'Futures') return null;
+            const crypto = marketData.find(c => c.id === holding.cryptoId);
+            const baseAsset = marketData.find(c => c.id === holding.cryptoId.replace('-fut', ''));
+            if (!crypto || !baseAsset || !holding.margin || holding.amount === 0) return null;
 
-      const crypto = marketData.find(c => c.id === holding.cryptoId);
-      const baseAsset = marketData.find(c => c.id === holding.cryptoId.replace('-fut', ''));
-      
-      if (!crypto || !baseAsset || !holding.margin || holding.amount === 0) return null;
+            const leverage = Math.round(Math.abs((holding.amount * baseAsset.price) / holding.margin));
+            const entryPrice = isNaN(leverage) || leverage === 0 ? baseAsset.price : Math.abs((holding.margin * leverage) / holding.amount);
+            const value = holding.margin; // For charting purposes, we can use margin
 
-      const leverage = Math.round(Math.abs((holding.amount * baseAsset.price) / holding.margin));
-      const entryPrice = isNaN(leverage) || leverage === 0 ? baseAsset.price : Math.abs((holding.margin * leverage) / holding.amount);
+            return { ...holding, crypto, leverage: isNaN(leverage) ? 0 : leverage, baseAssetPrice: baseAsset.price, entryPrice: isNaN(entryPrice) ? 0 : entryPrice, value };
+        })
+        .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
 
-      return {
-        ...holding,
-        crypto,
-        leverage: isNaN(leverage) ? 0 : leverage,
-        baseAssetPrice: baseAsset.price,
-        entryPrice: isNaN(entryPrice) ? 0 : entryPrice
-      };
-    })
-    .filter((holding): holding is NonNullable<typeof holding> => holding !== null);
+    const renderView = (view: string, data: any[], type: 'holdings' | 'positions') => {
+        switch (view) {
+            case 'bar':
+                return <HoldingsBarChart holdings={data} />;
+            case 'pie':
+                return <HoldingsPieChart holdings={data} />;
+            case 'heatmap':
+                return <HoldingsHeatmap holdings={data} />;
+            case 'list':
+            default:
+                return type === 'holdings' 
+                    ? <HoldingsAccordion holdings={data} /> 
+                    : <FuturesAccordion positions={data} marketData={marketData} />;
+        }
+    };
+    
+    const ViewSwitcher = ({ view, setView }: { view: string, setView: (v: string) => void }) => (
+        <div className="flex gap-1">
+            <Button variant={view === 'list' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('list')}><List className="h-4 w-4" /></Button>
+            <Button variant={view === 'bar' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('bar')}><BarChart className="h-4 w-4" /></Button>
+            <Button variant={view === 'pie' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('pie')}><PieChart className="h-4 w-4" /></Button>
+            <Button variant={view === 'heatmap' ? 'secondary' : 'ghost'} size="icon" onClick={() => setView('heatmap')}><Grid className="h-4 w-4" /></Button>
+        </div>
+    );
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="flex flex-row items-center justify-between p-6">
-          <div className="flex items-center gap-3">
-            <PieChart className="w-6 h-6 text-primary" />
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">Holdings</h3>
-          </div>
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex flex-row items-center justify-between p-6">
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-2xl font-semibold leading-none tracking-tight">Holdings</h3>
+                    </div>
+                    <ViewSwitcher view={holdingsView} setView={setHoldingsView} />
+                </div>
+                <div className="px-6 pb-6">
+                    {renderView(holdingsView, holdingsWithValue, 'holdings')}
+                </div>
+            </div>
+            
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex flex-row items-center justify-between p-6">
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-2xl font-semibold leading-none tracking-tight">Futures Positions</h3>
+                    </div>
+                    <ViewSwitcher view={positionsView} setView={setPositionsView} />
+                </div>
+                <div className="px-6 pb-6">
+                   {renderView(positionsView, futuresPositions, 'positions')}
+                </div>
+            </div>
         </div>
-        <div className="px-6 pb-6">
-          <HoldingsAccordion holdings={holdingsWithValue} />
-        </div>
-      </div>
-      
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="flex flex-row items-center justify-between p-6">
-          <div className="flex items-center gap-3">
-            <PieChart className="w-6 h-6 text-primary" />
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">Futures Positions</h3>
-          </div>
-        </div>
-        <div className="px-6 pb-6">
-          <FuturesAccordion positions={futuresPositions} marketData={marketData} />
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

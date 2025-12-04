@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 
 import {
   ChartContainer,
@@ -127,49 +127,51 @@ export function PriceChart({ crypto, loading }: PriceChartProps) {
             </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-[250px] w-full">
-            <LineChart
-              accessibilityLayer
-              data={chartData}
-              margin={{
-                left: 12,
-                right: 12,
-                top: 5,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="time"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={formatTick}
-                interval="preserveStartEnd"
-              />
-              <YAxis
-                  domain={domain}
-                  hide
-              />
-              <Tooltip 
-                content={<ChartTooltipContent 
-                    indicator="dot" 
-                    formatter={(value) => (typeof value === 'number' ? value.toLocaleString('en-IN', {style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2}) : value)}
-                />} 
-              />
-              <defs>
-                  <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="5%" stopColor={isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)"} stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor={isPositiveChange ? "hsl(217 91% 60%)" : "hsl(25 95% 53%)"} stopOpacity={0.8}/>
-                  </linearGradient>
-              </defs>
-              <Line
-                dataKey="value"
-                type="monotone"
-                stroke="url(#lineGradient)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
+            <ResponsiveContainer>
+              <LineChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                  top: 5,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="time"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={formatTick}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                    domain={domain}
+                    hide
+                />
+                <Tooltip 
+                  content={<ChartTooltipContent 
+                      indicator="dot" 
+                      formatter={(value) => (typeof value === 'number' ? value.toLocaleString('en-IN', {style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: crypto.price < 1 ? 6 : 2}) : value)}
+                  />} 
+                />
+                <defs>
+                    <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="5%" stopColor={isPositiveChange ? "hsl(142.1 76.2% 41.2%)" : "hsl(0 84.2% 60.2%)"} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={isPositiveChange ? "hsl(217 91% 60%)" : "hsl(25 95% 53%)"} stopOpacity={0.8}/>
+                    </linearGradient>
+                </defs>
+                <Line
+                  dataKey="value"
+                  type="monotone"
+                  stroke="url(#lineGradient)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </ChartContainer>
         )}
       </div>
