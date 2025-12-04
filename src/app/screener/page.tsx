@@ -172,22 +172,15 @@ export default function ScreenerPage() {
         case 'AI Powered':
             return (
                 <div className="p-4 space-y-4">
-                    {!aiPoweredList && (
+                    {aiPoweredList ? (
+                         renderList(aiPoweredList)
+                    ) : (
                          <div className="text-center py-10">
                             <h2 className="text-2xl font-bold mb-2">Veda Screener</h2>
                             <p className="text-muted-foreground mb-6">Ask me anything about the crypto market.</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                                <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top gaining cryptos')}>
-                                    <p className="font-semibold">Top gaining cryptos</p>
-                                    <p className="text-sm text-muted-foreground">in the last 24 hours</p>
-                                </Card>
-                                 <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top crypto')}>
-                                    <p className="font-semibold">Top crypto</p>
-                                    <p className="text-sm text-muted-foreground">by market cap</p>
-                                </Card>
-                            </div>
                         </div>
                     )}
+                    
                     <form onSubmit={handleChatSubmit} className="relative">
                         <Input
                             placeholder="Ask Veda for a custom screener..."
@@ -199,7 +192,17 @@ export default function ScreenerPage() {
                             <Sparkles className="w-4 h-4"/>
                         </Button>
                     </form>
-                    {aiPoweredList && renderList(aiPoweredList)}
+                    
+                    {!aiPoweredList && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto pt-4">
+                            <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top gaining cryptos')}>
+                                <p className="font-semibold">Top gaining cryptos</p>
+                            </Card>
+                             <Card className="text-left p-4 hover:bg-muted cursor-pointer" onClick={() => handlePrompt('Top crypto')}>
+                                <p className="font-semibold">Top crypto</p>
+                            </Card>
+                        </div>
+                    )}
                 </div>
             );
         default:
