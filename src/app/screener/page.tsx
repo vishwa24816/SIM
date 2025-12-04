@@ -184,11 +184,10 @@ export default function ScreenerPage() {
                         <p className="text-muted-foreground mb-6">Ask me anything about the crypto market.</p>
                     </div>
                     
-                    <form onSubmit={handleChatSubmit} className="relative p-4 rounded-lg bg-card border">
+                    <form onSubmit={handleChatSubmit} className="relative p-4 rounded-lg bg-card border min-h-[120px]">
                         <Textarea
                             placeholder="Type your message here..."
-                            className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none pr-40 pl-0"
-                            rows={1}
+                            className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none pr-40 pl-0 min-h-[60px]"
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
                         />
@@ -205,7 +204,7 @@ export default function ScreenerPage() {
                         </Button>
                     </form>
                     
-                    <div className="flex justify-center gap-2 pt-4">
+                    <div className="flex justify-center gap-2 pt-4 flex-wrap">
                         <Button variant="outline" size="sm" onClick={() => handlePromptClick('Top gaining cryptos')}>Top gaining cryptos</Button>
                         <Button variant="outline" size="sm" onClick={() => handlePromptClick('Top crypto')}>Top crypto</Button>
                         <Button variant="outline" size="sm" onClick={() => handlePromptClick('Should I buy a crypto with lowest gains to make profit tomorrow?')}>Risky strategy?</Button>
