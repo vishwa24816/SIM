@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Search, Sparkles, Wand2, ArrowUp, ArrowDown, Flame, List } from 'lucide-react';
+import { MoreHorizontal, Search, Sparkles, Paperclip, Mic, CornerDownLeft, ArrowUp, ArrowDown, Flame, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
 import { Header } from '@/components/dashboard/header';
@@ -181,15 +181,24 @@ export default function ScreenerPage() {
                         </div>
                     )}
                     
-                    <form onSubmit={handleChatSubmit} className="relative">
-                        <Input
-                            placeholder="Ask Veda for a custom screener..."
-                            className="pl-4 pr-12 h-12"
+                    <form onSubmit={handleChatSubmit} className="relative p-4 rounded-lg bg-card border">
+                        <Textarea
+                            placeholder="Type your message here..."
+                            className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none pr-40 pl-0"
+                            rows={1}
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
                         />
-                        <Button type="submit" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8">
-                            <Sparkles className="w-4 h-4"/>
+                        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                             <Button type="button" variant="ghost" size="icon" className="text-muted-foreground h-8 w-8">
+                                <Paperclip className="w-5 h-5"/>
+                            </Button>
+                            <Button type="button" variant="ghost" size="icon" className="text-muted-foreground h-8 w-8">
+                                <Mic className="w-5 h-5"/>
+                            </Button>
+                        </div>
+                        <Button type="submit" className="absolute bottom-4 right-4 flex items-center gap-2">
+                            Send Message <CornerDownLeft className="w-4 h-4"/>
                         </Button>
                     </form>
                     
