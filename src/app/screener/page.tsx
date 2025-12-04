@@ -16,6 +16,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
+interface BinanceProduct {
+  s: string; // symbol, e.g., "BTCUSDT"
+  cs: number; // circulatingSupply
+}
+
 const ScreenerListItem = ({
   crypto,
   rank,
@@ -104,17 +109,42 @@ export default function ScreenerPage() {
     const [chatInput, setChatInput] = React.useState('');
     const [aiPoweredList, setAiPoweredList] = React.useState<(CryptoCurrency & { marketCap: number })[] | null>(null);
     const [aiResponseText, setAiResponseText] = React.useState<string | null>(null);
-    
+    const [circulatingSupplies, setCirculatingSupplies] = React.useState<Record<string, number>>({});
+
+    React.useEffect(() => {
+        const fetchCirculatingSupply = async () => {
+            try {
+                const response = await fetch('https://www.binance.com/exchange-api/v2/public/asset-service/product/get-products');
+                const data = await response.json();
+                if (data.data) {
+                    const supplies: Record<string, number> = {};
+                    data.data.forEach((product: BinanceProduct) => {
+                         // The symbol from API is like "BTCUSDT", we need "BTC"
+                        const baseAsset = product.s.replace(/USDT$/, '');
+                        if (product.cs) {
+                            supplies[baseAsset] = product.cs;
+                        }
+                    });
+                    setCirculatingSupplies(supplies);
+                }
+            } catch (error) {
+                console.error('Failed to fetch circulating supply:', error);
+            }
+        };
+
+        fetchCirculatingSupply();
+    }, []);
+
     const dataWithMarketCap = React.useMemo(() => {
         if (loading) return [];
         return marketData
             .filter(c => c.assetType !== 'Futures')
             .map(crypto => {
-                const mockCirculatingSupply = (crypto.volume24h / crypto.price) * 10;
-                const marketCap = crypto.price * (isNaN(mockCirculatingSupply) ? 1000000 : mockCirculatingSupply) ;
-                return { ...crypto, marketCap: isNaN(marketCap) ? 0 : marketCap };
+                const circulatingSupply = circulatingSupplies[crypto.symbol.toUpperCase()];
+                const marketCap = circulatingSupply ? crypto.price * circulatingSupply : 0;
+                return { ...crypto, marketCap };
         });
-    }, [marketData, loading]);
+    }, [marketData, loading, circulatingSupplies]);
 
     const allCryptos = React.useMemo(() => dataWithMarketCap.sort((a, b) => b.marketCap - a.marketCap), [dataWithMarketCap]);
     const trendingCryptos = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.volume24h - a.volume24h), [dataWithMarketCap]);
