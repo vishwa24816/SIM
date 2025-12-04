@@ -35,7 +35,7 @@ export default function BacktesterPage() {
   const handleRunBacktest = async () => {
     setIsLoading(true);
     setResults(null);
-    // Simulate a network request to the AI
+    // Simulate a network request
     setTimeout(() => {
         setResults(DUMMY_RESULTS);
         setIsLoading(false);
@@ -61,10 +61,10 @@ export default function BacktesterPage() {
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <Bot className="w-6 h-6 text-primary" />
-              <CardTitle className="text-lg">AI Strategy Backtester</CardTitle>
+              <CardTitle className="text-lg">Strategy Backtester</CardTitle>
             </div>
             <CardDescription>
-              Describe a strategy in natural language, including the timeframe, and let our AI test it against historical Bitcoin data.
+              Describe a strategy in natural language, including the timeframe, and test it against historical Bitcoin data.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -87,7 +87,7 @@ export default function BacktesterPage() {
               ) : (
                 <>
                   <Play className="mr-2 h-5 w-5" />
-                  Run AI Backtest
+                  Run Backtest
                 </>
               )}
             </Button>

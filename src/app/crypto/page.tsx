@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Flame, Eye, ArrowUp, ArrowDown, Newspaper, Lightbulb, Plus, Search, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
-import { Textarea } from '@/components/ui/textarea';
 import { Header } from '@/components/dashboard/header';
 import { useMarketData } from '@/hooks/use-market-data';
 import { CryptoCurrency } from '@/lib/types';
@@ -288,7 +287,7 @@ function CryptoPageComponent() {
                             <Newspaper className="w-6 h-6 text-primary" />
                             <div>
                                 <CardTitle>Top Market News</CardTitle>
-                                <p className="text-sm text-muted-foreground">Latest headlines relevant to your view and AI-powered summaries.</p>
+                                <p className="text-sm text-muted-foreground">Latest headlines relevant to your view.</p>
                             </div>
                         </div>
                     </CardHeader>
@@ -299,21 +298,6 @@ function CryptoPageComponent() {
                                 <p className="text-muted-foreground">No news relevant to this stock found.</p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-                
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-3 mb-4">
-                            <Lightbulb className="w-6 h-6 text-yellow-400" />
-                            <h3 className="text-lg font-semibold">AI News Summary</h3>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <Textarea 
-                            placeholder="Enter news headlines here, one per line..."
-                            className="bg-secondary/50 min-h-[100px]"
-                        />
                     </CardContent>
                 </Card>
             </div>

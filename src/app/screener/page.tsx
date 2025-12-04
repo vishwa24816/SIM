@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { getAiScreenedCryptos } from '../actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ScreenerListItem = ({
@@ -100,25 +99,7 @@ const MemoizedScreenerListItem = React.memo(ScreenerListItem);
 
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
-    const [activeTab, setActiveTab] = React.useState('AI');
-    const [prompt, setPrompt] = React.useState('');
-    const [isAiLoading, setIsAiLoading] = React.useState(false);
-    const [aiFilteredIds, setAiFilteredIds] = React.useState<string[] | null>(null);
-
-    const examplePrompts = [
-      "Top 10 most traded cryptos",
-      "Top 5 Proof or stake cryptos"
-    ];
-
-    const handleRunScreener = async () => {
-        setIsAiLoading(true);
-        setAiFilteredIds(null); // Clear previous results
-        const spotMarketData = marketData.filter(c => c.assetType !== 'Futures');
-        const serializableCryptos = spotMarketData.map(c => ({ id: c.id, name: c.name, symbol: c.symbol, description: '' }));
-        const resultIds = await getAiScreenedCryptos(prompt, serializableCryptos);
-        setAiFilteredIds(resultIds);
-        setIsAiLoading(false);
-    }
+    const [activeTab, setActiveTab] = React.useState('All');
     
     const dataWithMarketCap = React.useMemo(() => {
         if (loading) return [];
@@ -136,12 +117,6 @@ export default function ScreenerPage() {
     const trendingCryptos = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.volume24h - a.volume24h), [dataWithMarketCap]);
     const topGainers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => b.change24h - a.change24h), [dataWithMarketCap]);
     const topLosers = React.useMemo(() => [...dataWithMarketCap].sort((a, b) => a.change24h - b.change24h), [dataWithMarketCap]);
-    const aiScreenedCryptos = React.useMemo(() => {
-        if (aiFilteredIds === null) return null; // Distinguish between initial state and empty results
-        const filteredSet = new Set(aiFilteredIds);
-        return dataWithMarketCap.filter(c => filteredSet.has(c.id));
-    }, [aiFilteredIds, dataWithMarketCap]);
-
 
     const renderList = (data: (CryptoCurrency & { marketCap: number })[]) => {
       if (data.length === 0) {
@@ -162,23 +137,6 @@ export default function ScreenerPage() {
 
     const currentList = React.useMemo(() => {
       switch (activeTab) {
-        case 'AI': 
-          if (aiScreenedCryptos === null) {
-            return (
-              <div className="flex items-center justify-center h-48 text-muted-foreground">
-                Run the AI screener to see results.
-              </div>
-            );
-          }
-          if (aiScreenedCryptos.length === 0) {
-            return (
-              <div>
-                <p className="text-center text-muted-foreground p-4">No results found. Displaying sample data:</p>
-                {renderList(allCryptos.slice(0, 5))}
-              </div>
-            );
-          }
-          return renderList(aiScreenedCryptos);
         case 'Trending': return renderList(trendingCryptos);
         case 'Top Gainers': return renderList(topGainers);
         case 'Top Losers': return renderList(topLosers);
@@ -186,7 +144,7 @@ export default function ScreenerPage() {
         default:
           return renderList(allCryptos);
       }
-    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiScreenedCryptos]);
+    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers]);
     
 
     return (
@@ -194,51 +152,15 @@ export default function ScreenerPage() {
             <Header />
             <main className="flex-1 overflow-y-auto pb-20">
               <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <Tabs value={activeTab} onValueChange={(value) => {
-                  setActiveTab(value);
-                  if (value !== 'AI') {
-                    setAiFilteredIds(null); // Clear AI results when switching tabs
-                  }
-                }} className="w-full">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="border-b">
                       <TabsList className="p-0 h-auto bg-transparent m-4">
-                        <TabsTrigger value="AI" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">AI</TabsTrigger>
                         <TabsTrigger value="All" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">All</TabsTrigger>
                         <TabsTrigger value="Trending" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Trending</TabsTrigger>
                         <TabsTrigger value="Top Gainers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Gainers</TabsTrigger>
                         <TabsTrigger value="Top Losers" className="text-sm data-[state=active]:bg-muted data-[state=active]:text-primary">Top Losers</TabsTrigger>
                       </TabsList>
                     </div>
-
-                    <TabsContent value="AI" className="m-0">
-                      <div className="p-4 space-y-4 border-b">
-                          <Card className="bg-gradient-to-br from-primary/10 to-background">
-                              <CardContent className="p-4 space-y-4">
-                                  <div className="flex items-center gap-2">
-                                      <Sparkles className="w-6 h-6 text-primary"/>
-                                      <h2 className="text-lg font-semibold">AI Powered Screener</h2>
-                                  </div>
-                                  <Textarea 
-                                      placeholder="e.g., 'Show me AI coins with high 24h volume'"
-                                      value={prompt}
-                                      onChange={(e) => setPrompt(e.target.value)}
-                                      className="bg-background/50"
-                                  />
-                                  <div className="flex flex-wrap gap-2">
-                                      {examplePrompts.map((p, i) => (
-                                          <Button key={i} variant="outline" size="sm" onClick={() => setPrompt(p)}>
-                                              {p}
-                                          </Button>
-                                      ))}
-                                  </div>
-                                  <Button onClick={handleRunScreener} disabled={isAiLoading || !prompt} className="w-full">
-                                      <Wand2 className="w-4 h-4 mr-2" />
-                                      {isAiLoading ? 'Analyzing...' : 'Run Screener'}
-                                  </Button>
-                              </CardContent>
-                          </Card>
-                      </div>
-                    </TabsContent>
                     
                     <div className="p-4 hidden md:flex text-sm font-medium text-muted-foreground border-b">
                         <div className="w-8">#</div>
@@ -248,7 +170,7 @@ export default function ScreenerPage() {
                         <div className="w-10"></div>
                     </div>
 
-                    {(loading || isAiLoading) ? <ScreenerListSkeleton /> : (
+                    {loading ? <ScreenerListSkeleton /> : (
                       <TabsContent value={activeTab} className="m-0">
                         {currentList}
                       </TabsContent>
@@ -261,5 +183,3 @@ export default function ScreenerPage() {
         </div>
     );
 }
-
-    
