@@ -15,6 +15,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 
 const ScreenerListItem = ({
   crypto,
@@ -101,13 +102,15 @@ const MemoizedScreenerListItem = React.memo(ScreenerListItem);
 export default function ScreenerPage() {
     const { marketData, loading } = useMarketData();
     const [activeTab, setActiveTab] = React.useState('AI Powered');
+    const [chatInput, setChatInput] = React.useState('');
+    const [aiPoweredList, setAiPoweredList] = React.useState<(CryptoCurrency & { marketCap: number })[] | null>(null);
+    const [activePrompt, setActivePrompt] = React.useState<string | null>(null);
     
     const dataWithMarketCap = React.useMemo(() => {
         if (loading) return [];
         return marketData
             .filter(c => c.assetType !== 'Futures')
             .map(crypto => {
-                // A more stable way to calculate market cap if circulating_supply is not directly available
                 const mockCirculatingSupply = (crypto.volume24h / crypto.price) * 10;
                 const marketCap = crypto.price * (isNaN(mockCirculatingSupply) ? 1000000 : mockCirculatingSupply) ;
                 return { ...crypto, marketCap: isNaN(marketCap) ? 0 : marketCap };
@@ -123,6 +126,24 @@ export default function ScreenerPage() {
         const ids = ['bitcoin', 'ethereum', 'solana', 'render-token', 'fetch-ai', 'the-graph'];
         return dataWithMarketCap.filter(c => ids.includes(c.id));
     }, [dataWithMarketCap]);
+
+    const handlePrompt = (prompt: string) => {
+        setActivePrompt(prompt);
+        if (prompt.toLowerCase().includes('gaining')) {
+            setAiPoweredList(topGainers);
+        } else if (prompt.toLowerCase().includes('top crypto')) {
+            setAiPoweredList(allCryptos.slice(0, 10)); // Show top 10
+        } else {
+            setAiPoweredList(null);
+        }
+    };
+
+    const handleChatSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (chatInput.trim()) {
+            handlePrompt(chatInput);
+        }
+    };
 
     const renderList = (data: (CryptoCurrency & { marketCap: number })[]) => {
       if (data.length === 0) {
@@ -146,19 +167,40 @@ export default function ScreenerPage() {
         case 'Trending': return renderList(trendingCryptos);
         case 'Top Gainers': return renderList(topGainers);
         case 'Top Losers': return renderList(topLosers);
-        case 'AI Powered': return renderList(aiScreenedCryptos);
-        case 'All':
+        case 'All': return renderList(allCryptos);
+        case 'AI Powered':
+            return (
+                <div className="p-4 space-y-4">
+                    <Card className="bg-muted/30">
+                        <CardContent className="p-4 space-y-4">
+                            <form onSubmit={handleChatSubmit} className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    placeholder="Ask AI for a custom screener..."
+                                    className="pl-10 h-11"
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                />
+                            </form>
+                            <div className="flex flex-wrap gap-2">
+                                <Button variant={activePrompt === 'Top gaining cryptos' ? 'default' : 'outline'} size="sm" onClick={() => handlePrompt('Top gaining cryptos')}>Top gaining cryptos</Button>
+                                <Button variant={activePrompt === 'Top crypto' ? 'default' : 'outline'} size="sm" onClick={() => handlePrompt('Top crypto')}>Top crypto</Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    {aiPoweredList && renderList(aiPoweredList)}
+                </div>
+            );
         default:
           return renderList(allCryptos);
       }
-    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiScreenedCryptos]);
-    
+    }, [activeTab, allCryptos, trendingCryptos, topGainers, topLosers, aiPoweredList, chatInput, activePrompt]);
 
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header />
             <main className="flex-1 overflow-y-auto pb-20">
-              <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="container mx-auto max-w-7xl px-0 sm:px-6 lg:px-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="border-b">
                       <ScrollArea className="w-full whitespace-nowrap">
@@ -194,3 +236,5 @@ export default function ScreenerPage() {
         </div>
     );
 }
+
+    
